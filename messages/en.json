@@ -1,0 +1,48 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "continue": "Continue",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "search": "Search",
+    "clear": "Clear",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "noResults": "No results found",
+    "copied": "Copied!",
+    "poweredBy": "Powered by GAB"
+  },
+  "authForm": {
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "signIn": "Sign In",
+    "success": "Signed in successfully",
+    "loginFailed": "Invalid credentials. Please try again.",
+    "unexpected": "An unexpected error occurred."
+  },
+  "sidebar": {
+    "mainNavigation": "Main navigation",
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar",
+    "collapse": "Collapse",
+    "navigationMenu": "Navigation menu"
+  },
+  "navbar": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode",
+    "lightMode": "Light mode",
+    "darkMode": "Dark mode",
+    "logout": "Logout"
+  }
+}
