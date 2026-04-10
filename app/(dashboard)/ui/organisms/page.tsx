@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Badge, Text } from '@/components/ui/atoms';
+import { ClipboardEdit, BarChart3, FileSearch, Shield } from 'lucide-react';
+import { Badge, Button, Text, SelectionCard } from '@/components/ui/atoms';
 import { ShowcaseLayout } from '../_components/ShowcaseLayout';
-import { type Column } from '@/components/ui/molecules';
+import { type Column, ProcessingChecklist } from '@/components/ui/molecules';
 import { AuthForm } from '@/components/ui/organisms/AuthForm';
 import { DataGrid } from '@/components/ui/organisms/DataGrid';
 import { ChartCard } from '@/components/ui/organisms/ChartCard';
@@ -15,6 +16,7 @@ import { ChildTable } from '@/components/ui/organisms/ChildTable';
 import type { ChildTableConfig } from '@/components/ui/organisms/ChildTable';
 import { FlexibleInquiry, type FilterCondition, type InquiryField } from '@/components/ui/organisms/FlexibleInquiry';
 import { Footer } from '@/components/ui/organisms/Footer';
+import { FullscreenWizard, useWizard, type WizardStepConfig } from '@/components/ui/organisms/FullscreenWizard';
 import { ComponentDemo, Section } from '../_components/ComponentDemo';
 
 export default function OrganismsPage() {
@@ -22,7 +24,8 @@ export default function OrganismsPage() {
     <ShowcaseLayout>
       <div className="space-y-12">
 
-      <Section title="Organisms" count={7}>
+      <Section title="Organisms" count={8}>
+        <FullscreenWizardDemo />
         <AuthFormDemo />
         <ChildTableDemo />
         <DataGridDemo />
@@ -39,6 +42,108 @@ export default function OrganismsPage() {
       </Section>
       </div>
     </ShowcaseLayout>
+  );
+}
+
+/* ---------- FullscreenWizard ---------- */
+
+function WizardStepContent() {
+  const { next } = useWizard();
+  const [role, setRole] = useState<string | null>(null);
+
+  const roles = [
+    { id: 'admin', icon: ClipboardEdit, title: 'Grant Administrator', description: 'I manage day-to-day compliance and reporting.' },
+    { id: 'finance', icon: BarChart3, title: 'Finance Director', description: 'I oversee budgets and financial compliance.' },
+    { id: 'auditor', icon: FileSearch, title: 'Auditor', description: 'I review grant activity and verify transactions.' },
+    { id: 'readonly', icon: Shield, title: 'View-only', description: 'I just need read access to monitor progress.' },
+  ];
+
+  return (
+    <>
+      <div role="radiogroup" aria-label="Select your role" className="grid grid-cols-2 gap-3">
+        {roles.map((r) => (
+          <SelectionCard
+            key={r.id}
+            icon={r.icon}
+            title={r.title}
+            description={r.description}
+            selected={role === r.id}
+            onSelect={() => setRole(r.id)}
+          />
+        ))}
+      </div>
+      <Button className="w-full" disabled={!role} onClick={next}>
+        Continue
+      </Button>
+    </>
+  );
+}
+
+function ProcessingStepContent() {
+  return (
+    <ProcessingChecklist
+      steps={[
+        { label: 'Confirm award details', status: 'completed' },
+        { label: 'Map budget categories', status: 'in-progress' },
+        { label: 'Check compliance conditions', status: 'pending' },
+        { label: 'Set reporting deadlines', status: 'pending' },
+      ]}
+    />
+  );
+}
+
+function FullscreenWizardDemo() {
+  const [open, setOpen] = useState(false);
+
+  const steps: WizardStepConfig[] = [
+    {
+      cardProps: {
+        title: "Hi Alex, let's get you set up",
+        stepLabel: 'Step 1 of 2',
+        description: 'What best describes your role in grant management?',
+      },
+      content: <WizardStepContent />,
+    },
+    {
+      cardProps: {
+        title: 'Setting up your workspace…',
+        stepLabel: 'Step 2 of 2',
+        description: 'We\'re configuring everything based on your selections.',
+      },
+      content: <ProcessingStepContent />,
+    },
+  ];
+
+  return (
+    <ComponentDemo
+      name="FullscreenWizard"
+      description="Full-screen multi-step wizard orchestrator with WizardLayout + WizardCard + WizardContext."
+      props={`interface FullscreenWizardProps {
+  steps: WizardStepConfig[];
+  onComplete?: () => void;
+  initialStep?: number;
+  productName?: string;
+}`}
+    >
+      <div className="space-y-4">
+        <Button onClick={() => setOpen(true)}>Launch Wizard Demo</Button>
+        {open && (
+          <div className="fixed inset-0 z-50">
+            <FullscreenWizard
+              productName="Grants Management"
+              steps={steps}
+              onComplete={() => setOpen(false)}
+            />
+            <button
+              onClick={() => setOpen(false)}
+              className="fixed top-4 right-4 z-[60] text-xs text-text-secondary hover:text-foreground bg-card/80 backdrop-blur-sm px-3 py-1.5 rounded border border-border shadow-soft"
+            >
+              Close Demo ×
+            </button>
+          </div>
+        )}
+      </div>
+    </ComponentDemo>
   );
 }
 

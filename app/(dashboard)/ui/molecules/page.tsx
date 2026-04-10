@@ -51,6 +51,10 @@ import {
   FeatureCard,
   FilePreviewCard,
   CheckboxTree,
+  WizardCard,
+  ReviewTable,
+  UploadSlot,
+  ProcessingChecklist,
 } from '@/components/ui/molecules';
 import { useToast } from '@/providers/toast-provider';
 import { ComponentDemo, Section } from '../_components/ComponentDemo';
@@ -108,6 +112,13 @@ export default function MoleculesPage() {
         <TimelineDemo />
         <ToolbarDemo />
         <ResultDemo />
+      </Section>
+
+      <Section title="Wizard Components" count={4} description="Molecules for fullscreen form wizard flows.">
+        <WizardCardDemo />
+        <ReviewTableDemo />
+        <UploadSlotDemo />
+        <ProcessingChecklistDemo />
       </Section>
 
       <Section title="Content Components" count={5} description="Heroes, banners, file previews, and hierarchical selection.">
@@ -1333,6 +1344,142 @@ interface TreeNode { id: string; label: string; children?: TreeNode[]; disabled?
           expandedByDefault
         />
         <Text size="xs" color="muted">Selected: {selected.length > 0 ? selected.join(', ') : 'none'}</Text>
+      </div>
+    </ComponentDemo>
+  );
+}
+
+/* ---------- Wizard Components ---------- */
+
+function WizardCardDemo() {
+  return (
+    <ComponentDemo
+      name="WizardCard"
+      description="Elevated content card for fullscreen wizard steps with header, content, actions, and optional footer."
+      props={`interface WizardCardProps {
+  stepLabel?: string;
+  title: string;
+  description?: string;
+  children: ReactNode;
+  actions?: ReactNode;
+  footer?: ReactNode;
+}`}
+    >
+      <div className="max-w-[570px]">
+        <WizardCard
+          stepLabel="Step 1 of 4"
+          title="Hi Alex, let's get you set up"
+          description="What best describes your role in grant management?"
+          actions={<Button className="w-full">Continue</Button>}
+          footer={<Text size="sm" color="muted">Have questions? Contact your administrator or call our support team.</Text>}
+        >
+          <div className="space-y-3">
+            <div className="border border-primary bg-primary-light rounded p-4">
+              <Text weight="semibold">Grant Administrator</Text>
+              <Text size="xs" color="muted">I manage day-to-day compliance and reporting.</Text>
+            </div>
+            <div className="border border-border rounded p-4">
+              <Text weight="semibold">Finance Director</Text>
+              <Text size="xs" color="muted">I oversee budgets and financial compliance.</Text>
+            </div>
+          </div>
+        </WizardCard>
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function ReviewTableDemo() {
+  return (
+    <ComponentDemo
+      name="ReviewTable"
+      description="Collapsible data review section with optional warning rows and AI confidence Badge chips."
+      props={`interface ReviewTableProps {
+  title: string;
+  columns: Array<{ key: string; label: string; align?: 'left' | 'center' | 'right' }>;
+  rows: Array<{ cells: Record<string, string | number>; warning?: boolean; confidence?: number }>;
+  defaultOpen?: boolean;
+}`}
+    >
+      <div className="space-y-4 max-w-2xl">
+        <ReviewTable
+          title="Award Details"
+          columns={[
+            { key: 'field', label: 'Field' },
+            { key: 'value', label: 'Value' },
+          ]}
+          rows={[
+            { cells: { field: 'Award Name', value: 'Community Development Block Grant (CDBG)' }, confidence: 97 },
+            { cells: { field: 'CFDA Number', value: '14.218' }, confidence: 95 },
+            { cells: { field: 'Award Amount', value: '$1,250,000' }, confidence: 92 },
+            { cells: { field: 'Performance Period', value: 'Needs Review' }, warning: true, confidence: 72 },
+          ]}
+        />
+        <ReviewTable
+          title="Budget Categories"
+          columns={[
+            { key: 'category', label: 'Category' },
+            { key: 'amount', label: 'Amount', align: 'right' },
+          ]}
+          rows={[
+            { cells: { category: 'Personnel', amount: '$450,000' }, confidence: 98 },
+            { cells: { category: 'Contractual', amount: '$320,000' }, confidence: 91 },
+            { cells: { category: 'Equipment', amount: '$80,000' }, confidence: 88, warning: true },
+          ]}
+          defaultOpen={false}
+        />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function UploadSlotDemo() {
+  return (
+    <ComponentDemo
+      name="UploadSlot"
+      description="Document upload slot with empty (upload button) and filled (file card with delete) states."
+      props={`interface UploadSlotProps {
+  label: string;
+  file?: { title: string; filename: string; dueDate?: string };
+  onUpload?: () => void;
+  onDelete?: () => void;
+}`}
+    >
+      <div className="space-y-6 max-w-md">
+        <UploadSlot label="Quarter 1" onUpload={() => {}} />
+        <UploadSlot
+          label="Quarter 2"
+          file={{
+            title: 'Federal Financial Report (SF-425)',
+            filename: 'sf-report-425-q2.docx',
+            dueDate: 'Due: Jul 30, 2026',
+          }}
+          onDelete={() => {}}
+        />
+        <UploadSlot label="Quarter 3" onUpload={() => {}} />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function ProcessingChecklistDemo() {
+  return (
+    <ComponentDemo
+      name="ProcessingChecklist"
+      description="Vertical checklist wrapping ProcessingStep atoms for async wizard operations."
+      props={`interface ProcessingChecklistProps {
+  steps: Array<{ label: string; status: 'completed' | 'in-progress' | 'pending' }>;
+}`}
+    >
+      <div className="max-w-sm">
+        <ProcessingChecklist
+          steps={[
+            { label: 'Confirm award details', status: 'completed' },
+            { label: 'Map budget categories', status: 'completed' },
+            { label: 'Check compliance conditions', status: 'in-progress' },
+            { label: 'Set reporting deadlines', status: 'pending' },
+          ]}
+        />
       </div>
     </ComponentDemo>
   );

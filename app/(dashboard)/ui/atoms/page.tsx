@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, Search, Bold, Italic, Underline, Plus, Trash2, Settings, ChevronRight, Tag } from 'lucide-react';
+import { Mail, Search, Bold, Italic, Underline, Plus, Trash2, Settings, ChevronRight, Tag, ClipboardEdit, BarChart3, FileSearch, Shield } from 'lucide-react';
 import { ShowcaseLayout } from '../_components/ShowcaseLayout';
 import {
   Button,
@@ -31,6 +31,8 @@ import {
   UILink,
   NumberInput,
   AccountNumberInput,
+  SelectionCard,
+  ProcessingStep,
 } from '@/components/ui/atoms';
 import { ComponentDemo, Section } from '../_components/ComponentDemo';
 
@@ -70,6 +72,11 @@ export default function AtomsPage() {
 
       <Section title="Specialized Inputs" count={1}>
         <AccountNumberInputDemo />
+      </Section>
+
+      <Section title="Wizard Primitives" count={2}>
+        <SelectionCardDemo />
+        <ProcessingStepDemo />
       </Section>
 
       <Section title="Layout & Misc" count={6}>
@@ -605,7 +612,7 @@ function AvatarDemo() {
           </div>
         ))}
         <div className="flex flex-col items-center gap-2">
-          <Avatar src="/icon.svg" fallback="JD" alt="App icon" />
+          <Avatar src="/brand/icon.svg" fallback="U" alt="App icon" />
           <Text size="xs" color="muted">with image</Text>
         </div>
       </div>
@@ -857,6 +864,67 @@ function AccountNumberInputDemo() {
           <Text size="sm" weight="medium" color="muted" className="mb-2">Disabled</Text>
           <AccountNumberInput mask="##-####-##" disabled />
         </div>
+      </div>
+    </ComponentDemo>
+  );
+}
+
+/* ---------- Wizard Primitives ---------- */
+
+function SelectionCardDemo() {
+  const [role, setRole] = useState<string | null>('admin');
+
+  const roles = [
+    { id: 'admin', icon: ClipboardEdit, title: 'Grant Administrator', description: 'I manage day-to-day compliance and reporting.' },
+    { id: 'finance', icon: BarChart3, title: 'Finance Director', description: 'I oversee budgets and financial compliance.' },
+    { id: 'auditor', icon: FileSearch, title: 'Auditor', description: 'I review grant activity and verify transactions.' },
+    { id: 'readonly', icon: Shield, title: 'View-only', description: 'I just need read access to monitor progress.' },
+  ];
+
+  return (
+    <ComponentDemo
+      name="SelectionCard"
+      description="A selectable card primitive for option-picking UIs like role selection in onboarding wizards."
+      props={`interface SelectionCardProps {
+  icon?: ElementType;
+  title: string;
+  description?: string;
+  selected?: boolean;
+  onSelect?: () => void;
+  disabled?: boolean;
+}`}
+    >
+      <div role="radiogroup" aria-label="Select your role" className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
+        {roles.map((r) => (
+          <SelectionCard
+            key={r.id}
+            icon={r.icon}
+            title={r.title}
+            description={r.description}
+            selected={role === r.id}
+            onSelect={() => setRole(r.id)}
+          />
+        ))}
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function ProcessingStepDemo() {
+  return (
+    <ComponentDemo
+      name="ProcessingStep"
+      description="A single line item in an async processing checklist showing completed, in-progress, or pending status."
+      props={`interface ProcessingStepProps {
+  status: 'completed' | 'in-progress' | 'pending';
+  label: string;
+}`}
+    >
+      <div className="flex flex-col gap-4 max-w-sm">
+        <ProcessingStep status="completed" label="Confirm award details" />
+        <ProcessingStep status="in-progress" label="Map budget categories" />
+        <ProcessingStep status="pending" label="Check compliance conditions" />
+        <ProcessingStep status="pending" label="Set reporting deadlines" />
       </div>
     </ComponentDemo>
   );

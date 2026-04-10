@@ -5,7 +5,7 @@ import { Logo } from '@/components/ui/organisms/Logo';
 import { UILink } from '@/components/ui/atoms/Link';
 import { appConfig } from '@/config/app.config';
 
-const DEFAULT_HERO = process.env.NEXT_PUBLIC_LOGIN_HERO_IMAGE || '/login.png';
+const DEFAULT_HERO = process.env.NEXT_PUBLIC_LOGIN_HERO_IMAGE || '/brand/login.png';
 
 export interface AuthLayoutProps {
   children: React.ReactNode;

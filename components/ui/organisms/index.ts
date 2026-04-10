@@ -11,3 +11,4 @@ export { ChildTable, type ChildTableProps, ChildTableEmbedded, type ChildTableEm
 export type { ChildTableConfig, ChildTableColumn, ChildTableRow, ColumnType } from './ChildTable';
 export { FlexibleInquiry, type FlexibleInquiryProps, type InquiryField, type FilterCondition } from './FlexibleInquiry';
 export { Footer, type FooterProps, type FooterSection, type FooterLink } from './Footer';
+export { FullscreenWizard, useWizard, type FullscreenWizardProps, type WizardStepConfig } from './FullscreenWizard';

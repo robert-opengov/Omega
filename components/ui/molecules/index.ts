@@ -35,3 +35,7 @@ export { Hero, type HeroProps, type HeroAction } from './Hero';
 export { FeatureCard, type FeatureCardProps } from './FeatureCard';
 export { FilePreviewCard, type FilePreviewCardProps } from './FilePreviewCard';
 export { CheckboxTree, type CheckboxTreeProps, type TreeNode } from './CheckboxTree';
+export { WizardCard, type WizardCardProps } from './WizardCard';
+export { ReviewTable, type ReviewTableProps, type ReviewTableColumn, type ReviewTableRow } from './ReviewTable';
+export { UploadSlot, type UploadSlotProps, type UploadSlotFile } from './UploadSlot';
+export { ProcessingChecklist, type ProcessingChecklistProps, type ProcessingChecklistStep } from './ProcessingChecklist';

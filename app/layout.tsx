@@ -21,6 +21,12 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: 'GAB Verticals Boilerplate',
   description: 'AI-ready foundation for Government Apps',
+  icons: {
+    icon: [
+      { url: '/brand/favicon.ico', sizes: 'any' },
+      { url: '/brand/icon.svg', type: 'image/svg+xml' },
+    ],
+  },
 };
 
 function buildThemeStyle(): Record<string, string> {
