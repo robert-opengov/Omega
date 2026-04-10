@@ -2,14 +2,34 @@
 
 import { cn } from '@/lib/utils';
 import { Button, type ButtonProps } from '@/components/ui/atoms';
+import { CheckCircle, AlertTriangle, XCircle, Info, Inbox } from 'lucide-react';
 import type { ElementType, ReactNode } from 'react';
 
-const statusStyles = {
+type Status = 'empty' | 'error' | 'success' | 'warning' | 'info';
+type Size = 'small' | 'medium' | 'large' | 'xlarge';
+
+const statusStyles: Record<Status, { bg: string; icon: string }> = {
   empty: { bg: 'bg-muted', icon: 'text-muted-foreground' },
   error: { bg: 'bg-danger-light', icon: 'text-danger-text' },
   success: { bg: 'bg-success-light', icon: 'text-success-text' },
+  warning: { bg: 'bg-warning-light', icon: 'text-warning-text' },
   info: { bg: 'bg-info-light', icon: 'text-info-text' },
-} as const;
+};
+
+const defaultIcons: Record<Status, ElementType> = {
+  empty: Inbox,
+  error: XCircle,
+  success: CheckCircle,
+  warning: AlertTriangle,
+  info: Info,
+};
+
+const sizeConfig: Record<Size, { container: string; iconBox: string; iconSize: string; title: string; desc: string }> = {
+  small: { container: 'py-6', iconBox: 'h-10 w-10', iconSize: 'h-5 w-5', title: 'text-sm', desc: 'text-xs' },
+  medium: { container: 'py-12', iconBox: 'h-16 w-16', iconSize: 'h-8 w-8', title: 'text-lg', desc: 'text-sm' },
+  large: { container: 'py-16', iconBox: 'h-20 w-20', iconSize: 'h-10 w-10', title: 'text-xl', desc: 'text-base' },
+  xlarge: { container: 'py-20', iconBox: 'h-24 w-24', iconSize: 'h-12 w-12', title: 'text-2xl', desc: 'text-lg' },
+};
 
 export interface ResultAction {
   label: string;
@@ -18,69 +38,56 @@ export interface ResultAction {
 }
 
 export interface EmptyStateProps {
-  /** Large icon displayed above the title. */
   icon?: ElementType;
   title: string;
-  /** @alias subTitle — description text below the title. */
   description?: string;
-  /** Alias for description, matching OpenGov Result API. */
   subTitle?: string;
-  /** Semantic status that tints the icon background. @default 'empty' */
-  status?: 'empty' | 'error' | 'success' | 'info';
-  /** Optional custom illustration node (e.g. SVG) rendered instead of the icon circle. */
+  status?: Status;
+  size?: Size;
   illustration?: ReactNode;
-  /** Single action button (backward compatible). */
   action?: { label: string; onClick: () => void };
-  /** Multiple action buttons — takes precedence over `action`. */
   actions?: ResultAction[];
+  placeholderContainer?: boolean;
   className?: string;
 }
 
-/**
- * A centered placeholder for empty, error, success, and informational states.
- *
- * Backward compatible — existing `action` prop still works. The `status`
- * prop tints the icon background to match the semantic intent, aligning
- * with OpenGov's Result component pattern.
- *
- * @example
- * <EmptyState icon={InboxIcon} title="No messages" description="You're all caught up!" />
- *
- * @example
- * <EmptyState
- *   status="error"
- *   icon={AlertTriangle}
- *   title="Something went wrong"
- *   subTitle="Please try again later."
- *   actions={[{ label: 'Retry', onClick: retry }, { label: 'Go Back', onClick: goBack, variant: 'outline' }]}
- * />
- */
 export function EmptyState({
-  icon: Icon,
+  icon,
   title,
   description,
   subTitle,
   status = 'empty',
+  size = 'medium',
   illustration,
   action,
   actions,
+  placeholderContainer = false,
   className,
-}: EmptyStateProps) {
+}: Readonly<EmptyStateProps>) {
   const desc = subTitle ?? description;
   const styles = statusStyles[status];
+  const sizing = sizeConfig[size];
+  const Icon = icon ?? defaultIcons[status];
   const allActions = actions ?? (action ? [{ label: action.label, onClick: action.onClick }] : []);
 
   return (
-    <div className={cn('flex flex-col items-center justify-center py-12 text-center', className)}>
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center text-center',
+        sizing.container,
+        placeholderContainer && 'border-2 border-dashed border-border rounded-lg bg-muted/30',
+        className,
+      )}
+    >
       {illustration ? (
         <div className="mb-4" aria-hidden="true">{illustration}</div>
-      ) : Icon ? (
-        <div className={cn('mb-4 flex h-16 w-16 items-center justify-center rounded-full', styles.bg)} aria-hidden="true">
-          <Icon className={cn('h-8 w-8', styles.icon)} />
+      ) : (
+        <div className={cn('mb-4 flex items-center justify-center rounded-full', sizing.iconBox, styles.bg)} aria-hidden="true">
+          <Icon className={cn(sizing.iconSize, styles.icon)} />
         </div>
-      ) : null}
-      <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-      {desc && <p className="mt-1 text-sm text-muted-foreground max-w-sm">{desc}</p>}
+      )}
+      <h3 className={cn('font-semibold text-foreground', sizing.title)}>{title}</h3>
+      {desc && <p className={cn('mt-1 text-muted-foreground max-w-sm', sizing.desc)}>{desc}</p>}
       {allActions.length > 0 && (
         <div className="mt-4 flex items-center gap-2">
           {allActions.map((a, i) => (
@@ -94,7 +101,6 @@ export function EmptyState({
   );
 }
 
-/** Alias matching OpenGov's Result component API. */
 export const Result = EmptyState;
 
 export default EmptyState;

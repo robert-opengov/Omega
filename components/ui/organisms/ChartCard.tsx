@@ -18,16 +18,16 @@ import { cn } from '@/lib/utils';
  * so we compute actual color values here.
  */
 function useResolvedCssVars() {
-  const [vars, setVars] = useState({ card: '#f7f9fa', foreground: '#131517', border: '#d9dbdd', muted: '#616365' });
+  const [vars, setVars] = useState({ card: '#fafafa', foreground: '#212121', border: '#e0e0e0', muted: '#757575' });
 
   useEffect(() => {
     const root = document.documentElement;
     const computed = getComputedStyle(root);
     setVars({
-      card: computed.getPropertyValue('--card').trim() || '#f7f9fa',
-      foreground: computed.getPropertyValue('--foreground').trim() || '#131517',
-      border: computed.getPropertyValue('--border').trim() || '#d9dbdd',
-      muted: computed.getPropertyValue('--muted-foreground').trim() || '#616365',
+      card: computed.getPropertyValue('--card').trim() || '#fafafa',
+      foreground: computed.getPropertyValue('--foreground').trim() || '#212121',
+      border: computed.getPropertyValue('--border').trim() || '#e0e0e0',
+      muted: computed.getPropertyValue('--muted-foreground').trim() || '#757575',
     });
   }, []);
 
@@ -35,7 +35,7 @@ function useResolvedCssVars() {
 }
 
 /**
- * Read the 20-hue OpenGov visualization palette from CSS custom properties.
+ * Read the 20-hue CDS-37 visualization palette from CSS custom properties.
  * Falls back to a sensible subset if vars aren't available.
  */
 function useVizColors(): string[] {
@@ -79,7 +79,7 @@ export interface ChartCardProps {
 /**
  * A composable chart card built on Recharts + the Card molecule.
  *
- * Uses the OpenGov 20-hue visualization palette for pie slices and
+ * Uses the CDS-37 20-hue visualization palette for pie slices and
  * resolves CSS custom properties for dark-mode–safe tooltip styling.
  *
  * @example

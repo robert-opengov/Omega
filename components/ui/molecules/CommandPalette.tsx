@@ -25,7 +25,7 @@ export interface CommandPaletteProps {
  * A keyboard-driven command palette (⌘K style) for quick actions.
  *
  * Uses `bg-overlay` for the backdrop and `shadow-overlay` for the panel,
- * aligned with OpenGov popup DNA.
+ * aligned with CDS-37 pattern.
  *
  * @example
  * <CommandPalette open={open} onOpenChange={setOpen} items={commands} />
@@ -53,7 +53,7 @@ export function CommandPalette({ open, onOpenChange, items, placeholder = 'Searc
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[var(--z-overlay)] bg-overlay backdrop-blur-sm" />
         <Dialog.Content className={cn(
-          'fixed left-1/2 top-[20%] z-[var(--z-overlay)] -translate-x-1/2 w-[95vw] max-w-lg rounded-xl bg-card border border-border shadow-overlay overflow-hidden',
+          'fixed left-1/2 top-[20%] z-[var(--z-overlay)] -translate-x-1/2 w-[95vw] max-w-lg rounded bg-card border border-border shadow-overlay overflow-hidden',
         )}>
           <Dialog.Title className="sr-only">Command Palette</Dialog.Title>
           <Dialog.Description className="sr-only">Search and run commands</Dialog.Description>
@@ -81,7 +81,7 @@ export function CommandPalette({ open, onOpenChange, items, placeholder = 'Searc
                     role="option"
                     aria-selected={false}
                     onClick={() => handleSelect(item)}
-                    className="flex w-full items-center gap-3 rounded px-3 py-2.5 text-sm text-foreground hover:bg-muted focus-visible:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-all duration-300 ease-in-out"
+                    className="flex w-full items-center gap-3 rounded px-3 py-2.5 text-sm text-foreground hover:bg-action-hover-primary focus-visible:bg-action-hover-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-all duration-200 ease-in-out"
                   >
                     {Icon && <Icon className="h-4 w-4 text-muted-foreground shrink-0" />}
                     <div className="flex-1 text-left">

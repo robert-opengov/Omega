@@ -29,7 +29,7 @@ export interface AIPromptInputProps extends Omit<HTMLAttributes<HTMLDivElement>,
  * A chat prompt input with an auto-growing textarea, send button,
  * optional file attachment, and character counter.
  *
- * Submit on Enter (Shift+Enter for newline). Matches OpenGov's
+ * Submit on Enter (Shift+Enter for newline). Matches the CDS-37
  * AI Prompt Input component.
  *
  * @example
@@ -89,7 +89,7 @@ const AIPromptInput = forwardRef<HTMLTextAreaElement, AIPromptInputProps>(
       <div className={cn('flex flex-col gap-1', className)} {...props}>
         <div
           className={cn(
-            'flex items-end gap-2 rounded border border-border bg-background px-3 py-2 transition-all duration-300',
+            'flex items-end gap-2 rounded border border-border bg-background px-3 py-2 transition-all duration-200',
             'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring',
             disabled && 'opacity-50 cursor-not-allowed'
           )}
@@ -99,7 +99,7 @@ const AIPromptInput = forwardRef<HTMLTextAreaElement, AIPromptInputProps>(
               type="button"
               onClick={onAttach}
               disabled={disabled || loading}
-              className="flex items-center justify-center shrink-0 h-8 w-8 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors duration-300 disabled:opacity-50"
+              className="flex items-center justify-center shrink-0 h-8 w-8 rounded text-muted-foreground hover:text-foreground hover:bg-action-hover-primary transition-colors duration-200 disabled:opacity-50"
               aria-label="Attach file"
             >
               <Paperclip className="h-4 w-4" />
@@ -125,7 +125,7 @@ const AIPromptInput = forwardRef<HTMLTextAreaElement, AIPromptInputProps>(
             onClick={handleSubmit}
             disabled={isEmpty || loading || disabled || overLimit}
             className={cn(
-              'flex items-center justify-center shrink-0 h-8 w-8 rounded-full transition-all duration-300',
+              'flex items-center justify-center shrink-0 h-8 w-8 rounded-full transition-all duration-200',
               'bg-primary text-primary-foreground',
               'hover:shadow-[inset_0_1em_1em_-1em_hsl(var(--primary-h)_var(--primary-s)_calc(var(--primary-l)+15%)_/_0.7)]',
               'disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none'

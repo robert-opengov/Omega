@@ -18,6 +18,7 @@ export const publicPrefixes: string[] = [
 export const authOnlyRoutes: string[] = [
   '/login',
   '/register',
+  '/signup',
 ];
 
 /** The page to redirect unauthenticated users to */

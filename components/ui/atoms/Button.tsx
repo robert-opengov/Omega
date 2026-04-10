@@ -5,38 +5,29 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-/**
- * Button variant styles aligned with OpenGov Capital Design System DNA.
- *
- * Key visual differences from generic Tailwind buttons:
- * - **Inset box-shadow gradients** on primary/secondary/danger for subtle depth
- * - **`font-medium` (500)** instead of semibold — matches OpenGov `$font-weight-medium`
- * - **`duration-300`** transitions — matches OpenGov `$transition-natural`
- * - **Outline-based focus** with 2px offset — matches OpenGov `focus-default` mixin
- */
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 font-medium tracking-[0.0125em] transition-all duration-300 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none active:scale-[0.98]',
+  'inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50 disabled:cursor-not-allowed',
   {
     variants: {
       variant: {
         primary:
-          'bg-primary text-primary-foreground border border-primary/80 shadow-[inset_0_2em_1.8em_-1em_hsl(var(--primary-h)_var(--primary-s)_calc(var(--primary-l)+15%)_/_0.7)] hover:shadow-[inset_0_1em_1em_-1em_hsl(var(--primary-h)_var(--primary-s)_calc(var(--primary-l)+15%)_/_0.7)] active:shadow-inset-dark',
+          'bg-primary text-primary-foreground hover:bg-primary-dark',
         secondary:
-          'bg-background text-foreground border border-border shadow-[inset_0_-2em_1.8em_-1em_var(--muted)] hover:border-muted-foreground hover:shadow-[inset_0_-1em_1em_-1em_var(--muted)]',
+          'bg-background text-foreground border border-border hover:bg-action-hover-primary hover:border-primary/30',
         outline:
-          'bg-background hover:bg-muted text-foreground border border-border shadow-above',
+          'bg-background text-foreground border border-border hover:bg-action-hover-primary',
         danger:
-          'bg-destructive text-destructive-foreground border border-destructive/80 shadow-[inset_0_2em_1.8em_-1em_hsl(var(--danger-h)_var(--danger-s)_calc(var(--danger-l)+10%)_/_0.5)] hover:shadow-[inset_0_1em_1em_-1em_hsl(var(--danger-h)_var(--danger-s)_calc(var(--danger-l)+10%)_/_0.5)] active:shadow-inset-dark',
+          'bg-destructive text-destructive-foreground hover:brightness-90',
         ghost:
-          'bg-transparent hover:bg-muted text-muted-foreground hover:text-foreground',
+          'bg-transparent hover:bg-action-hover-primary text-muted-foreground hover:text-foreground',
         link:
-          'bg-transparent text-primary hover:text-primary/80 underline-offset-4 hover:underline p-0 shadow-none',
+          'bg-transparent text-primary hover:text-primary/80 underline-offset-4 hover:underline p-0',
       },
       size: {
-        sm: 'h-8 px-3 text-xs rounded',
-        md: 'h-10 px-4 text-sm rounded',
-        lg: 'h-12 px-6 text-base rounded-md',
-        icon: 'h-10 w-10 p-0 rounded',
+        sm: 'h-6 px-2 text-xs rounded',
+        md: 'h-8 px-3 text-sm rounded',
+        lg: 'h-10 px-4 text-base rounded',
+        icon: 'h-8 w-8 p-0 rounded',
       },
       fullWidth: {
         true: 'w-full',
@@ -76,11 +67,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, Va
 }
 
 /**
- * A highly customizable, accessible button component aligned with
- * OpenGov Capital Design System visual DNA.
- *
- * Features inset box-shadow gradients for depth, OpenGov-style focus
- * outlines, and full dark/light mode support via HSL design tokens.
+ * Accessible button component aligned with CDS-37 design system.
  *
  * @example
  * <Button>Submit</Button>

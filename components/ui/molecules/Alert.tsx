@@ -33,7 +33,7 @@ export interface AlertProps extends VariantProps<typeof alertVariants> {
 }
 
 /**
- * A semantic alert banner following OpenGov banner DNA:
+ * A semantic alert banner following CDS-37 pattern:
  * `*-light` background, `*-light-border` border, `*-text` foreground.
  *
  * @example
@@ -49,7 +49,7 @@ export function Alert({ variant = 'info', title, children, dismissible, classNam
 
   return (
     <div className={cn(alertVariants({ variant }), className)} role="alert">
-      <Icon className="h-5 w-5 flex-shrink-0 mt-0.5" />
+      <Icon className="h-8 w-8 flex-shrink-0" />
       <div className="flex-1">
         {title && <p className="font-semibold mb-1">{title}</p>}
         <div className="text-sm">{children}</div>
@@ -58,7 +58,7 @@ export function Alert({ variant = 'info', title, children, dismissible, classNam
         <button
           onClick={() => { setVisible(false); onDismiss?.(); }}
           aria-label="Dismiss alert"
-          className="p-1 rounded hover:bg-dismiss-hover transition-all duration-300 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          className="p-1 rounded hover:bg-dismiss-hover transition-all duration-200 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
           <X className="h-4 w-4" />
         </button>

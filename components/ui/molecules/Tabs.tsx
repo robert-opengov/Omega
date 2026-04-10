@@ -8,7 +8,8 @@ import type { ComponentPropsWithoutRef } from 'react';
 export const Tabs = TabsPrimitive.Root;
 
 /**
- * Horizontal tab list container with a muted background pill.
+ * CDS-37 tab list: transparent background with bottom border.
+ * Active tab gets a 2px primary underline.
  *
  * @example
  * <Tabs defaultValue="tab1">
@@ -22,24 +23,25 @@ export const Tabs = TabsPrimitive.Root;
 export function TabsList({ className, ...props }: ComponentPropsWithoutRef<typeof TabsPrimitive.List>) {
   return (
     <TabsPrimitive.List
-      className={cn('inline-flex items-center gap-1 rounded-lg bg-muted p-1', className)}
+      className={cn('inline-flex items-center gap-0 border-b border-border', className)}
       {...props}
     />
   );
 }
 
 /**
- * Individual tab trigger. Uses `shadow-above` on the active tab for
- * subtle depth aligned with OpenGov tab DNA.
+ * CDS-37 tab trigger with bottom-border active indicator.
+ * Active state uses a 2px primary-colored bottom border.
  */
 export function TabsTrigger({ className, ...props }: ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>) {
   return (
     <TabsPrimitive.Trigger
       className={cn(
-        'inline-flex items-center justify-center rounded px-3 py-1.5 text-sm font-medium transition-all duration-300 ease-in-out',
-        'text-muted-foreground hover:text-foreground',
-        'data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-above',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        'inline-flex items-center justify-center px-2 py-2 text-sm font-semibold transition-all duration-200 ease-in-out',
+        'border-b-[4px] border-transparent -mb-px rounded-t',
+        'text-text-secondary hover:text-text-primary hover:bg-action-hover-primary',
+        'data-[state=active]:text-primary-dark data-[state=active]:border-primary',
+        'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring focus-visible:bg-action-hover-primary focus-visible:rounded',
         className
       )}
       {...props}

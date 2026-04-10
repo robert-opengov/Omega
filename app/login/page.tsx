@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthForm } from '@/components/ui/organisms/AuthForm';
-import { Logo } from '@/components/ui/organisms/Logo';
+import { AuthLayout } from '@/components/ui/layouts/AuthLayout';
 import { useAuth } from '@/providers';
 import { Suspense } from 'react';
 
@@ -22,18 +22,15 @@ function LoginContent() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-background p-4">
-      <div className="w-full max-w-md mb-8 flex justify-center">
-        <Logo className="scale-125" />
-      </div>
+    <AuthLayout>
       <AuthForm onSubmit={handleLogin} />
-    </main>
+    </AuthLayout>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-background" />}>
+    <Suspense fallback={<div className="min-h-screen bg-muted" />}>
       <LoginContent />
     </Suspense>
   );

@@ -17,9 +17,9 @@
  *
  * ## OpenGov Capital Design System alignment
  *
- * Default colors are aligned with the OpenGov Capital Design System
- * (`@opengov/capital-style` v5.5.0) while preserving full HSL-based
- * dynamic theming with dark/light mode support.
+ * Default colors are aligned with the OpenGov CDS-37 design system
+ * (MUI-based) while preserving full HSL-based dynamic theming with
+ * dark/light mode support.
  */
 
 export interface AppTheme {
@@ -41,6 +41,24 @@ export interface AppTheme {
   inProgress: string;
 }
 
+/**
+ * Controls which chrome (navbar, sidebar, or both) is rendered around the
+ * main content area. Each mode maps to a Figma reference layout:
+ *
+ * - `navbar-sidebar` — Top navbar + left sidebar (GAB Horizontal)
+ * - `navbar-only`    — Full-width top navbar, no sidebar (PSP-style)
+ * - `sidebar-only`   — Left sidebar only, no top navbar
+ */
+export type LayoutMode = 'navbar-sidebar' | 'navbar-only' | 'sidebar-only';
+
+export interface AppLayout {
+  mode: LayoutMode;
+  /** Whether the top navbar is rendered. Defaults to `true`. */
+  showNavbar: boolean;
+  /** Whether the left sidebar is rendered. Defaults to `true`. */
+  showSidebar: boolean;
+}
+
 export interface AppFeatures {
   enableDarkMode: boolean;
   enableI18n: boolean;
@@ -51,25 +69,51 @@ export interface AppConfig {
   name: string;
   description: string;
   theme: AppTheme;
-  logo?: {
+  layout: AppLayout;
+  logo: {
     url?: string;
     alt?: string;
   };
   features: AppFeatures;
 }
 
+function deriveLayoutMode(navbar: boolean, sidebar: boolean): LayoutMode {
+  if (navbar && sidebar) return 'navbar-sidebar';
+  if (navbar) return 'navbar-only';
+  return 'sidebar-only';
+}
+
+const legacyMode = process.env.NEXT_PUBLIC_LAYOUT_MODE as LayoutMode | undefined;
+
+const showNavbar = legacyMode
+  ? legacyMode !== 'sidebar-only'
+  : process.env.NEXT_PUBLIC_SHOW_NAVBAR !== 'false';
+
+const showSidebar = legacyMode
+  ? legacyMode !== 'navbar-only'
+  : process.env.NEXT_PUBLIC_SHOW_SIDEBAR !== 'false';
+
 export const appConfig: AppConfig = {
   name: process.env.NEXT_PUBLIC_APP_NAME || 'GAB Application',
   description: process.env.NEXT_PUBLIC_APP_DESCRIPTION || 'Powered by GAB',
   theme: {
-    primary: process.env.NEXT_PUBLIC_THEME_PRIMARY || '#165CAB',
+    primary: process.env.NEXT_PUBLIC_THEME_PRIMARY || '#4B3FFF',
     primaryForeground: '#ffffff',
-    secondary: process.env.NEXT_PUBLIC_THEME_SECONDARY || '#616365',
-    success: process.env.NEXT_PUBLIC_THEME_SUCCESS || '#2FA882',
-    warning: process.env.NEXT_PUBLIC_THEME_WARNING || '#E59539',
-    danger: process.env.NEXT_PUBLIC_THEME_DANGER || '#D15336',
-    info: process.env.NEXT_PUBLIC_THEME_INFO || '#4781BF',
-    inProgress: process.env.NEXT_PUBLIC_THEME_IN_PROGRESS || '#885F99',
+    secondary: process.env.NEXT_PUBLIC_THEME_SECONDARY || '#757575',
+    success: process.env.NEXT_PUBLIC_THEME_SUCCESS || '#2E7D32',
+    warning: process.env.NEXT_PUBLIC_THEME_WARNING || '#ED6C02',
+    danger: process.env.NEXT_PUBLIC_THEME_DANGER || '#D32F2F',
+    info: process.env.NEXT_PUBLIC_THEME_INFO || '#0288D1',
+    inProgress: process.env.NEXT_PUBLIC_THEME_IN_PROGRESS || '#7B1FA2',
+  },
+  logo: {
+    url: process.env.NEXT_PUBLIC_LOGO_URL || undefined,
+    alt: process.env.NEXT_PUBLIC_APP_NAME || 'Application Logo',
+  },
+  layout: {
+    showNavbar,
+    showSidebar,
+    mode: legacyMode || deriveLayoutMode(showNavbar, showSidebar),
   },
   features: {
     enableDarkMode: true,

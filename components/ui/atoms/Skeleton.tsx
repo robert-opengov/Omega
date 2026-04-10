@@ -25,10 +25,10 @@ export function Skeleton({ variant = 'text', className, width, height }: Skeleto
       role="status"
       aria-label="Loading"
       className={cn(
-        'animate-pulse bg-muted',
+        'animate-pulse bg-secondary',
         variant === 'text' && 'h-4 rounded',
         variant === 'circular' && 'rounded-full',
-        variant === 'rectangular' && 'rounded-lg',
+        variant === 'rectangular' && 'rounded',
         className
       )}
       style={{ width, height }}

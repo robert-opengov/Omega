@@ -89,14 +89,14 @@ export function hslCssVars(prefix: string, { h, s, l }: HslColor): string {
 
 /**
  * Default theme hex values — used as fallbacks throughout the system.
- * Aligned with OpenGov Capital Design System (`@opengov/capital-style` v5.5.0).
+ * Aligned with OpenGov CDS-37 design system (MUI-based).
  */
 export const DEFAULT_THEME = {
-  primary: '#165CAB',
-  secondary: '#616365',
-  success: '#2FA882',
-  warning: '#E59539',
-  danger: '#D15336',
-  info: '#4781BF',
-  inProgress: '#885F99',
+  primary: '#4B3FFF',
+  secondary: '#757575',
+  success: '#2E7D32',
+  warning: '#ED6C02',
+  danger: '#D32F2F',
+  info: '#0288D1',
+  inProgress: '#7B1FA2',
 } as const;

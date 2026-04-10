@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Mail, Search, Bold, Italic, Underline, Plus, Trash2, Settings, ChevronRight, Tag } from 'lucide-react';
+import { Mail, Search, Bold, Italic, Underline, Plus, Trash2, Settings, ChevronRight, Tag } from 'lucide-react';
+import { ShowcaseLayout } from '../_components/ShowcaseLayout';
 import {
   Button,
   Input,
@@ -30,30 +30,23 @@ import {
   ButtonGroup,
   UILink,
   NumberInput,
+  AccountNumberInput,
 } from '@/components/ui/atoms';
 import { ComponentDemo, Section } from '../_components/ComponentDemo';
 
 export default function AtomsPage() {
   return (
-    <div className="p-6 lg:p-8 space-y-12">
-      <header className="flex items-center gap-4">
-        <Link href="/ui" className="text-muted-foreground hover:text-foreground transition-colors duration-300">
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
-        <div>
-          <Heading as="h1" color="primary">Atoms</Heading>
-          <Text color="muted">27 foundational building blocks</Text>
-        </div>
-      </header>
+    <ShowcaseLayout>
+      <div className="space-y-12">
 
-      <Section title="Typography">
+      <Section title="Typography" count={4}>
         <HeadingDemo />
         <TextDemo />
         <CodeDemo />
         <KbdDemo />
       </Section>
 
-      <Section title="Form Inputs">
+      <Section title="Form Inputs" count={10}>
         <ButtonDemo />
         <InputDemo />
         <TextareaDemo />
@@ -66,7 +59,7 @@ export default function AtomsPage() {
         <LabelDemo />
       </Section>
 
-      <Section title="Feedback">
+      <Section title="Feedback" count={6}>
         <BadgeDemo />
         <ChipDemo />
         <SpinnerDemo />
@@ -75,7 +68,11 @@ export default function AtomsPage() {
         <TooltipDemo />
       </Section>
 
-      <Section title="Layout & Misc">
+      <Section title="Specialized Inputs" count={1}>
+        <AccountNumberInputDemo />
+      </Section>
+
+      <Section title="Layout & Misc" count={6}>
         <AvatarDemo />
         <IconButtonDemo />
         <ButtonGroupDemo />
@@ -83,7 +80,8 @@ export default function AtomsPage() {
         <NumberInputDemo />
         <SeparatorDemo />
       </Section>
-    </div>
+      </div>
+    </ShowcaseLayout>
   );
 }
 
@@ -769,19 +767,24 @@ function LinkDemo() {
   return (
     <ComponentDemo
       name="UILink"
-      description="Semantic navigation link with underline variants and external support."
+      description="CDS-37 link with standalone/inline types, sizes, and external support."
       props={`interface UILinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
-  underline?: 'hover' | 'always' | 'none';
+  display?: 'standalone' | 'inline';
   color?: 'primary' | 'foreground' | 'muted' | 'destructive';
+  size?: 'sm' | 'md' | 'lg';
   external?: boolean;
   icon?: ElementType;
 }`}
     >
       <div className="space-y-4">
-        <div className="flex flex-wrap gap-4">
-          <UILink href="#">Default (hover underline)</UILink>
-          <UILink href="#" underline="always">Always underlined</UILink>
-          <UILink href="#" underline="none">No underline</UILink>
+        <div className="flex flex-wrap gap-4 items-center">
+          <UILink href="#">Standalone (default)</UILink>
+          <UILink href="#" display="inline">Inline (underlined)</UILink>
+        </div>
+        <div className="flex flex-wrap gap-4 items-center">
+          <UILink href="#" size="sm">Small</UILink>
+          <UILink href="#" size="md">Medium</UILink>
+          <UILink href="#" size="lg">Large</UILink>
         </div>
         <div className="flex flex-wrap gap-4">
           {(['primary', 'foreground', 'muted', 'destructive'] as const).map((c) => (
@@ -820,6 +823,40 @@ function NumberInputDemo() {
           <Text size="xs" color="muted">Small size</Text>
         </div>
         <NumberInput value={0} disabled />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function AccountNumberInputDemo() {
+  const [value, setValue] = useState('');
+  return (
+    <ComponentDemo
+      name="AccountNumberInput"
+      description="Masked numeric input for account numbers, fund codes, or structured IDs."
+      props={`interface AccountNumberInputProps {
+  mask: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  error?: boolean;
+  disabled?: boolean;
+  placeholder?: string;
+}`}
+    >
+      <div className="space-y-4 max-w-sm">
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-2">Fund Code (###-####-###.##)</Text>
+          <AccountNumberInput mask="###-####-###.##" value={value} onChange={setValue} />
+          <Text size="xs" color="muted" className="mt-1">Raw value: &quot;{value}&quot;</Text>
+        </div>
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-2">Error State</Text>
+          <AccountNumberInput mask="###-###" error />
+        </div>
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-2">Disabled</Text>
+          <AccountNumberInput mask="##-####-##" disabled />
+        </div>
       </div>
     </ComponentDemo>
   );

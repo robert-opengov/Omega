@@ -10,7 +10,7 @@ export interface RadioGroupProps extends ComponentPropsWithoutRef<typeof RadioGr
 }
 
 /**
- * An accessible radio group built on Radix UI with OpenGov-aligned focus pattern.
+ * An accessible radio group built on Radix UI with CDS-37 focus pattern.
  *
  * @example
  * <RadioGroup
@@ -35,14 +35,15 @@ const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
               value={item.value}
               disabled={item.disabled}
               className={cn(
-                'h-4 w-4 rounded-full border border-border transition-all duration-300 ease-in-out',
-                'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+                'h-[18px] w-[18px] rounded-full border border-input-border transition-all duration-200 ease-in-out',
+                'hover:bg-action-hover-primary',
+                'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring',
                 'disabled:cursor-not-allowed disabled:opacity-50',
                 'data-[state=checked]:border-primary data-[state=checked]:bg-primary'
               )}
             >
               <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-                <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
+                <div className="h-2 w-2 rounded-full bg-primary-foreground" />
               </RadioGroupPrimitive.Indicator>
             </RadioGroupPrimitive.Item>
             <span className="text-sm text-foreground">{item.label}</span>

@@ -14,7 +14,7 @@ const colorMap: Record<ToastVariant, string> = {
 };
 
 /**
- * Individual toast notification item with OpenGov banner DNA colours and
+ * Individual toast notification item with CDS-37 pattern colours and
  * cold-shadow overlay token.
  */
 function ToastItem({ id, message, variant, duration }: { id: string; message: string; variant: ToastVariant; duration?: number }) {
@@ -41,7 +41,7 @@ function ToastItem({ id, message, variant, duration }: { id: string; message: st
       role={isUrgent ? 'alert' : 'status'}
       aria-live={isUrgent ? 'assertive' : 'polite'}
       className={cn(
-        'flex items-start gap-3 rounded border p-4 shadow-overlay transition-all duration-300',
+        'flex items-start gap-3 rounded border p-4 shadow-overlay transition-all duration-200',
         exiting ? 'animate-toastOut' : 'animate-toastIn',
         colorMap[variant],
       )}
@@ -51,7 +51,7 @@ function ToastItem({ id, message, variant, duration }: { id: string; message: st
       <button
         onClick={handleDismiss}
         aria-label="Close notification"
-        className="p-0.5 rounded hover:bg-dismiss-hover transition-all duration-300 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        className="p-0.5 rounded hover:bg-dismiss-hover transition-all duration-200 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
         <X className="h-3.5 w-3.5" />
       </button>

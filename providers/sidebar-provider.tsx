@@ -2,7 +2,7 @@
 
 import { createContext, useState, useEffect, useContext, useMemo, type ReactNode } from 'react';
 
-const SIDEBAR_STORAGE_KEY = 'g-bp-sidebar-collapsed';
+const SIDEBAR_STORAGE_KEY = 'g-bp-sidebar-v2';
 
 interface SidebarContextType {
   isMobileOpen: boolean;
@@ -16,7 +16,7 @@ const SidebarContext = createContext<SidebarContextType | null>(null);
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(true);
+  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {

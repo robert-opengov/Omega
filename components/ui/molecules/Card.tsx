@@ -15,7 +15,7 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 /**
- * A composable card container with OpenGov-aligned shadow tokens.
+ * A composable card container with CDS-37 shadow tokens.
  *
  * @example
  * <Card>
@@ -27,10 +27,10 @@ export function Card({ variant = 'default', className, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        'rounded-xl bg-card text-card-foreground',
-        variant === 'default' && 'border border-border shadow-above',
+        'rounded bg-card text-card-foreground',
+        variant === 'default' && 'border border-border',
         variant === 'outlined' && 'border-2 border-border',
-        variant === 'elevated' && 'shadow-medium',
+        variant === 'elevated' && 'border border-border shadow-medium',
         className
       )}
       {...props}
@@ -113,7 +113,7 @@ export function CardInfo({ content, className }: CardInfoProps) {
     <Tooltip content={content} side="top">
       <button
         type="button"
-        className={cn('p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-300 ease-in-out', className)}
+        className={cn('p-1 rounded text-muted-foreground hover:text-foreground hover:bg-action-hover-primary transition-all duration-200 ease-in-out', className)}
         aria-label="More information"
       >
         <Info className="h-4 w-4" />
@@ -137,7 +137,7 @@ export interface CardMediaProps extends HTMLAttributes<HTMLDivElement> {
 /** A media slot (image/video/map) at the top of a card. */
 export function CardMedia({ src, alt, aspectRatio = 'aspect-video', className, children, ...props }: CardMediaProps) {
   return (
-    <div className={cn('overflow-hidden rounded-t-xl', aspectRatio, className)} {...props}>
+    <div className={cn('overflow-hidden rounded-t', aspectRatio, className)} {...props}>
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={src} alt={alt || ''} className="w-full h-full object-cover" />

@@ -32,7 +32,7 @@ export function Toolbar({ leading, filters, actions, className, children, ...pro
     <div
       role="toolbar"
       className={cn(
-        'flex flex-col sm:flex-row items-start sm:items-center gap-2 p-2 rounded border border-border bg-muted/30 transition-colors duration-300',
+        'flex flex-col sm:flex-row items-start sm:items-center gap-2 p-2 rounded border border-border bg-muted/30 transition-colors duration-200',
         className
       )}
       {...props}

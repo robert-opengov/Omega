@@ -69,7 +69,7 @@ export function ProgressSteps({
             >
               <div
                 className={cn(
-                  'relative flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-medium transition-all duration-300 ease-in-out shrink-0',
+                  'relative flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-medium transition-all duration-200 ease-in-out shrink-0',
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                   isCompleted && 'bg-primary border-primary text-primary-foreground shadow-above',
                   isCurrent && 'border-primary text-primary bg-primary/10 ring-4 ring-primary/10',
@@ -92,7 +92,7 @@ export function ProgressSteps({
               >
                 <p
                   className={cn(
-                    'text-sm font-medium transition-all duration-300 ease-in-out',
+                    'text-sm font-medium transition-all duration-200 ease-in-out',
                     isCompleted && 'text-primary',
                     isCurrent && 'text-foreground',
                     !isCompleted && !isCurrent && 'text-muted-foreground',

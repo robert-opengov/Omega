@@ -7,65 +7,65 @@
    Each semantic color is decomposed into H, S, L components.
    ThemeProvider overrides these at runtime from appConfig.theme.
 
-   Default values aligned with OpenGov Capital Design System v5.5.0
-   (@opengov/capital-style). Primary = #165CAB (OpenGov brand blue).
+   Default values aligned with OpenGov CDS-37 design system.
+   Primary = #4B3FFF (OpenGov indigo/violet).
    ==================================================================== */
 :root {
-  /* --- Primary (brand blue — OpenGov #165CAB) --- */
-  --primary-h: 213;
-  --primary-s: 77%;
-  --primary-l: 38%;
+  /* --- Primary (indigo/violet — CDS-37 #4B3FFF) --- */
+  --primary-h: 244;
+  --primary-s: 100%;
+  --primary-l: 62%;
 
-  /* --- Secondary (neutral accent — OpenGov gray-700 #616365) --- */
-  --secondary-h: 210;
-  --secondary-s: 2%;
-  --secondary-l: 39%;
+  /* --- Secondary (neutral accent — MUI gray-600 #757575) --- */
+  --secondary-h: 0;
+  --secondary-s: 0%;
+  --secondary-l: 46%;
 
-  /* --- Success (teal-green — OpenGov #2FA882) --- */
-  --success-h: 162;
-  --success-s: 57%;
-  --success-l: 42%;
+  /* --- Success (green — CDS-37 #2E7D32) --- */
+  --success-h: 123;
+  --success-s: 46%;
+  --success-l: 34%;
 
-  /* --- Warning (amber — OpenGov #E59539) --- */
-  --warning-h: 33;
-  --warning-s: 79%;
-  --warning-l: 56%;
+  /* --- Warning (amber — CDS-37 #ED6C02) --- */
+  --warning-h: 27;
+  --warning-s: 98%;
+  --warning-l: 47%;
 
-  /* --- Danger (orange-red — OpenGov #D15336) --- */
-  --danger-h: 12;
-  --danger-s: 63%;
+  /* --- Danger (red — CDS-37 #D32F2F) --- */
+  --danger-h: 0;
+  --danger-s: 65%;
   --danger-l: 51%;
 
-  /* --- Info (blue — OpenGov #4781BF) --- */
-  --info-h: 211;
-  --info-s: 46%;
-  --info-l: 51%;
+  /* --- Info (teal — CDS-37 #0E6F7F) --- */
+  --info-h: 189;
+  --info-s: 79%;
+  --info-l: 28%;
 
-  /* --- In Progress (purple — OpenGov #885F99) --- */
-  --inProgress-h: 280;
-  --inProgress-s: 24%;
-  --inProgress-l: 49%;
+  /* --- In Progress (purple — CDS-37 #7B1FA2) --- */
+  --inProgress-h: 282;
+  --inProgress-s: 68%;
+  --inProgress-l: 38%;
 
   /* ================================================================
      LIGHT MODE DESIGN TOKENS
-     Neutrals aligned with OpenGov's cold blue-tinted gray scale.
+     Neutrals aligned with CDS-37 / MUI gray scale.
      ================================================================ */
   --background: #ffffff;
-  --foreground: #131517;
+  --foreground: #212121;
 
   --card: #ffffff;
-  --card-foreground: #131517;
+  --card-foreground: #212121;
   --popover: #ffffff;
-  --popover-foreground: #131517;
+  --popover-foreground: #212121;
 
   --primary: hsl(var(--primary-h) var(--primary-s) var(--primary-l));
   --primary-foreground: #ffffff;
 
-  --secondary: #EFF2F5;
-  --secondary-foreground: #131517;
+  --secondary: #F5F5F5;
+  --secondary-foreground: #212121;
 
-  --muted: #F7F9FA;
-  --muted-foreground: #616365;
+  --muted: #F8F8F8;
+  --muted-foreground: #757575;
 
   --accent: hsl(var(--primary-h) calc(var(--primary-s) * 0.3) 95%);
   --accent-foreground: hsl(var(--primary-h) var(--primary-s) var(--primary-l));
@@ -73,14 +73,25 @@
   --destructive: hsl(var(--danger-h) var(--danger-s) var(--danger-l));
   --destructive-foreground: #ffffff;
 
-  --border: #CED2D6;
+  --border: #DDDEDE;
   --input: #ffffff;
   --input-background: #ffffff;
+  --input-border: #ADAFB1;
+  --switch-track: #C8C9CA;
   --ring: hsl(var(--primary-h) var(--primary-s) var(--primary-l));
+  --action-hover-primary: hsl(var(--primary-h) var(--primary-s) 97%);
 
+  --primary-dark: hsl(var(--primary-h) var(--primary-s) 30%);
   --primary-light: hsl(var(--primary-h) var(--primary-s) 97%);
   --primary-light-border: hsl(var(--primary-h) var(--primary-s) 82%);
   --primary-text: hsl(var(--primary-h) var(--primary-s) 28%);
+
+  /* --- CDS-37 text opacity tokens --- */
+  --text-primary: rgba(0, 0, 0, 0.87);
+  --text-secondary: rgba(0, 0, 0, 0.6);
+  --text-disabled: rgba(0, 0, 0, 0.38);
+  --action-hover: rgba(0, 0, 0, 0.04);
+  --secondary-main: #546574;
 
   /* --- Semantic status colors (light mode) --- */
   --success: hsl(var(--success-h) var(--success-s) var(--success-l));
@@ -108,25 +119,25 @@
   --in-progress-light-border: hsl(var(--inProgress-h) var(--inProgress-s) 82%);
   --in-progress-text: hsl(var(--inProgress-h) var(--inProgress-s) 28%);
 
-  /* --- Overlay & dismiss (replaces hardcoded bg-black/50) --- */
-  --overlay: rgba(19, 21, 23, 0.50);
-  --dismiss-hover: rgba(19, 21, 23, 0.10);
+  /* --- Overlay & dismiss --- */
+  --overlay: rgba(33, 33, 33, 0.50);
+  --dismiss-hover: rgba(33, 33, 33, 0.10);
 
-  /* --- Shadows (cold gray-1000 base, OpenGov DNA) --- */
-  --shadow-above: 0 2px 4px 0 rgba(19, 21, 23, 0.10);
-  --shadow-soft: 0 2px 4px 0 rgba(19, 21, 23, 0.20);
-  --shadow-medium: 0 4px 6px -1px rgba(19, 21, 23, 0.15);
-  --shadow-overlay: 0 4px 8px 0 rgba(19, 21, 23, 0.40);
-  --shadow-inset-light: inset 0 2px 3px 1px rgba(19, 21, 23, 0.20);
-  --shadow-inset-dark: inset 0 2px 3px 1px rgba(19, 21, 23, 0.45);
-  --shadow-focus: 0 0 0 2px hsl(var(--primary-h) 100% 50%);
+  /* --- Shadows (MUI-style elevation) --- */
+  --shadow-above: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 1px 2px 0 rgba(0, 0, 0, 0.08);
+  --shadow-soft: 0 2px 4px 0 rgba(0, 0, 0, 0.12);
+  --shadow-medium: 0 3px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+  --shadow-overlay: 0 8px 16px 0 rgba(0, 0, 0, 0.20);
+  --shadow-inset-light: inset 0 2px 3px 1px rgba(0, 0, 0, 0.15);
+  --shadow-inset-dark: inset 0 2px 3px 1px rgba(0, 0, 0, 0.35);
+  --shadow-focus: 0 0 0 2px hsl(var(--primary-h) 100% 50% / 0.3);
 
-  /* --- Border radius (OpenGov default = 4px) --- */
+  /* --- Border radius (CDS-37 default = 4px) --- */
   --radius: 4px;
   --radius-button: 4px;
-  --radius-card: 8px;
+  --radius-card: 4px;
 
-  /* --- Z-index scale (OpenGov-aligned) --- */
+  /* --- Z-index scale --- */
   --z-ground: 1;
   --z-content: 100;
   --z-editable: 200;
@@ -165,11 +176,21 @@
   --border: hsl(var(--primary-h) calc(var(--primary-s) * 0.3) 18%);
   --input: hsl(var(--primary-h) calc(var(--primary-s) * 0.25) 10%);
   --input-background: hsl(var(--primary-h) calc(var(--primary-s) * 0.25) 10%);
+  --input-border: hsl(var(--primary-h) calc(var(--primary-s) * 0.3) 35%);
+  --switch-track: hsl(var(--primary-h) calc(var(--primary-s) * 0.15) 45%);
   --ring: hsl(var(--primary-h) calc(var(--primary-s) * 0.8) calc(var(--primary-l) + 12%));
+  --action-hover-primary: hsl(var(--primary-h) calc(var(--primary-s) * 0.4) 18%);
 
+  --primary-dark: hsl(var(--primary-h) calc(var(--primary-s) * 0.8) calc(var(--primary-l) + 15%));
   --primary-light: hsl(var(--primary-h) calc(var(--primary-s) * 0.3) 15%);
   --primary-light-border: hsl(var(--primary-h) calc(var(--primary-s) * 0.4) 25%);
   --primary-text: hsl(var(--primary-h) calc(var(--primary-s) * 0.7) 70%);
+
+  --text-primary: rgba(255, 255, 255, 0.87);
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --text-disabled: rgba(255, 255, 255, 0.38);
+  --action-hover: rgba(255, 255, 255, 0.08);
+  --secondary-main: #90A4AE;
 
   /* --- Semantic status colors (dark mode) --- */
   --success-light: hsl(var(--success-h) calc(var(--success-s) * 0.3) 15%);
@@ -197,10 +218,10 @@
   --dismiss-hover: rgba(255, 255, 255, 0.10);
 
   /* --- Dark mode shadows --- */
-  --shadow-above: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+  --shadow-above: 0 1px 3px 0 rgba(0, 0, 0, 0.30), 0 1px 2px 0 rgba(0, 0, 0, 0.20);
   --shadow-soft: 0 2px 4px 0 rgba(0, 0, 0, 0.35);
-  --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.30);
-  --shadow-overlay: 0 4px 8px 0 rgba(0, 0, 0, 0.55);
+  --shadow-medium: 0 3px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px 0 rgba(0, 0, 0, 0.20);
+  --shadow-overlay: 0 8px 16px 0 rgba(0, 0, 0, 0.50);
   --shadow-inset-light: inset 0 2px 3px 1px rgba(0, 0, 0, 0.30);
   --shadow-inset-dark: inset 0 2px 3px 1px rgba(0, 0, 0, 0.55);
 }
@@ -217,12 +238,18 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-light: var(--primary-light);
   --color-primary-light-border: var(--primary-light-border);
   --color-primary-text: var(--primary-text);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-main: var(--secondary-main);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-disabled: var(--text-disabled);
+  --color-action-hover: var(--action-hover);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
@@ -232,7 +259,10 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-input-background: var(--input-background);
+  --color-input-border: var(--input-border);
+  --color-switch-track: var(--switch-track);
   --color-ring: var(--ring);
+  --color-action-hover-primary: var(--action-hover-primary);
 
   /* Semantic status colors for Tailwind utilities */
   --color-success: var(--success);
@@ -267,7 +297,7 @@
   --radius-lg: var(--radius-card);
   --radius-button: var(--radius-button);
 
-  --font-sans: var(--font-barlow);
+  --font-sans: var(--font-dm-sans);
   --font-mono: var(--font-geist-mono);
 
   /* Shadow tokens */
@@ -292,7 +322,7 @@
   --color-brand-900: hsl(var(--primary-h) calc(var(--primary-s) * 0.64) 34%);
   --color-brand-950: hsl(var(--primary-h) calc(var(--primary-s) * 0.61) 20%);
 
-  /* OpenGov visualization palette (20 alternating bright/muted hues) */
+  /* Visualization palette (20 alternating bright/muted hues) */
   --color-viz-1: #4781BF;
   --color-viz-2: #A1BBE5;
   --color-viz-3: #E59539;
@@ -325,7 +355,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: "Barlow", Arial, sans-serif;
+    font-family: "DM Sans", Arial, sans-serif;
     letter-spacing: 0.0125em;
     line-height: 1.5;
     min-height: 100vh;
@@ -445,8 +475,8 @@
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(19, 21, 23, 0.15); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(19, 21, 23, 0.25); }
+::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.15); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.25); }
 .dark ::-webkit-scrollbar-thumb { background: hsl(var(--primary-h) calc(var(--primary-s) * 0.3) 60% / 0.25); }
 .dark ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary-h) calc(var(--primary-s) * 0.3) 60% / 0.4); }
 

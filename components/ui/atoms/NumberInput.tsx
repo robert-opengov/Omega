@@ -24,7 +24,7 @@ export interface NumberInputProps extends Omit<InputHTMLAttributes<HTMLInputElem
 /**
  * A number input with increment/decrement stepper buttons.
  *
- * Aligned with OpenGov TextFieldNumber: compact steppers, shared
+ * Aligned with CDS-37 TextFieldNumber: compact steppers, shared
  * border styling, full keyboard support for arrow keys.
  *
  * @example
@@ -58,8 +58,8 @@ const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
     const atMax = max !== undefined && value >= max;
 
     const stepperClass = cn(
-      'flex items-center justify-center shrink-0 border-border text-muted-foreground transition-colors duration-300',
-      'hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed',
+      'flex items-center justify-center shrink-0 border-input-border text-muted-foreground transition-colors duration-200',
+      'hover:bg-action-hover-primary hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed',
       'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring',
       isSm ? 'w-7 h-7' : 'w-9 h-9'
     );
@@ -68,8 +68,8 @@ const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
       <div className={cn('inline-flex', className)}>
         <div
           className={cn(
-            'inline-flex items-center rounded border bg-background transition-all duration-300',
-            error ? 'border-destructive' : 'border-border',
+            'inline-flex items-center rounded border bg-background transition-all duration-200',
+            error ? 'border-destructive' : 'border-input-border',
             disabled && 'opacity-50 cursor-not-allowed'
           )}
         >

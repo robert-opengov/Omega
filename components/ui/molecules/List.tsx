@@ -12,7 +12,7 @@ export interface ListProps extends HTMLAttributes<HTMLUListElement> {}
 
 /**
  * A container for ListItem elements. Renders as `<ul>` with clean
- * OpenGov-aligned spacing.
+ * CDS-37-aligned spacing.
  *
  * @example
  * <List>
@@ -55,9 +55,9 @@ export const ListItem = forwardRef<HTMLLIElement, ListItemProps>(
       data-selected={selected || undefined}
       onClick={disabled ? undefined : onClick}
       className={cn(
-        'flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-300',
-        onClick && !disabled && 'cursor-pointer hover:bg-muted/50',
-        selected && 'bg-primary/10 text-primary',
+        'flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-200',
+        onClick && !disabled && 'cursor-pointer hover:bg-action-hover-primary',
+        selected && 'bg-action-hover-primary text-primary',
         disabled && 'opacity-50 cursor-not-allowed',
         className
       )}

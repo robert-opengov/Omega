@@ -6,7 +6,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const disclaimerVariants = cva(
-  'flex items-start gap-2 text-sm transition-all duration-300',
+  'flex items-start gap-2 text-sm transition-all duration-200',
   {
     variants: {
       variant: {
@@ -31,7 +31,7 @@ export interface AIDisclaimerProps
  * An AI content disclaimer that warns users about AI-generated output.
  *
  * Available as an inline hint or a full-width banner. Matches
- * OpenGov's AI Disclaimer component pattern.
+ * the CDS-37 AI Disclaimer component pattern.
  *
  * @example
  * <AIDisclaimer />
@@ -58,7 +58,7 @@ export function AIDisclaimer({
         <button
           type="button"
           onClick={() => setDismissed(true)}
-          className="shrink-0 p-0.5 rounded hover:bg-dismiss-hover transition-colors duration-300"
+          className="shrink-0 p-0.5 rounded hover:bg-dismiss-hover transition-colors duration-200"
           aria-label="Dismiss disclaimer"
         >
           <X className="h-3.5 w-3.5" />

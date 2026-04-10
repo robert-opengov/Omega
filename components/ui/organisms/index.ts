@@ -9,3 +9,5 @@ export { AIDisclaimer, type AIDisclaimerProps } from './AIDisclaimer';
 export { AIPromptInput, type AIPromptInputProps } from './AIPromptInput';
 export { ChildTable, type ChildTableProps, ChildTableEmbedded, type ChildTableEmbeddedProps } from './ChildTable';
 export type { ChildTableConfig, ChildTableColumn, ChildTableRow, ColumnType } from './ChildTable';
+export { FlexibleInquiry, type FlexibleInquiryProps, type InquiryField, type FilterCondition } from './FlexibleInquiry';
+export { Footer, type FooterProps, type FooterSection, type FooterLink } from './Footer';

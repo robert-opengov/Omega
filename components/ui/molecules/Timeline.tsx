@@ -27,7 +27,7 @@ export interface TimelineProps extends HTMLAttributes<HTMLUListElement> {
  * A vertical event timeline for displaying chronological sequences.
  *
  * Supports left-aligned, right-aligned, and alternating layouts
- * matching OpenGov's Timeline component.
+ * matching the CDS-37 Timeline component.
  *
  * @example
  * <Timeline>

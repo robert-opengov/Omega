@@ -77,7 +77,7 @@ export function FileUpload({ accept, maxSize, maxFiles, multiple = false, onFile
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
         className={cn(
-          'flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-8 text-center transition-all duration-300 ease-in-out cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+          'flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-8 text-center transition-all duration-200 ease-in-out cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
           isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50 hover:bg-muted/50'
         )}
       >
@@ -110,7 +110,7 @@ export function FileUpload({ accept, maxSize, maxFiles, multiple = false, onFile
               <button
                 type="button"
                 onClick={() => removeFile(i)}
-                className="p-1 rounded hover:bg-muted text-muted-foreground transition-all duration-300 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                className="p-1 rounded hover:bg-action-hover-primary text-muted-foreground transition-all duration-200 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 aria-label={`Remove ${file.name}`}
               >
                 <X className="h-3.5 w-3.5" />

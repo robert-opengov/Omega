@@ -1,68 +1,94 @@
+'use client';
+
 import Link from 'next/link';
-import { Heading, Text } from '@/components/ui/atoms';
-import { Card, CardContent } from '@/components/ui/molecules';
+import { Badge } from '@/components/ui/atoms';
+import { Hero } from '@/components/ui/molecules';
 import { Atom, Puzzle, LayoutPanelTop } from 'lucide-react';
+import { ShowcaseLayout } from './_components/ShowcaseLayout';
 
 const categories = [
   {
     href: '/ui/atoms',
     icon: Atom,
     title: 'Atoms',
-    count: 27,
-    description: 'The smallest building blocks: buttons, inputs, badges, chips, spinners, typography, and more.',
-    examples: 'Button, Input, Badge, Chip, ButtonGroup, Link, NumberInput, Switch, Avatar...',
+    count: 28,
+    description: 'The smallest building blocks — primitives that can\'t be broken down further.',
+    highlights: [
+      'Button, Input, Textarea, Select',
+      'Badge, Chip, Toggle, Slider',
+      'Avatar, Skeleton, Progress, Spinner',
+      'AccountNumberInput, NumberInput',
+    ],
   },
   {
     href: '/ui/molecules',
     icon: Puzzle,
     title: 'Molecules',
-    count: 31,
-    description: 'Combinations of atoms that form reusable UI patterns: forms, tables, modals, lists, timelines.',
-    examples: 'DataTable, Modal, Tabs, Card, List, Timeline, Toolbar, LabelValuePair, Result...',
+    count: 36,
+    description: 'Composed atoms forming reusable UI patterns for forms, data, and overlays.',
+    highlights: [
+      'DataTable, Card, Modal, Sheet',
+      'Banner, Hero, FeatureCard, Tabs',
+      'CheckboxTree, FilePreviewCard, Timeline',
+      'PageHeader, Pagination, CommandPalette',
+    ],
   },
   {
     href: '/ui/organisms',
     icon: LayoutPanelTop,
     title: 'Organisms',
-    count: 11,
-    description: 'Complex, self-contained sections composed of atoms and molecules, including AI components and a full spreadsheet table.',
-    examples: 'ChildTable, AuthForm, DataGrid, ChartCard, Logo, AIConversation, AIDisclaimer, AIPromptInput',
+    count: 13,
+    description: 'Complex, self-contained sections that compose full page areas.',
+    highlights: [
+      'ChildTable (spreadsheet-like grid)',
+      'AuthForm, DataGrid, ChartCard',
+      'FlexibleInquiry (query builder)',
+      'AIConversation, AIPromptInput, Footer',
+    ],
   },
 ];
 
 export default function UIShowcasePage() {
   return (
-    <div className="p-6 lg:p-8 space-y-10">
-      <header>
-        <Heading as="h1" color="primary" className="mb-2">UI Component Library</Heading>
-        <Text color="muted" className="max-w-3xl">
-          The atomic &ldquo;Lego Bucket&rdquo; — every component the AI or developer needs to build
-          government applications. Organized by complexity: Atoms, Molecules, and Organisms. Each page
-          includes live demos with interactive variants and a collapsible props reference.
-        </Text>
-      </header>
+    <ShowcaseLayout>
+      <div className="space-y-8">
+        <Hero
+          title="Component Library"
+          subtitle="The atomic &ldquo;Lego Bucket&rdquo; — every component the AI or developer needs to build government applications. Organized by complexity with live demos and collapsible props references."
+          primaryAction={{ label: 'Browse Atoms', href: '/ui/atoms' }}
+          secondaryAction={{ label: 'Browse Molecules', href: '/ui/molecules' }}
+          variant="gradient"
+        />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {categories.map(({ href, icon: Icon, title, count, description, examples }) => (
-          <Link key={href} href={href} className="group">
-            <Card className="h-full transition-all duration-300 ease-in-out hover:shadow-medium hover:border-primary/30">
-              <CardContent className="p-6 flex flex-col gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {categories.map(({ href, icon: Icon, title, count, description, highlights }) => (
+            <Link key={href} href={href} className="group">
+              <div className="h-full rounded-xl border border-border bg-card p-6 flex flex-col gap-4 transition-all duration-200 hover:shadow-medium hover:border-primary/30">
                 <div className="flex items-center justify-between">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors duration-300">
-                    <Icon className="h-6 w-6" />
+                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors duration-200">
+                    <Icon className="h-5 w-5" />
                   </div>
-                  <span className="text-2xl font-bold text-foreground">{count}</span>
+                  <Badge variant="default" size="sm">{count} components</Badge>
                 </div>
+
                 <div>
-                  <Heading as="h2" className="text-lg font-semibold mb-1">{title}</Heading>
-                  <Text size="sm" color="muted">{description}</Text>
+                  <h2 className="text-lg font-semibold text-foreground mb-1">{title}</h2>
+                  <p className="text-sm text-muted-foreground">{description}</p>
                 </div>
-                <Text size="xs" color="muted" className="opacity-70 font-mono mt-auto">{examples}</Text>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+
+                <ul className="mt-auto space-y-1.5">
+                  {highlights.map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-xs text-muted-foreground">
+                      <span className="mt-1.5 h-1 w-1 rounded-full bg-primary/40 shrink-0" aria-hidden="true" />
+                      <span className="font-mono opacity-80">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
-    </div>
+    </ShowcaseLayout>
   );
 }

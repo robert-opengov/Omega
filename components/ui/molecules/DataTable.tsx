@@ -42,10 +42,10 @@ export interface DataTableProps<T> {
 type SortDir = 'asc' | 'desc' | null;
 
 /**
- * A sortable data table with OpenGov-aligned row heights and cold-shadow
+ * A sortable data table with CDS-37-aligned row heights and cold-shadow
  * border styling.
  *
- * Default row height is 50 px (`py-3` + text) to match OpenGov table DNA.
+ * Default row height is 50 px (`py-3` + text) to match CDS-37 table pattern.
  * Header uses `bg-muted` background with `font-medium` text.
  *
  * @example
@@ -87,14 +87,14 @@ export function DataTable<T extends Record<string, unknown>>({
   }, [data, sortKey, sortDir]);
 
   return (
-    <div className={cn('overflow-x-auto rounded-xl border border-border', className)}>
+    <div className={cn('overflow-x-auto rounded border border-border', className)}>
       <table className="w-full text-sm" aria-label={tableLabel}>
         <thead>
           <tr className="border-b border-border bg-muted">
             {columns.map((col) => (
               <th key={col.key} className={cn('px-4 py-3 text-left font-medium text-muted-foreground', col.className)} aria-sort={col.sortable !== false ? (sortKey === col.key && sortDir === 'asc' ? 'ascending' : sortKey === col.key && sortDir === 'desc' ? 'descending' : 'none') : undefined}>
                 {col.sortable !== false ? (
-                  <button onClick={() => handleSort(col.key)} aria-label={`Sort by ${col.header}${sortKey === col.key ? (sortDir === 'asc' ? ', sorted ascending' : sortDir === 'desc' ? ', sorted descending' : '') : ''}`} className="inline-flex items-center gap-1 hover:text-foreground transition-all duration-300 ease-in-out">
+                  <button onClick={() => handleSort(col.key)} aria-label={`Sort by ${col.header}${sortKey === col.key ? (sortDir === 'asc' ? ', sorted ascending' : sortDir === 'desc' ? ', sorted descending' : '') : ''}`} className="inline-flex items-center gap-1 hover:text-foreground transition-all duration-200 ease-in-out">
                     {col.header}
                     {sortKey === col.key && sortDir === 'asc' ? <ArrowUp className="h-3 w-3" /> : sortKey === col.key && sortDir === 'desc' ? <ArrowDown className="h-3 w-3" /> : <ArrowUpDown className="h-3 w-3 opacity-40" />}
                   </button>
@@ -113,7 +113,7 @@ export function DataTable<T extends Record<string, unknown>>({
                 onClick={() => onRowClick?.(row)}
                 tabIndex={onRowClick ? 0 : undefined}
                 onKeyDown={onRowClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onRowClick?.(row); } } : undefined}
-                className={cn('border-b border-border last:border-0 transition-all duration-300 ease-in-out h-[50px]', onRowClick && 'cursor-pointer hover:bg-muted/50')}
+                className={cn('border-b border-border last:border-0 transition-all duration-200 ease-in-out h-[50px]', onRowClick && 'cursor-pointer hover:bg-action-hover-primary')}
               >
                 {columns.map((col) => (
                   <td key={col.key} className={cn('px-4 py-3 text-foreground', col.className)}>

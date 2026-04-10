@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { Heading, Text, Badge } from '@/components/ui/atoms';
+import { Badge, Text } from '@/components/ui/atoms';
+import { ShowcaseLayout } from '../_components/ShowcaseLayout';
 import { type Column } from '@/components/ui/molecules';
 import { AuthForm } from '@/components/ui/organisms/AuthForm';
 import { DataGrid } from '@/components/ui/organisms/DataGrid';
@@ -14,35 +13,32 @@ import { AIDisclaimer } from '@/components/ui/organisms/AIDisclaimer';
 import { AIPromptInput } from '@/components/ui/organisms/AIPromptInput';
 import { ChildTable } from '@/components/ui/organisms/ChildTable';
 import type { ChildTableConfig } from '@/components/ui/organisms/ChildTable';
+import { FlexibleInquiry, type FilterCondition, type InquiryField } from '@/components/ui/organisms/FlexibleInquiry';
+import { Footer } from '@/components/ui/organisms/Footer';
 import { ComponentDemo, Section } from '../_components/ComponentDemo';
 
 export default function OrganismsPage() {
   return (
-    <div className="p-6 lg:p-8 space-y-12">
-      <header className="flex items-center gap-4">
-        <Link href="/ui" className="text-muted-foreground hover:text-foreground transition-colors duration-300">
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
-        <div>
-          <Heading as="h1" color="primary">Organisms</Heading>
-          <Text color="muted">8 complex, self-contained sections (Sidebar & Navbar are the shell itself)</Text>
-        </div>
-      </header>
+    <ShowcaseLayout>
+      <div className="space-y-12">
 
-      <Section title="Organisms">
+      <Section title="Organisms" count={7}>
         <AuthFormDemo />
         <ChildTableDemo />
         <DataGridDemo />
         <ChartCardDemo />
+        <FlexibleInquiryDemo />
+        <FooterDemo />
         <LogoDemo />
       </Section>
 
-      <Section title="AI Components">
+      <Section title="AI Components" count={3}>
         <AIConversationDemo />
         <AIDisclaimerDemo />
         <AIPromptInputDemo />
       </Section>
-    </div>
+      </div>
+    </ShowcaseLayout>
   );
 }
 
@@ -334,6 +330,84 @@ function LogoMark({ className }: { className?: string })`}
           <Text size="xs" color="muted">LogoMark</Text>
         </div>
       </div>
+    </ComponentDemo>
+  );
+}
+
+/* ---------- FlexibleInquiry ---------- */
+
+function FlexibleInquiryDemo() {
+  const [filters, setFilters] = useState<FilterCondition[]>([
+    { id: 'f1', field: 'name', operator: 'contains', value: '' },
+  ]);
+  const [logic, setLogic] = useState<'and' | 'or'>('and');
+
+  const fields: InquiryField[] = [
+    { key: 'name', label: 'Name', type: 'text' },
+    { key: 'amount', label: 'Amount', type: 'number' },
+    { key: 'date', label: 'Date', type: 'date' },
+    { key: 'status', label: 'Status', type: 'select', options: [
+      { label: 'Active', value: 'active' },
+      { label: 'Inactive', value: 'inactive' },
+      { label: 'Pending', value: 'pending' },
+    ] },
+  ];
+
+  return (
+    <ComponentDemo
+      name="FlexibleInquiry"
+      description="Dynamic filter/query builder with AND/OR logic, multiple field types, and add/remove conditions."
+      props={`interface FlexibleInquiryProps {
+  fields: InquiryField[]; filters: FilterCondition[];
+  onFiltersChange: (filters: FilterCondition[]) => void;
+  maxConditions?: number;
+  logicOperator?: 'and' | 'or';
+  onLogicOperatorChange?: (op: 'and' | 'or') => void;
+}`}
+    >
+      <FlexibleInquiry
+        fields={fields}
+        filters={filters}
+        onFiltersChange={setFilters}
+        logicOperator={logic}
+        onLogicOperatorChange={setLogic}
+        maxConditions={5}
+      />
+    </ComponentDemo>
+  );
+}
+
+/* ---------- Footer ---------- */
+
+function FooterDemo() {
+  return (
+    <ComponentDemo
+      name="Footer"
+      description="Site footer with optional link sections, logo, and legal text."
+      props={`interface FooterProps {
+  brandName?: string;
+  sections?: { title: string; links: { label: string; href: string }[] }[];
+  legalText?: string;
+}`}
+    >
+      <Footer
+        sections={[
+          {
+            title: 'Product',
+            links: [
+              { label: 'Components', href: '#' },
+              { label: 'Templates', href: '#' },
+            ],
+          },
+          {
+            title: 'Resources',
+            links: [
+              { label: 'Documentation', href: '#' },
+              { label: 'GitHub', href: '#' },
+            ],
+          },
+        ]}
+      />
     </ComponentDemo>
   );
 }

@@ -1,17 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import {
-  ArrowLeft, Inbox, Search, Home, Users, Settings, Plus, Trash2,
+  Inbox, Search, Home, Users, Settings, Plus, Trash2,
   FileText, MoreHorizontal,
   Bell, CheckCircle, Info, Star, Archive, Copy,
-  AlertTriangle, Clock, Mail, Filter, MapPin,
+  AlertTriangle, Clock, Mail, Filter, MapPin, Blocks, Shield, Palette, File, Image,
 } from 'lucide-react';
+import { ShowcaseLayout } from '../_components/ShowcaseLayout';
 import { z } from 'zod';
 import {
   Button,
-  Heading,
   Text,
   Badge,
 } from '@/components/ui/atoms';
@@ -46,38 +45,36 @@ import {
   Timeline, TimelineItem, TimelineDot, TimelineConnector, TimelineContent,
   Toolbar,
   Result,
+  OnboardingWizard,
+  Banner,
+  Hero,
+  FeatureCard,
+  FilePreviewCard,
+  CheckboxTree,
 } from '@/components/ui/molecules';
 import { useToast } from '@/providers/toast-provider';
 import { ComponentDemo, Section } from '../_components/ComponentDemo';
 
 export default function MoleculesPage() {
   return (
-    <div className="p-6 lg:p-8 space-y-12">
-      <header className="flex items-center gap-4">
-        <Link href="/ui" className="text-muted-foreground hover:text-foreground transition-colors duration-300">
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
-        <div>
-          <Heading as="h1" color="primary">Molecules</Heading>
-          <Text color="muted">31 composite UI patterns</Text>
-        </div>
-      </header>
+    <ShowcaseLayout>
+      <div className="space-y-12">
 
-      <Section title="Layout">
+      <Section title="Layout" count={4}>
         <CardDemo />
         <PageHeaderDemo />
         <BreadcrumbsDemo />
         <EmptyStateDemo />
       </Section>
 
-      <Section title="Data Display">
+      <Section title="Data Display" count={4}>
         <DataTableDemo />
         <StatsCardDemo />
         <AvatarGroupDemo />
         <ProgressStepsDemo />
       </Section>
 
-      <Section title="Forms">
+      <Section title="Forms" count={7}>
         <FormFieldDemo />
         <SearchInputDemo />
         <ZodFormDemo />
@@ -87,7 +84,7 @@ export default function MoleculesPage() {
         <TagInputDemo />
       </Section>
 
-      <Section title="Overlays">
+      <Section title="Overlays" count={8}>
         <ModalDemo />
         <SheetDemo />
         <ConfirmDialogDemo />
@@ -98,20 +95,30 @@ export default function MoleculesPage() {
         <CommandPaletteDemo />
       </Section>
 
-      <Section title="Navigation">
+      <Section title="Navigation" count={4}>
         <TabsDemo />
         <AccordionDemo />
         <PaginationDemo />
+        <OnboardingWizardDemo />
       </Section>
 
-      <Section title="New Parity Components">
+      <Section title="Parity Components" count={5}>
         <ListDemo />
         <LabelValuePairDemo />
         <TimelineDemo />
         <ToolbarDemo />
         <ResultDemo />
       </Section>
-    </div>
+
+      <Section title="Content Components" count={5} description="Heroes, banners, file previews, and hierarchical selection.">
+        <BannerDemo />
+        <HeroDemo />
+        <FeatureCardDemo />
+        <FilePreviewCardDemo />
+        <CheckboxTreeDemo />
+      </Section>
+      </div>
+    </ShowcaseLayout>
   );
 }
 
@@ -204,19 +211,34 @@ function PageHeaderDemo() {
   return (
     <ComponentDemo
       name="PageHeader"
-      description="Page title bar with optional description and action slot."
+      description="Page title bar with breadcrumbs, stats, status chips, and configurable title size."
       props={`interface PageHeaderProps {
-  title: string;
-  description?: string;
-  actions?: ReactNode;
-  className?: string;
+  title: string; description?: string; actions?: ReactNode;
+  breadcrumbs?: { title: string; href?: string }[];
+  stats?: { label: string; value: string; icon?: 'up' | 'down' | 'flat' }[];
+  status?: { label: string; variant?: string }[];
+  titleSize?: 'large' | 'small'; condensed?: boolean;
 }`}
     >
-      <PageHeader
-        title="Service Requests"
-        description="Manage all incoming citizen requests"
-        actions={<Button icon={Plus} size="sm">New Request</Button>}
-      />
+      <div className="space-y-8">
+        <PageHeader
+          title="Service Requests"
+          description="Manage all incoming citizen requests"
+          breadcrumbs={[{ title: 'Home', href: '#' }, { title: 'Requests' }]}
+          stats={[
+            { label: 'Open', value: '42', icon: 'up' },
+            { label: 'Resolved', value: '128', icon: 'flat' },
+          ]}
+          status={[{ label: 'Active', variant: 'success' }]}
+          actions={<Button icon={Plus} size="sm">New Request</Button>}
+        />
+        <PageHeader
+          title="Condensed Header"
+          description="Tighter padding for dense layouts"
+          titleSize="small"
+          condensed
+        />
+      </div>
     </ComponentDemo>
   );
 }
@@ -949,6 +971,47 @@ function PaginationDemo() {
   );
 }
 
+function OnboardingWizardDemo() {
+  return (
+    <ComponentDemo
+      name="OnboardingWizard"
+      description="Step-based wizard with indicators, content slots, and navigation."
+      props={`interface OnboardingWizardProps {
+  steps: { title: string; description?: string; content: ReactNode }[];
+  onComplete?: () => void;
+  initialStep?: number;
+  className?: string;
+}`}
+    >
+      <OnboardingWizard
+        steps={[
+          {
+            title: 'Welcome',
+            description: 'Get started with your new account.',
+            content: <Text size="sm" color="muted">Welcome to the platform! This wizard will guide you through the initial setup.</Text>,
+          },
+          {
+            title: 'Profile',
+            description: 'Tell us about yourself.',
+            content: (
+              <div className="space-y-3 max-w-sm">
+                <FormField label="Display Name" placeholder="Jane Doe" />
+                <FormField label="Department" placeholder="Engineering" />
+              </div>
+            ),
+          },
+          {
+            title: 'Preferences',
+            description: 'Customize your experience.',
+            content: <Text size="sm" color="muted">Choose your notification preferences and dashboard layout.</Text>,
+          },
+        ]}
+        onComplete={() => alert('Onboarding complete!')}
+      />
+    </ComponentDemo>
+  );
+}
+
 /* ---------- New Parity Components ---------- */
 
 function ListDemo() {
@@ -1087,46 +1150,189 @@ function ResultDemo() {
   return (
     <ComponentDemo
       name="Result / EmptyState"
-      description="Enhanced empty state with status variants for empty, error, success, and info states."
+      description="Enhanced with warning status, default icons, 4 sizes, and placeholderContainer."
       props={`interface EmptyStateProps {
-  status?: 'empty' | 'error' | 'success' | 'info';
-  icon?: ElementType; title: string;
-  description?: string; subTitle?: string;
-  illustration?: ReactNode;
-  action?: { label: string; onClick: () => void };
+  status?: 'empty' | 'error' | 'success' | 'warning' | 'info';
+  icon?: ElementType; title: string; size?: 'small' | 'medium' | 'large' | 'xlarge';
+  description?: string; subTitle?: string; placeholderContainer?: boolean;
   actions?: ResultAction[];
 }`}
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Result
-          status="empty"
-          icon={Inbox}
-          title="No results found"
-          subTitle="Try adjusting your search criteria."
-          actions={[{ label: 'Clear Filters', onClick: () => {} }]}
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Result status="empty" title="No results found" subTitle="Try adjusting your search criteria." actions={[{ label: 'Clear Filters', onClick: () => {} }]} />
+          <Result status="error" title="Something went wrong" subTitle="Please try again later." actions={[{ label: 'Retry', onClick: () => {} }, { label: 'Go Back', onClick: () => {}, variant: 'outline' }]} />
+          <Result status="success" title="Submission Complete" subTitle="Your request has been processed." />
+          <Result status="warning" title="Partial Data" subTitle="Some records could not be loaded." />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Result status="info" title="Small size" subTitle="Compact variant for inline use." size="small" />
+          <Result status="empty" title="Placeholder Container" subTitle="Dashed border treatment for drop zones." placeholderContainer size="small" />
+        </div>
+      </div>
+    </ComponentDemo>
+  );
+}
+
+/* ---------- New Components (v2) ---------- */
+
+function BannerDemo() {
+  return (
+    <ComponentDemo
+      name="Banner"
+      description="Full-width dismissible banner with 5 semantic variants."
+      props={`interface BannerProps {
+  variant?: 'info' | 'success' | 'warning' | 'error' | 'neutral';
+  title?: string; children?: ReactNode;
+  dismissible?: boolean; onDismiss?: () => void;
+  action?: { label: string; onClick: () => void };
+}`}
+    >
+      <div className="space-y-3">
+        <Banner variant="info" title="System Update" dismissible>New features are available. Refresh to see changes.</Banner>
+        <Banner variant="success" title="Deployment Complete">All services are running normally.</Banner>
+        <Banner variant="warning" title="Maintenance Window">Scheduled downtime tonight 10pm–2am.</Banner>
+        <Banner variant="error" title="Service Disruption">API latency is elevated. Investigating.</Banner>
+        <Banner variant="neutral" title="Tip" action={{ label: 'Learn More', onClick: () => {} }}>You can customize the theme in config/app.config.ts.</Banner>
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function HeroDemo() {
+  return (
+    <ComponentDemo
+      name="Hero"
+      description="Page hero with title, subtitle, CTAs, and optional illustration."
+      props={`interface HeroProps {
+  title: string; subtitle?: string;
+  primaryAction?: { label: string; href: string };
+  secondaryAction?: { label: string; href: string };
+  illustration?: ReactNode;
+  align?: 'left' | 'center';
+  variant?: 'default' | 'gradient' | 'image';
+}`}
+    >
+      <div className="space-y-6">
+        <Hero
+          title="Build Government Apps Fast"
+          subtitle="The atomic foundation for AI-generated applications."
+          primaryAction={{ label: 'Get Started', href: '#' }}
+          secondaryAction={{ label: 'Documentation', href: '#' }}
+          variant="gradient"
         />
-        <Result
-          status="error"
-          icon={AlertTriangle}
-          title="Something went wrong"
-          subTitle="Please try again later."
-          actions={[
-            { label: 'Retry', onClick: () => {} },
-            { label: 'Go Back', onClick: () => {}, variant: 'outline' },
+        <Hero
+          title="Centered Hero"
+          subtitle="Centered alignment without illustration."
+          primaryAction={{ label: 'Action', href: '#' }}
+          align="center"
+        />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function FeatureCardDemo() {
+  return (
+    <ComponentDemo
+      name="FeatureCard"
+      description="Icon + title + description card with optional link and badge."
+      props={`interface FeatureCardProps {
+  icon: ComponentType; title: string; description: string;
+  href?: string; badge?: string;
+}`}
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <FeatureCard icon={Blocks} title="Atomic Design" description="Atoms, molecules, and organisms compose every view." href="#" />
+        <FeatureCard icon={Shield} title="Auth Guards" description="Middleware-based route protection with role support." badge="New" />
+        <FeatureCard icon={Palette} title="HSL Theming" description="One hex value cascades to the entire shade scale." />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function FilePreviewCardDemo() {
+  return (
+    <ComponentDemo
+      name="FilePreviewCard"
+      description="File card with preview, progress bar, and action buttons."
+      props={`interface FilePreviewCardProps {
+  name: string; description?: string;
+  layout?: 'horizontal' | 'vertical';
+  previewSrc?: string; previewIcon?: ReactNode;
+  progress?: number; isSelected?: boolean;
+  onActionClick?: () => void; onClick?: () => void; onClose?: () => void;
+}`}
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+        <FilePreviewCard
+          name="Q1-Budget-Report.pdf"
+          description="2.4 MB · PDF"
+          onActionClick={() => {}}
+          onClose={() => {}}
+        />
+        <FilePreviewCard
+          name="Site-Photo.jpg"
+          description="Uploading..."
+          previewIcon={<Image className="h-8 w-8" />}
+          progress={65}
+          onClose={() => {}}
+        />
+        <FilePreviewCard
+          name="Selected File"
+          description="This card is selected"
+          previewIcon={<File className="h-8 w-8" />}
+          isSelected
+          onClick={() => {}}
+        />
+        <FilePreviewCard
+          name="Vertical Layout"
+          description="Uses layout='vertical'"
+          layout="vertical"
+          previewIcon={<File className="h-8 w-8" />}
+          onActionClick={() => {}}
+          onClose={() => {}}
+        />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function CheckboxTreeDemo() {
+  const [selected, setSelected] = useState<string[]>([]);
+  return (
+    <ComponentDemo
+      name="CheckboxTree"
+      description="Hierarchical tree with tri-state checkboxes. Parent cascades to children."
+      props={`interface CheckboxTreeProps {
+  items: TreeNode[]; selected: string[];
+  onSelectionChange: (selected: string[]) => void;
+  expandedByDefault?: boolean;
+}
+interface TreeNode { id: string; label: string; children?: TreeNode[]; disabled?: boolean; }`}
+    >
+      <div className="max-w-sm space-y-2">
+        <CheckboxTree
+          items={[
+            {
+              id: 'dept',
+              label: 'All Departments',
+              children: [
+                { id: 'eng', label: 'Engineering', children: [
+                  { id: 'fe', label: 'Frontend' },
+                  { id: 'be', label: 'Backend' },
+                  { id: 'devops', label: 'DevOps' },
+                ] },
+                { id: 'design', label: 'Design' },
+                { id: 'product', label: 'Product', disabled: true },
+              ],
+            },
           ]}
+          selected={selected}
+          onSelectionChange={setSelected}
+          expandedByDefault
         />
-        <Result
-          status="success"
-          icon={CheckCircle}
-          title="Submission Complete"
-          subTitle="Your request has been processed successfully."
-        />
-        <Result
-          status="info"
-          icon={Info}
-          title="No Data Available"
-          subTitle="Data will appear here once records are added."
-        />
+        <Text size="xs" color="muted">Selected: {selected.length > 0 ? selected.join(', ') : 'none'}</Text>
       </div>
     </ComponentDemo>
   );

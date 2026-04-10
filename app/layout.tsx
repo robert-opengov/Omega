@@ -1,4 +1,4 @@
-import { Barlow, Geist_Mono } from 'next/font/google';
+import { DM_Sans, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { NavigationProgress } from '@/components/ui/atoms';
@@ -6,8 +6,8 @@ import { Providers } from '@/providers';
 import { appConfig } from '@/config/app.config';
 import { hexToHsl, DEFAULT_THEME } from '@/lib/utils';
 
-const barlow = Barlow({
-  variable: '--font-barlow',
+const dmSans = DM_Sans({
+  variable: '--font-dm-sans',
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
 });
@@ -48,7 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en" suppressHydrationWarning style={themeStyle}>
-      <body className={`${barlow.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${dmSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
           <NavigationProgress />
           {children}

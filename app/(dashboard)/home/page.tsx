@@ -1,105 +1,124 @@
-import { Heading, Text } from '@/components/ui/atoms';
-import { Card, CardContent } from '@/components/ui/molecules';
-import { Alert } from '@/components/ui/molecules';
-import Link from 'next/link';
-import { Blocks, Bot, BookOpen, Settings } from 'lucide-react';
+'use client';
+
+import { Banner, Hero, FeatureCard, StatsCard, Alert } from '@/components/ui/molecules';
+import { Footer } from '@/components/ui/organisms';
+import { Blocks, Settings, BookOpen, Bot, Palette, Shield, BarChart3, Component } from 'lucide-react';
 import { appConfig } from '@/config/app.config';
 
-const quickLinks = [
+const features = [
   {
-    href: '/ui',
     icon: Blocks,
-    title: 'UI Showcase',
-    description: 'Explore the atomic component library with live examples.',
+    title: 'Atomic Components',
+    description:
+      'Atoms, Molecules, and Organisms ready to compose any UI. Fully themeable with HSL dark/light mode.',
+    href: '/ui/atoms',
   },
   {
-    href: '/ai-builder',
+    icon: Settings,
+    title: 'Clean Architecture',
+    description:
+      'Ports & Adapters pattern — swap API v1 for v2 by changing one adapter file.',
+  },
+  {
+    icon: BookOpen,
+    title: 'Config-Driven',
+    description:
+      'Navigation, routes, theming, and layout live in config files. AI edits configs, not components.',
+  },
+  {
+    icon: Palette,
+    title: 'HSL Theme System',
+    description:
+      'One hex value cascades to the entire shade scale. Seamless dark/light switching.',
+  },
+  {
+    icon: Shield,
+    title: 'Auth & Routes',
+    description:
+      'Middleware-based auth guards, role-based nav items, and configurable public routes.',
+  },
+  {
     icon: Bot,
     title: 'AI Builder',
-    description: 'Generate app schemas from natural language prompts.',
+    description:
+      'Generate app schemas from natural language prompts. Build full CRUD pages in seconds.',
+    href: '/ai-builder',
+  },
+];
+
+const stats = [
+  { title: 'Atoms', value: '28', icon: Component, change: 12.5, changeLabel: 'new in v2' },
+  { title: 'Molecules', value: '36', icon: Blocks, change: 18.0, changeLabel: 'new in v2' },
+  { title: 'Organisms', value: '13', icon: BarChart3, change: 8.3, changeLabel: 'new in v2' },
+];
+
+const footerSections = [
+  {
+    title: 'Components',
+    links: [
+      { label: 'Atoms', href: '/ui/atoms' },
+      { label: 'Molecules', href: '/ui/molecules' },
+      { label: 'Organisms', href: '/ui/organisms' },
+    ],
+  },
+  {
+    title: 'Tools',
+    links: [
+      { label: 'AI Builder', href: '/ai-builder' },
+      { label: 'UI Showcase', href: '/ui' },
+    ],
+  },
+  {
+    title: 'Resources',
+    links: [
+      { label: 'Documentation', href: '#' },
+      { label: 'GitHub', href: '#' },
+    ],
   },
 ];
 
 export default function HomePage() {
   return (
-    <div className="p-6 lg:p-8 space-y-10">
-      <header className="mb-12">
-        <Heading as="h1" color="primary" className="mb-3">
-          Welcome to {appConfig.name}
-        </Heading>
-        <Text size="lg" color="muted" className="max-w-2xl">
-          The atomic &ldquo;Lego Bucket&rdquo; foundation for AI-generated government
-          applications. Built with Next.js App Router, Tailwind CSS, and Clean Architecture.
-        </Text>
-      </header>
+    <div className="flex flex-col min-h-full">
+      <div className="flex-1 p-6 lg:p-8 space-y-8">
+        <Banner variant="info" title="Welcome!" dismissible>
+          You&apos;re running the {appConfig.name} boilerplate. Explore the component library or jump into the AI Builder.
+        </Banner>
 
-      <section className="mb-12">
-        <Heading as="h2" className="mb-6">Quick Start</Heading>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {quickLinks.map(({ href, icon: Icon, title, description }) => (
-            <Link key={href} href={href} className="group">
-              <Card className="h-full transition-shadow hover:shadow-lg">
-                <CardContent className="p-6 flex items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <Heading as="h3" className="text-base font-semibold mb-1">{title}</Heading>
-                    <Text size="sm" color="muted">{description}</Text>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </section>
+        <Hero
+          title={`Welcome to ${appConfig.name}`}
+          subtitle="The atomic foundation for AI-generated government applications. Built with Next.js, Tailwind CSS, and Clean Architecture."
+          primaryAction={{ label: 'Explore Components', href: '/ui' }}
+          secondaryAction={{ label: 'AI Builder', href: '/ai-builder' }}
+          variant="gradient"
+        />
 
-      <section className="mb-12">
-        <Heading as="h2" className="mb-6">Architecture Overview</Heading>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <Blocks className="h-5 w-5 text-primary" />
-                <Heading as="h3" className="text-sm font-semibold">Atomic Components</Heading>
-              </div>
-              <Text size="sm" color="muted">
-                Atoms, Molecules, and Organisms in <code className="text-xs bg-muted px-1 py-0.5 rounded">components/ui/</code>.
-                Fully customizable via props with smart defaults.
-              </Text>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <Settings className="h-5 w-5 text-primary" />
-                <Heading as="h3" className="text-sm font-semibold">Clean Architecture</Heading>
-              </div>
-              <Text size="sm" color="muted">
-                Ports &amp; Adapters in <code className="text-xs bg-muted px-1 py-0.5 rounded">lib/core/</code>.
-                Swap API V1 to V2 by changing one file.
-              </Text>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <BookOpen className="h-5 w-5 text-primary" />
-                <Heading as="h3" className="text-sm font-semibold">Config-Driven</Heading>
-              </div>
-              <Text size="sm" color="muted">
-                Navigation, routes, and theming live in <code className="text-xs bg-muted px-1 py-0.5 rounded">config/</code>.
-                AI edits config files, not component code.
-              </Text>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
+        <section>
+          <h2 className="text-xl font-bold text-foreground mb-4">Platform Highlights</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {features.map((f) => (
+              <FeatureCard key={f.title} {...f} />
+            ))}
+          </div>
+        </section>
 
-      <Alert variant="warning" title="Before Production">
-        Delete the <code className="font-mono bg-warning-light px-1.5 py-0.5 rounded text-xs">/app/(dashboard)/ui</code> and <code className="font-mono bg-warning-light px-1.5 py-0.5 rounded text-xs">/app/(dashboard)/ai-builder</code> directories
-        before deploying to production. These are development-only tools.
-      </Alert>
+        <section>
+          <h2 className="text-xl font-bold text-foreground mb-4">Component Library</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {stats.map((s) => (
+              <StatsCard key={s.title} {...s} />
+            ))}
+          </div>
+        </section>
+
+        <Alert variant="warning" title="Before Production">
+          Delete the <code className="font-mono bg-warning-light px-1.5 py-0.5 rounded text-xs">/app/(dashboard)/ui</code> and{' '}
+          <code className="font-mono bg-warning-light px-1.5 py-0.5 rounded text-xs">/app/(dashboard)/ai-builder</code> directories
+          before deploying to production. These are development-only tools.
+        </Alert>
+      </div>
+
+      <Footer sections={footerSections} />
     </div>
   );
 }

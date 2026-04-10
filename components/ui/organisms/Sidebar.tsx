@@ -1,101 +1,140 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronRight, PanelLeftClose } from 'lucide-react';
 import { useSidebar, useAuth } from '@/providers';
-import { navigationItems, isRouteActive } from '@/config/navigation.config';
+import { navigationItems, userMenuItems, isRouteActive } from '@/config/navigation.config';
+import type { UserMenuItem } from '@/config/navigation.config';
 import { cn } from '@/lib/utils';
-import { Logo, LogoMark } from './Logo';
+import { Logo } from './Logo';
+
+function UserMenuItemRow({ item, onAction }: { item: UserMenuItem; onAction: (action: string) => void }) {
+  const shared = cn(
+    'flex items-center gap-2 rounded-[4px] py-1 pl-10 pr-2 text-sm tracking-[0.017em] leading-[1.43] transition-colors duration-200',
+    'text-text-primary font-normal hover:bg-action-hover',
+  );
+
+  if (item.href) {
+    return (
+      <Link href={item.href} className={shared}>
+        <span className="flex-1 truncate">{item.label}</span>
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => item.action && onAction(item.action)}
+      className={cn(shared, 'w-full text-left')}
+    >
+      <span className="flex-1 truncate">{item.label}</span>
+    </button>
+  );
+}
 
 /**
- * Sidebar navigation content shared between mobile and desktop variants.
+ * CDS-37 sidebar navigation content.
+ * Text-only tree navigation with chevron indicators — no per-item icons.
  * @internal
  */
-function NavigationContent({ collapsed = false, isMobile = false }: { collapsed?: boolean; isMobile?: boolean }) {
+function NavigationContent({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
   const { toggleDesktopCollapsed } = useSidebar();
-  const { user } = useAuth();
-  const showLabels = !collapsed;
+  const { user, logout } = useAuth();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const visibleItems = navigationItems.filter((item) => {
-    if (!item.roles || item.roles.length === 0) return true;
-    return item.roles.includes(user?.role ?? '');
+    if (item.roles?.length && !item.roles.includes(user?.role ?? '')) return false;
+    return (item.showIn ?? 'both') !== 'navbar';
   });
+
+  const handleUserAction = (action: string) => {
+    if (action === 'logout') logout();
+  };
 
   return (
     <>
-      <div className="h-[73px] flex items-center justify-center border-b border-border px-4 pt-2 overflow-hidden">
-        <Link href="/" className="relative flex items-center justify-center w-full h-full">
-          <div
-            className={cn(
-              'transition-all duration-500 ease-in-out text-foreground',
-              collapsed
-                ? 'opacity-0 scale-95 -translate-x-4 pointer-events-none'
-                : 'opacity-100 scale-100 translate-x-0'
-            )}
-          >
-            <Logo />
-          </div>
-          <div
-            className={cn(
-              'absolute transition-all duration-500 ease-in-out',
-              collapsed
-                ? 'opacity-100 scale-100 translate-x-0'
-                : 'opacity-0 scale-95 translate-x-4 pointer-events-none'
-            )}
-          >
-            <LogoMark className="h-8 w-8" />
-          </div>
+      {/* ---- Header: logo + collapse toggle (matches navbar 53px) ---- */}
+      <div className="flex items-center justify-between border-b border-border px-4" style={{ height: 53 }}>
+        <Link href="/" className="flex items-center min-w-0 text-foreground">
+          <Logo />
         </Link>
+        {!isMobile && (
+          <button
+            onClick={toggleDesktopCollapsed}
+            className="flex-shrink-0 p-1.5 rounded text-text-secondary hover:text-text-primary hover:bg-action-hover transition-colors duration-200"
+            aria-label="Collapse sidebar"
+          >
+            <PanelLeftClose size={18} />
+          </button>
+        )}
       </div>
 
-      <nav aria-label="Main navigation" className="flex-1 p-3 space-y-1 overflow-y-auto">
+      {/* ---- Navigation items ---- */}
+      <nav aria-label="Main navigation" className="flex-1 px-4 py-4 space-y-4 overflow-y-auto">
         {visibleItems.map((item) => {
-          const Icon = item.icon;
           const isActive = isRouteActive(item.href, pathname);
 
           return (
             <div key={item.href}>
               {item.divider && (
-                <div className="my-2 border-t border-border" />
+                <div className="mb-4 border-t border-border" />
               )}
               <Link
                 href={item.href}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  'flex items-center gap-3 rounded py-3 text-sm font-medium transition-all duration-300 ease-in-out',
-                  showLabels ? 'px-4' : 'px-3 justify-center',
+                  'flex items-center gap-2 rounded-[4px] py-0.5 pl-6 pr-2 text-sm tracking-[0.017em] leading-[1.43] transition-colors duration-200',
                   isActive
-                    ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-foreground'
-                    : 'text-muted-foreground hover:bg-muted'
+                    ? 'bg-secondary text-text-primary font-normal'
+                    : 'text-text-primary font-normal hover:bg-action-hover',
                 )}
-                title={collapsed ? item.label : undefined}
               >
-                <Icon className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
-                {showLabels && <span>{item.label}</span>}
+                <span className="flex-1 truncate">{item.label}</span>
               </Link>
             </div>
           );
         })}
       </nav>
 
-      {!isMobile && (
-        <div className="p-3">
+      {/* ---- Footer: expandable user menu ---- */}
+      {user && (
+        <div className="border-t border-border px-4 py-3">
           <button
-            onClick={toggleDesktopCollapsed}
-            aria-expanded={!collapsed}
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            className={cn(
-              'flex items-center gap-3 rounded py-2 text-sm w-full transition-all duration-300 ease-in-out',
-              'text-muted-foreground hover:bg-muted',
-              collapsed ? 'justify-center px-3' : 'px-4'
-            )}
+            onClick={() => setUserMenuOpen((prev) => !prev)}
+            className="flex items-center gap-2 w-full text-left group"
+            aria-expanded={userMenuOpen}
+            aria-label="User menu"
           >
-            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-            {!collapsed && <span>Collapse</span>}
+            <ChevronRight
+              className={cn(
+                'w-4 h-4 flex-shrink-0 text-text-secondary transition-transform duration-200',
+                userMenuOpen && 'rotate-90',
+              )}
+              aria-hidden="true"
+            />
+            <span className="text-sm font-semibold text-text-primary truncate tracking-[0.017em] leading-[1.43]">
+              {user.fullName || user.userName}
+            </span>
           </button>
+
+          <div
+            ref={menuRef}
+            className="overflow-hidden transition-[max-height] duration-200 ease-in-out"
+            style={{ maxHeight: userMenuOpen ? menuRef.current?.scrollHeight ?? 200 : 0 }}
+          >
+            <div className="mt-1 space-y-0.5">
+              {userMenuItems.map((item) => (
+                <div key={item.label}>
+                  {item.divider && <div className="my-1.5 border-t border-border" />}
+                  <UserMenuItemRow item={item} onAction={handleUserAction} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </>
@@ -165,14 +204,15 @@ function MobileSidebar() {
         className="fixed top-0 left-0 h-screen w-64 z-[var(--z-overlay)] flex flex-col bg-background border-r border-border transition-transform duration-300 ease-in-out lg:hidden"
         style={{ transform: isMobileOpen ? 'translateX(0)' : 'translateX(-100%)' }}
       >
-        <NavigationContent collapsed={false} isMobile />
+        <NavigationContent isMobile />
       </aside>
     </>
   );
 }
 
 /**
- * Desktop persistent sidebar with collapsible width.
+ * Desktop persistent sidebar.
+ * Slides fully off-screen when collapsed (no icon-only strip).
  * @internal
  */
 function DesktopSidebar() {
@@ -180,18 +220,21 @@ function DesktopSidebar() {
 
   return (
     <aside
-      className="fixed top-0 left-0 bottom-0 bg-background border-r border-border z-[var(--z-ground)] hidden lg:flex flex-col transition-all duration-300"
-      style={{ width: isDesktopCollapsed ? '80px' : '256px' }}
+      className={cn(
+        'fixed top-0 left-0 bottom-0 bg-background border-r border-border z-[var(--z-ground)] hidden lg:flex flex-col w-64 transition-transform duration-300 ease-in-out',
+        isDesktopCollapsed ? '-translate-x-full' : 'translate-x-0',
+      )}
     >
-      <NavigationContent collapsed={isDesktopCollapsed} />
+      <NavigationContent />
     </aside>
   );
 }
 
 /**
- * Application sidebar that renders both mobile (slide-out) and desktop
- * (fixed, collapsible) variants. Uses semantic z-index tokens from the
- * OpenGov z-index scale.
+ * Application sidebar — CDS-37 text-based tree navigation.
+ *
+ * Desktop: fixed 256px panel that slides off-screen when collapsed.
+ * Mobile: slide-out drawer with backdrop overlay and focus trapping.
  *
  * @example
  * <Sidebar />

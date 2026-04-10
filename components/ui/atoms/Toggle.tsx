@@ -5,17 +5,17 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const toggleVariants = cva(
-  'inline-flex items-center justify-center rounded text-sm font-medium transition-all duration-300 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center rounded text-sm font-medium transition-all duration-200 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 'bg-transparent hover:bg-muted text-muted-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground',
-        outline: 'border border-border bg-transparent hover:bg-muted text-muted-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground',
+        default: 'bg-transparent hover:bg-action-hover-primary text-muted-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground',
+        outline: 'border border-border bg-transparent hover:bg-action-hover-primary text-muted-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground',
       },
       size: {
-        sm: 'h-8 px-2.5',
-        md: 'h-10 px-3',
-        lg: 'h-12 px-4',
+        sm: 'h-7 px-2',
+        md: 'h-8 px-2.5',
+        lg: 'h-10 px-3',
       },
     },
     defaultVariants: { variant: 'default', size: 'md' },
@@ -30,7 +30,7 @@ export interface ToggleProps extends ButtonHTMLAttributes<HTMLButtonElement>, Va
 }
 
 /**
- * A two-state toggle button (on/off) with OpenGov-aligned transitions and focus.
+ * A two-state toggle button (on/off) with CDS-37 transitions and focus.
  *
  * @example
  * <Toggle pressed={isBold} onPressedChange={setIsBold}>

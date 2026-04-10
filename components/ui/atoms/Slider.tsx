@@ -10,7 +10,7 @@ export interface SliderProps extends ComponentPropsWithoutRef<typeof SliderPrimi
 }
 
 /**
- * A range slider built on Radix UI with OpenGov-aligned shadow and focus tokens.
+ * A range slider built on Radix UI with CDS-37 shadow and focus tokens.
  *
  * @example
  * <Slider defaultValue={[50]} max={100} step={1} />
@@ -20,13 +20,13 @@ export interface SliderProps extends ComponentPropsWithoutRef<typeof SliderPrimi
  */
 const Slider = forwardRef<HTMLSpanElement, SliderProps>(
   ({ className, label, ...props }, ref) => {
-    const labelId = label ? `slider-label-${(label || '').replace(/\s+/g, '-').toLowerCase()}` : undefined;
+    const labelId = label ? `slider-label-${(label || '').replaceAll(/\s+/g, '-').toLowerCase()}` : undefined;
 
     return (
       <div className="space-y-2">
         {label && (
           <div className="flex items-center justify-between">
-            <span id={labelId} className="text-sm font-medium text-foreground">{label}</span>
+            <span id={labelId} className="text-sm font-semibold text-foreground">{label}</span>
             <span className="text-sm text-muted-foreground">{props.value?.[0] ?? props.defaultValue?.[0] ?? 0}</span>
           </div>
         )}
@@ -36,12 +36,12 @@ const Slider = forwardRef<HTMLSpanElement, SliderProps>(
           className={cn('relative flex w-full touch-none select-none items-center', className)}
           {...props}
         >
-          <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-muted">
+          <SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-muted">
             <SliderPrimitive.Range className="absolute h-full bg-primary" />
           </SliderPrimitive.Track>
           <SliderPrimitive.Thumb
             className={cn(
-              'block h-5 w-5 rounded-full border-2 border-primary bg-background shadow-soft transition-all duration-300 ease-in-out',
+              'block h-5 w-5 rounded-full border-2 border-primary bg-background shadow-soft transition-all duration-200 ease-in-out',
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
               'disabled:pointer-events-none disabled:opacity-50'
             )}

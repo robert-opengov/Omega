@@ -18,7 +18,16 @@ export const Accordion = AccordionPrimitive.Root;
  * </AccordionItem>
  */
 export function AccordionItem({ className, ...props }: ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>) {
-  return <AccordionPrimitive.Item className={cn('border-b border-border', className)} {...props} />;
+  return (
+    <AccordionPrimitive.Item
+      className={cn(
+        'border-b border-border',
+        'data-[state=open]:border-l-4 data-[state=open]:border-l-primary',
+        className
+      )}
+      {...props}
+    />
+  );
 }
 
 /** Clickable header that toggles the accordion item open/closed. */
@@ -27,14 +36,14 @@ export function AccordionTrigger({ className, children, ...props }: ComponentPro
     <AccordionPrimitive.Header>
       <AccordionPrimitive.Trigger
         className={cn(
-          'flex w-full items-center justify-between py-4 text-sm font-medium text-foreground hover:text-foreground/80 transition-all duration-300 ease-in-out',
+          'flex w-full items-center justify-between min-h-16 px-2 py-4 text-sm font-semibold text-foreground hover:bg-action-hover-primary rounded transition-all duration-200 ease-in-out',
           '[&[data-state=open]>svg]:rotate-180',
           className
         )}
         {...props}
       >
         {children}
-        <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300 ease-in-out" />
+        <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ease-in-out" />
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
   );
@@ -47,7 +56,7 @@ export function AccordionContent({ className, children, ...props }: ComponentPro
       className={cn('overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down', className)}
       {...props}
     >
-      <div className="pb-4 text-muted-foreground">{children}</div>
+      <div className="p-4 text-muted-foreground">{children}</div>
     </AccordionPrimitive.Content>
   );
 }

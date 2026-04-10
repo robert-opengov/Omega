@@ -19,7 +19,7 @@ export interface TooltipProps {
 /**
  * A tooltip powered by Radix UI that appears on hover/focus.
  *
- * Uses `shadow-soft` (OpenGov cold shadow) instead of generic `shadow-md`.
+ * Uses `shadow-soft` (CDS-37 cold shadow) instead of generic `shadow-md`.
  *
  * @example
  * <Tooltip content="Save changes">
@@ -36,7 +36,7 @@ export function Tooltip({ children, content, side = 'top', delayDuration = 200, 
             side={side}
             sideOffset={4}
             className={cn(
-              'z-[var(--z-tooltip)] overflow-hidden rounded bg-foreground px-3 py-1.5 text-xs text-background shadow-soft',
+              'z-[var(--z-tooltip)] overflow-hidden rounded bg-black p-2 min-h-[26px] text-xs text-white shadow-soft',
               'animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
               className
             )}

@@ -4,31 +4,19 @@ import { forwardRef, type SelectHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
-  /**
-   * Error message to display. When provided the select renders in an
-   * error state with `aria-invalid` set to `true`.
-   */
   error?: string;
+  /** Visual size controlling height. @default 'md' */
+  selectSize?: 'sm' | 'md' | 'lg';
 }
 
-/**
- * A native `<select>` component with built-in error state styling and
- * accessibility. Aligned with OpenGov Capital Design System focus and
- * transition patterns.
- *
- * @example
- * <Select>
- *   <option value="1">Option 1</option>
- *   <option value="2">Option 2</option>
- * </Select>
- *
- * @example
- * <Select error="Please select an option">
- *   <option value="">Select...</option>
- * </Select>
- */
+const sizeClasses = {
+  sm: 'h-6 px-2 text-sm',
+  md: 'h-8 px-3 text-sm',
+  lg: 'h-10 px-4 text-base',
+} as const;
+
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className, error, disabled, id, ...props }, ref) => {
+  ({ className, error, disabled, id, selectSize = 'md', ...props }, ref) => {
     const errorDescId = error && id ? `${id}-error` : undefined;
     const describedBy = [props['aria-describedby'], errorDescId].filter(Boolean).join(' ') || undefined;
 
@@ -41,7 +29,9 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
         {...props}
         aria-describedby={describedBy}
         className={cn(
-          'w-full px-3 py-2 rounded border border-border text-sm transition-all duration-300 ease-in-out appearance-none bg-background text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+          'w-full rounded border border-input-border transition-all duration-200 ease-in-out appearance-none bg-background text-foreground',
+          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:border-ring',
+          sizeClasses[selectSize],
           error && 'border-destructive focus-visible:outline-destructive',
           disabled && 'opacity-50 cursor-not-allowed',
           className

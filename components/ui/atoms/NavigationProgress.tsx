@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
  * A thin progress bar fixed at the top of the viewport that animates
  * during client-side navigations, providing visual feedback.
  *
- * Uses `z-[var(--z-overlay)]` from the OpenGov z-index scale.
+ * Uses `z-[var(--z-overlay)]` from the CDS-37 z-index scale.
  */
 export function NavigationProgress() {
   const pathname = usePathname();

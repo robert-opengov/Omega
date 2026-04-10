@@ -6,12 +6,12 @@ import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /**
- * Chip variant styles aligned with OpenGov Capital Design System.
+ * Chip variant styles aligned with CDS-37 design system.
  *
  * Four visual styles: default (filled), outlined, minimal, and strong.
  */
 const chipVariants = cva(
-  'inline-flex items-center gap-1.5 font-medium tracking-[0.0125em] transition-all duration-300 ease-in-out rounded-full select-none',
+  'inline-flex items-center gap-1.5 font-semibold tracking-[0.0125em] transition-all duration-200 ease-in-out rounded select-none',
   {
     variants: {
       variant: {
@@ -21,8 +21,10 @@ const chipVariants = cva(
         strong: 'bg-foreground text-background',
       },
       size: {
+        xs: 'h-5 px-1.5 text-[0.625rem]',
         sm: 'h-6 px-2 text-xs',
-        md: 'h-8 px-3 text-sm',
+        md: 'h-8 px-3 text-xs',
+        lg: 'h-10 px-4 text-sm',
       },
       color: {
         neutral: '',
@@ -102,7 +104,7 @@ const Chip = forwardRef<HTMLSpanElement, ChipProps>(
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onDelete(); }}
-            className="flex items-center justify-center shrink-0 -mr-0.5 h-4 w-4 rounded-full hover:bg-foreground/10 transition-colors duration-300"
+            className="flex items-center justify-center shrink-0 -mr-0.5 h-4 w-4 rounded hover:bg-foreground/10 transition-colors duration-200"
             aria-label={`Remove ${label}`}
           >
             <X className="h-3 w-3" />

@@ -10,7 +10,7 @@ export const DropdownMenu = DropdownPrimitive.Root;
 export const DropdownMenuTrigger = DropdownPrimitive.Trigger;
 
 /**
- * Floating dropdown panel with OpenGov-aligned `shadow-medium`.
+ * Floating dropdown panel with CDS-37-aligned `shadow-medium`.
  *
  * @example
  * <DropdownMenu>
@@ -26,7 +26,7 @@ export function DropdownMenuContent({ className, sideOffset = 4, ...props }: Com
       <DropdownPrimitive.Content
         sideOffset={sideOffset}
         className={cn(
-          'z-[var(--z-dropdown)] min-w-[160px] rounded-xl border border-border bg-card p-1 shadow-medium',
+          'z-[var(--z-dropdown)] min-w-[160px] rounded border border-border bg-card p-1 shadow-medium',
           'animate-in fade-in-0 zoom-in-95',
           className
         )}
@@ -42,7 +42,7 @@ export function DropdownMenuItem({ className, ...props }: ComponentPropsWithoutR
     <DropdownPrimitive.Item
       className={cn(
         'relative flex cursor-pointer items-center gap-2 rounded px-3 py-2 text-sm text-foreground outline-none',
-        'hover:bg-muted focus-visible:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-all duration-300 ease-in-out',
+        'hover:bg-action-hover-primary focus-visible:bg-action-hover-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring transition-all duration-200 ease-in-out',
         'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
         className
       )}

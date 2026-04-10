@@ -85,7 +85,7 @@ export function AIMessage({ message, renderContent, actions, className, ...props
         </div>
 
         <div className={cn(
-          'flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300',
+          'flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200',
           isUser ? 'justify-end' : 'justify-start'
         )}>
           {message.timestamp && (

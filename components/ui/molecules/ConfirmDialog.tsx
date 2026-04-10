@@ -62,7 +62,7 @@ export function ConfirmDialog({
             type="button"
             disabled={loading}
             onClick={() => onOpenChange(false)}
-            className="px-3.5 py-2 text-sm font-medium rounded border border-border text-foreground hover:bg-muted transition-all duration-300 ease-in-out disabled:opacity-50"
+            className="px-3.5 py-2 text-sm font-medium rounded border border-border text-foreground hover:bg-action-hover-primary transition-all duration-200 ease-in-out disabled:opacity-50"
           >
             {cancelLabel}
           </button>
@@ -70,7 +70,7 @@ export function ConfirmDialog({
             type="button"
             disabled={loading}
             onClick={onConfirm}
-            className={`px-3.5 py-2 text-sm font-medium rounded transition-all duration-300 ease-in-out disabled:opacity-50 ${
+            className={`px-3.5 py-2 text-sm font-medium rounded transition-all duration-200 ease-in-out disabled:opacity-50 ${
               isDanger
                 ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
                 : 'bg-primary text-primary-foreground hover:bg-primary/90'

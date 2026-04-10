@@ -24,7 +24,7 @@ export function StatsCard({ title, value, change, changeLabel, icon: Icon, class
   const isPositive = change !== undefined && change >= 0;
 
   return (
-    <div className={cn('rounded-xl border border-border bg-card p-6 shadow-above', className)}>
+    <div className={cn('rounded border border-border bg-card p-6', className)}>
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-muted-foreground">{title}</p>
         {Icon && <Icon className="h-5 w-5 text-muted-foreground" />}

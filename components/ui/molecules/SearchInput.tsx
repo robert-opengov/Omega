@@ -16,7 +16,7 @@ export interface SearchInputProps {
 }
 
 /**
- * A search input with debounced value, clear button, and OpenGov-aligned
+ * A search input with debounced value, clear button, and CDS-37-aligned
  * focus/transition patterns.
  *
  * @example
@@ -47,10 +47,10 @@ export function SearchInput({ value: controlledValue, onChange, placeholder = 'S
         onChange={handleChange}
         placeholder={placeholder}
         aria-label="Search"
-        className="w-full pl-9 pr-8 py-2 rounded border border-border bg-background text-sm transition-all duration-300 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        className="w-full pl-9 pr-8 py-2 rounded border border-input-border bg-background text-sm transition-all duration-200 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       />
       {display && (
-        <button onClick={handleClear} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-muted text-muted-foreground transition-all duration-300 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+        <button onClick={handleClear} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-action-hover-primary text-muted-foreground transition-all duration-200 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
           <X className="h-3 w-3" />
         </button>
       )}

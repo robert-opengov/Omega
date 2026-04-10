@@ -15,24 +15,24 @@ export interface HeadingProps extends HTMLAttributes<HTMLHeadingElement> {
 }
 
 /**
- * Size map aligned with OpenGov Capital Design System `header.scss`.
+ * CDS-37 typography scale for headings (DM Sans, SemiBold 600).
  *
- * | Level | Size  | Weight  |
- * |-------|-------|---------|
- * | h1    | 2rem  | bold    |
- * | h2    | 1.75rem | bold |
- * | h3    | 1.5rem | medium |
- * | h4    | 1rem  | medium  |
- * | h5    | 0.875rem | medium |
- * | h6    | 0.75rem | medium |
+ * | Level | Size   | Line Height | Letter Spacing | Weight   |
+ * |-------|--------|-------------|----------------|----------|
+ * | h1    | 32px   | 1.17        | -0.4px         | semibold |
+ * | h2    | 24px   | 1.25        | -0.3px         | semibold |
+ * | h3    | 20px   | 1.3         | -0.2px         | semibold |
+ * | h4    | 16px   | 1.25        | -0.2px         | semibold |
+ * | h5    | 14px   | 1.3         | 0              | semibold |
+ * | h6    | 12px   | 1.33        | 0              | semibold |
  */
 const sizeMap: Record<HeadingLevel, string> = {
-  h1: 'text-[2rem] font-bold',
-  h2: 'text-[1.75rem] font-bold',
-  h3: 'text-[1.5rem] font-medium',
-  h4: 'text-base font-medium',
-  h5: 'text-sm font-medium',
-  h6: 'text-xs font-medium',
+  h1: 'text-[32px] font-semibold leading-[1.17] tracking-[-0.4px]',
+  h2: 'text-[24px] font-semibold leading-[1.25] tracking-[-0.3px]',
+  h3: 'text-[20px] font-semibold leading-[1.3] tracking-[-0.2px]',
+  h4: 'text-[16px] font-semibold leading-[1.25] tracking-[-0.2px]',
+  h5: 'text-[14px] font-semibold leading-[1.3]',
+  h6: 'text-[12px] font-semibold leading-[1.33]',
 };
 
 const colorMap: Record<HeadingColor, string> = {
@@ -44,21 +44,15 @@ const colorMap: Record<HeadingColor, string> = {
 };
 
 /**
- * Semantic heading component with OpenGov-aligned typography scale.
- *
- * Uses `leading-tight` (line-height 1.25) and weight hierarchy where
- * h1/h2 are bold (700) and h3-h6 are medium (500), matching the
- * Capital Design System `cds-header` pattern.
+ * Semantic heading with CDS-37 typography scale (DM Sans SemiBold).
  *
  * @example
  * <Heading as="h1">Dashboard</Heading>
- *
- * @example
- * <Heading as="h3" color="muted">Section Title</Heading>
+ * <Heading as="h4" color="muted">Section Title</Heading>
  */
 export function Heading({ as = 'h1', color = 'foreground', className, ...props }: HeadingProps) {
   const Tag = as;
-  return <Tag className={cn('leading-tight', colorMap[color], sizeMap[as], className)} {...props} />;
+  return <Tag className={cn(colorMap[color], sizeMap[as], className)} {...props} />;
 }
 
 export default Heading;

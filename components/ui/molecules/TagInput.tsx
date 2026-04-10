@@ -48,7 +48,7 @@ export function TagInput({ tags, onTagsChange, placeholder = 'Add a tag...', max
   return (
     <div
       className={cn(
-        'flex flex-wrap items-center gap-2 rounded border border-border bg-background px-3 py-2 transition-all duration-300 ease-in-out focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring',
+        'flex flex-wrap items-center gap-2 rounded border border-input-border bg-background px-3 py-2 transition-all duration-200 ease-in-out focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring',
         className
       )}
       role="group"

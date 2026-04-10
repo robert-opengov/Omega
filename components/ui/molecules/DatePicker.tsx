@@ -44,9 +44,9 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
           aria-invalid={!!error}
           aria-describedby={error ? `${fieldId}-error` : undefined}
           className={cn(
-            'w-full px-3 py-2 rounded border text-sm transition-all duration-300 ease-in-out bg-background text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+            'w-full px-3 py-2 rounded border text-sm transition-all duration-200 ease-in-out bg-background text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
             error && 'border-destructive focus-visible:outline-destructive',
-            !error && 'border-border',
+            !error && 'border-input-border',
             disabled && 'opacity-50 cursor-not-allowed'
           )}
         />

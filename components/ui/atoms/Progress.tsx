@@ -49,7 +49,7 @@ const Progress = forwardRef<HTMLDivElement, ProgressProps>(
           {...props}
         >
           <ProgressPrimitive.Indicator
-            className="h-full bg-primary transition-all duration-300 ease-in-out rounded-full"
+            className="h-full bg-primary transition-all duration-200 ease-in-out rounded-full"
             style={{ width: `${value}%` }}
           />
         </ProgressPrimitive.Root>

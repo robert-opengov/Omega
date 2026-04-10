@@ -18,8 +18,8 @@ export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
 const sizeMap = { sm: 'h-8 w-8', md: 'h-10 w-10', lg: 'h-12 w-12' };
 const iconSizeMap = { sm: 'h-4 w-4', md: 'h-5 w-5', lg: 'h-6 w-6' };
 const variantMap = {
-  ghost: 'hover:bg-muted text-muted-foreground hover:text-foreground',
-  outline: 'border border-border hover:bg-muted text-muted-foreground hover:text-foreground',
+  ghost: 'hover:bg-action-hover-primary text-muted-foreground hover:text-foreground',
+  outline: 'border border-border hover:bg-action-hover-primary text-muted-foreground hover:text-foreground',
   primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
 };
 
@@ -37,7 +37,7 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
           ref={ref}
           aria-label={label}
           className={cn(
-            'inline-flex items-center justify-center rounded transition-all duration-300 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50',
+            'inline-flex items-center justify-center rounded transition-all duration-200 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50',
             sizeMap[size],
             variantMap[variant],
             className

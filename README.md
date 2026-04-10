@@ -13,7 +13,7 @@ The atomic "Lego Bucket" foundation for AI-generated government applications (Go
 | Forms | React Hook Form + Zod |
 | Charts | Recharts |
 | i18n | next-intl (opt-in) |
-| Design Tokens | OpenGov Capital Design System v5.5.0 |
+| Design Tokens | OpenGov CDS-37 (MUI-based) |
 | Testing | Vitest + Testing Library |
 | Linting | ESLint 9 (Next.js core-web-vitals) |
 | CI | GitHub Actions (lint, typecheck, build) |
@@ -50,6 +50,7 @@ npm run dev
 │   ├── layout.tsx              # Root layout (fonts, theme, providers)
 │   ├── page.tsx                # Entry redirect (→ /home or /login)
 │   ├── login/                  # Login page
+│   ├── signup/                 # Signup page
 │   ├── actions/                # Server actions (auth)
 │   └── (dashboard)/            # Dashboard route group
 │       ├── layout.tsx          # Dashboard shell (sidebar + navbar)
@@ -61,15 +62,15 @@ npm run dev
 │           ├── molecules/
 │           └── organisms/
 ├── components/ui/              # The "Lego Bucket" (atomic design)
-│   ├── atoms/                  # ~28 primitives (Button, Input, Badge, etc.)
-│   ├── molecules/              # ~30 composed components (Card, Modal, DataTable, etc.)
-│   ├── organisms/              # Complex components (Navbar, Sidebar, AuthForm, ChildTable, etc.)
-│   └── layouts/                # Page-level layouts (DashboardLayout)
+│   ├── atoms/                  # 28 primitives (Button, Input, Badge, AccountNumberInput, etc.)
+│   ├── molecules/              # 36 composed components (Card, Modal, Banner, Hero, CheckboxTree, etc.)
+│   ├── organisms/              # 13 complex components (Navbar, Sidebar, AuthForm, FlexibleInquiry, Footer, etc.)
+│   └── layouts/                # Page-level layouts (DashboardLayout, AuthLayout)
 ├── config/                     # Centralized configuration
 │   ├── app.config.ts           # Branding, theme colors, feature flags
 │   ├── gab.config.ts           # GAB API credentials (server-only)
 │   ├── routes.config.ts        # Auth route rules
-│   └── navigation.config.ts    # Sidebar nav items
+│   └── navigation.config.ts    # Sidebar and navbar navigation items
 ├── hooks/                      # Shared React hooks
 ├── lib/                        # Utilities and core logic
 │   ├── utils.ts                # cn(), formatting, theme helpers
@@ -94,17 +95,17 @@ npm run dev
 
 All components follow atomic design and live in `components/ui/`. Each is self-contained with Radix UI accessibility, CVA variants, and full dark mode support.
 
-### Atoms
+### Atoms (28)
 
-Avatar, Badge, Button, ButtonGroup, Checkbox, Chip, Code, Heading, IconButton, Input, Kbd, Label, Link, NavigationProgress, NumberInput, Progress, RadioGroup, Select, Separator, Skeleton, Slider, Spinner, Switch, Text, Textarea, Toggle, Tooltip
+AccountNumberInput, Avatar, Badge, Button, ButtonGroup, Checkbox, Chip, Code, Heading, IconButton, Input, Kbd, Label, Link, NavigationProgress, NumberInput, Progress, RadioGroup, Select, Separator, Skeleton, Slider, Spinner, Switch, Text, Textarea, Toggle, Tooltip
 
-### Molecules
+### Molecules (36)
 
-Accordion, Alert, AvatarGroup, Breadcrumbs, Card, Combobox, CommandPalette, ConfirmDialog, DataTable, DatePicker, DropdownMenu, EmptyState, FileUpload, FormField, LabelValuePair, List, Modal, PageHeader, Pagination, Popover, ProgressSteps, SearchInput, Sheet, StatsCard, Tabs, TagInput, Timeline, Toast, Toolbar, ZodForm
+Accordion, Alert, AvatarGroup, Banner, Breadcrumbs, Card, CheckboxTree, Combobox, CommandPalette, ConfirmDialog, DataTable, DatePicker, DropdownMenu, EmptyState/Result, FeatureCard, FilePreviewCard, FileUpload, FormField, Hero, LabelValuePair, List, Modal, OnboardingWizard, PageHeader, Pagination, Popover, ProgressSteps, SearchInput, Sheet, StatsCard, Tabs, TagInput, Timeline, Toast, Toolbar, ZodForm
 
-### Organisms
+### Organisms (13)
 
-AIConversation, AIDisclaimer, AIPromptInput, AuthForm, ChartCard, ChildTable (full spreadsheet-like grid with clipboard, DnD, import/export, inline editing), DataGrid, Logo, Navbar, Sidebar
+AIConversation, AIDisclaimer, AIPromptInput, AuthForm, ChartCard, ChildTable (full spreadsheet-like grid with clipboard, DnD, import/export, inline editing), DataGrid, FlexibleInquiry, Footer, Logo, Navbar, Sidebar, SignupForm
 
 Browse them all at `/ui` when the dev server is running.
 
@@ -115,14 +116,14 @@ The entire UI derives from a small set of hex colors defined in `config/app.conf
 Override via environment variables — no code changes required:
 
 ```env
-NEXT_PUBLIC_THEME_PRIMARY="#165CAB"
-NEXT_PUBLIC_THEME_SECONDARY="#616365"
-NEXT_PUBLIC_THEME_SUCCESS="#2FA882"
-NEXT_PUBLIC_THEME_WARNING="#E59539"
-NEXT_PUBLIC_THEME_DANGER="#D15336"
+NEXT_PUBLIC_THEME_PRIMARY="#4B3FFF"
+NEXT_PUBLIC_THEME_SECONDARY="#757575"
+NEXT_PUBLIC_THEME_SUCCESS="#2E7D32"
+NEXT_PUBLIC_THEME_WARNING="#ED6C02"
+NEXT_PUBLIC_THEME_DANGER="#D32F2F"
 ```
 
-Default palette is aligned with **OpenGov Capital Design System v5.5.0**.
+Default palette is aligned with **OpenGov CDS-37** design system.
 
 ## Environment Variables
 
@@ -138,6 +139,9 @@ Copy `.env.example` to `.env.local` and configure:
 | `NEXT_PUBLIC_APP_NAME` | No | Override app name |
 | `NEXT_PUBLIC_APP_DESCRIPTION` | No | Override app description |
 | `NEXT_PUBLIC_THEME_*` | No | Override theme colors (hex) |
+| `NEXT_PUBLIC_SHOW_NAVBAR` | No | Show top navbar (`true` / `false`, default `true`) |
+| `NEXT_PUBLIC_SHOW_SIDEBAR` | No | Show left sidebar (`true` / `false`, default `true`) |
+| `NEXT_PUBLIC_LAYOUT_MODE` | No | Legacy shorthand: `navbar-sidebar` / `navbar-only` / `sidebar-only` |
 | `OPENAI_API_KEY` | No | AI Builder chat |
 | `NODE_ENV` | No | Runtime environment |
 

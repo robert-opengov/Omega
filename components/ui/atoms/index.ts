@@ -25,3 +25,4 @@ export { Chip, chipVariants, type ChipProps } from './Chip';
 export { ButtonGroup, type ButtonGroupProps } from './ButtonGroup';
 export { UILink, linkVariants, type LinkProps } from './Link';
 export { NumberInput, type NumberInputProps } from './NumberInput';
+export { AccountNumberInput, type AccountNumberInputProps } from './AccountNumberInput';

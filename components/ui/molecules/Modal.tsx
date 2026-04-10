@@ -3,36 +3,56 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/atoms';
 import type { ReactNode } from 'react';
+
+export interface ModalAction {
+  label: string;
+  onClick: () => void;
+}
 
 export interface ModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Visible title. If omitted, provide `aria-label` for accessibility. */
   title?: string;
   description?: string;
   'aria-label'?: string;
   children: ReactNode;
-  /** @default 'md' */
-  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | 'fullscreen';
   className?: string;
   hideCloseButton?: boolean;
+  primaryAction?: ModalAction;
+  secondaryAction?: ModalAction;
+  destructiveAction?: ModalAction;
 }
 
-const sizeMap = { sm: 'max-w-sm', md: 'max-w-md', lg: 'max-w-lg', xl: 'max-w-xl', '2xl': 'max-w-2xl', '3xl': 'max-w-3xl' };
+const sizeMap: Record<string, string> = {
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
+  '2xl': 'max-w-2xl',
+  '3xl': 'max-w-3xl',
+  fullscreen: 'w-screen h-screen max-w-none max-h-none',
+};
 
-/**
- * An accessible modal dialog built on Radix UI.
- *
- * Uses `bg-overlay` for the backdrop and `shadow-overlay` for the panel,
- * aligned with the OpenGov popup DNA pattern.
- *
- * @example
- * <Modal open={isOpen} onOpenChange={setIsOpen} title="Confirm">
- *   Are you sure?
- * </Modal>
- */
-export function Modal({ open, onOpenChange, title, description, 'aria-label': ariaLabel, children, size = 'md', className, hideCloseButton }: ModalProps) {
+export function Modal({
+  open,
+  onOpenChange,
+  title,
+  description,
+  'aria-label': ariaLabel,
+  children,
+  size = 'md',
+  className,
+  hideCloseButton,
+  primaryAction,
+  secondaryAction,
+  destructiveAction,
+}: ModalProps) {
+  const isFullscreen = size === 'fullscreen';
+  const hasFooter = primaryAction || secondaryAction || destructiveAction;
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -40,10 +60,11 @@ export function Modal({ open, onOpenChange, title, description, 'aria-label': ar
         <Dialog.Content
           aria-label={!title ? ariaLabel : undefined}
           className={cn(
-            'fixed left-1/2 top-1/2 z-[var(--z-overlay)] -translate-x-1/2 -translate-y-1/2 w-[95vw] max-h-[90vh] flex flex-col rounded-xl bg-card border border-border shadow-overlay',
+            'fixed left-1/2 top-1/2 z-[var(--z-overlay)] -translate-x-1/2 -translate-y-1/2 w-[95vw] flex flex-col bg-card border border-border shadow-overlay',
             'animate-in fade-in-0 zoom-in-95',
+            isFullscreen ? 'rounded-none' : 'rounded-xl max-h-[90vh]',
             sizeMap[size],
-            className
+            className,
           )}
         >
           {title ? (
@@ -56,10 +77,34 @@ export function Modal({ open, onOpenChange, title, description, 'aria-label': ar
           ) : (
             <Dialog.Title className="sr-only">{ariaLabel || 'Dialog'}</Dialog.Title>
           )}
+
           <div className="flex-1 overflow-y-auto px-6 py-4">{children}</div>
+
+          {hasFooter && (
+            <div className="shrink-0 px-6 py-4 border-t border-border flex items-center gap-2">
+              {destructiveAction && (
+                <Button variant="danger" onClick={destructiveAction.onClick} className="mr-auto">
+                  {destructiveAction.label}
+                </Button>
+              )}
+              <div className="flex items-center gap-2 ml-auto">
+                {secondaryAction && (
+                  <Button variant="outline" onClick={secondaryAction.onClick}>
+                    {secondaryAction.label}
+                  </Button>
+                )}
+                {primaryAction && (
+                  <Button variant="primary" onClick={primaryAction.onClick}>
+                    {primaryAction.label}
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+
           {!hideCloseButton && (
             <Dialog.Close
-              className="absolute top-4 right-4 p-1 rounded hover:bg-muted text-muted-foreground z-10 transition-all duration-300 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="absolute top-4 right-4 p-1 rounded hover:bg-muted text-muted-foreground z-10 transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               aria-label="Close dialog"
             >
               <X className="h-4 w-4" />

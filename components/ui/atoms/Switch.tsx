@@ -2,22 +2,13 @@
 
 import * as SwitchPrimitive from '@radix-ui/react-switch';
 import { forwardRef } from 'react';
+import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface SwitchProps extends SwitchPrimitive.SwitchProps {
-  /** Optional text label rendered next to the switch. */
   label?: string;
 }
 
-/**
- * A toggle switch built on Radix UI.
- *
- * Uses `bg-background` for the thumb (instead of hardcoded `bg-white`)
- * and `shadow-soft` for correct dark-mode appearance.
- *
- * @example
- * <Switch label="Enable notifications" onCheckedChange={setEnabled} />
- */
 const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
   ({ className, label, ...props }, ref) => {
     return (
@@ -25,17 +16,24 @@ const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
         <SwitchPrimitive.Root
           ref={ref}
           className={cn(
-            'peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-all duration-300 ease-in-out',
-            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+            'peer inline-flex h-8 w-[60px] shrink-0 cursor-pointer items-center rounded-[14px] transition-all duration-200 ease-in-out',
+            'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring',
             'disabled:cursor-not-allowed disabled:opacity-50',
-            'data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted',
+            'data-[state=checked]:bg-primary data-[state=unchecked]:bg-switch-track',
             className
           )}
           {...props}
         >
           <SwitchPrimitive.Thumb
-            className="pointer-events-none block h-4 w-4 rounded-full bg-background shadow-soft ring-0 transition-transform data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0"
-          />
+            className={cn(
+              'pointer-events-none flex items-center justify-center h-6 w-6 rounded-full bg-white border border-input-border ring-0 transition-transform duration-200',
+              'shadow-[0px_1px_3px_0px_rgba(19,21,23,0.5)]',
+              'data-[state=checked]:translate-x-[30px] data-[state=unchecked]:translate-x-[4px]',
+              'data-[state=checked]:border-primary',
+            )}
+          >
+            <Check className="h-3.5 w-3.5 text-primary opacity-0 transition-opacity duration-150 data-[state=checked]:opacity-100 [[data-state=checked]_&]:opacity-100" />
+          </SwitchPrimitive.Thumb>
         </SwitchPrimitive.Root>
         {label && <span className="text-sm text-muted-foreground">{label}</span>}
       </label>
