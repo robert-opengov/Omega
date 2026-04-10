@@ -24,10 +24,10 @@ const categories = [
     href: '/ui/molecules',
     icon: Puzzle,
     title: 'Molecules',
-    count: 40,
+    count: 41,
     description: 'Composed atoms forming reusable UI patterns for forms, data, and overlays.',
     highlights: [
-      'DataTable, Card, Modal, Sheet',
+      'ContentHeader, DataTable, Card, Modal',
       'WizardCard, ReviewTable, UploadSlot',
       'ProcessingChecklist, Banner, Hero',
       'PageHeader, Pagination, CommandPalette',

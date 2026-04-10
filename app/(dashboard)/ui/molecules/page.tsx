@@ -6,6 +6,7 @@ import {
   FileText, MoreHorizontal,
   Bell, CheckCircle, Info, Star, Archive, Copy,
   AlertTriangle, Clock, Mail, Filter, MapPin, Blocks, Shield, Palette, File, Image,
+  ChevronLeft, RefreshCw,
 } from 'lucide-react';
 import { ShowcaseLayout } from '../_components/ShowcaseLayout';
 import { z } from 'zod';
@@ -13,6 +14,8 @@ import {
   Button,
   Text,
   Badge,
+  IconButton,
+  UILink,
 } from '@/components/ui/atoms';
 import {
   Card, CardContent, CardHeader, CardTitle, CardSubtitle, CardDescription, CardFooter, CardInfo, CardMedia,
@@ -55,6 +58,7 @@ import {
   ReviewTable,
   UploadSlot,
   ProcessingChecklist,
+  ContentHeader,
 } from '@/components/ui/molecules';
 import { useToast } from '@/providers/toast-provider';
 import { ComponentDemo, Section } from '../_components/ComponentDemo';
@@ -64,7 +68,8 @@ export default function MoleculesPage() {
     <ShowcaseLayout>
       <div className="space-y-12">
 
-      <Section title="Layout" count={4}>
+      <Section title="Layout" count={5}>
+        <ContentHeaderDemo />
         <CardDemo />
         <PageHeaderDemo />
         <BreadcrumbsDemo />
@@ -134,6 +139,107 @@ export default function MoleculesPage() {
 }
 
 /* ---------- Layout ---------- */
+
+function ContentHeaderDemo() {
+  return (
+    <ComponentDemo
+      name="ContentHeader"
+      description="Composable gray-background detail/form page header with optional nav controls, utility links, breadcrumbs, title, subtitle, and tabs."
+      props={`interface ContentHeaderProps {
+  navActions?: ReactNode;
+  utilityActions?: ReactNode;
+  breadcrumbs?: BreadcrumbItem[];
+  title: string;
+  subtitle?: string;
+  titleSize?: 'large' | 'small';
+  titleActions?: ReactNode;
+  tabs?: ReactNode;
+}`}
+    >
+      <div className="space-y-8">
+        {/* Minimal */}
+        <div>
+          <Text size="xs" weight="semibold" color="muted" className="mb-2 uppercase tracking-wider">Minimal</Text>
+          <div className="rounded-lg overflow-hidden border border-border">
+            <ContentHeader title="Dashboard" />
+          </div>
+        </div>
+
+        {/* With breadcrumbs + subtitle */}
+        <div>
+          <Text size="xs" weight="semibold" color="muted" className="mb-2 uppercase tracking-wider">With breadcrumbs + subtitle</Text>
+          <div className="rounded-lg overflow-hidden border border-border">
+            <ContentHeader
+              breadcrumbs={[
+                { label: 'Home', href: '#', icon: Home },
+                { label: 'Grants', href: '#' },
+                { label: 'CDBG-2024-001' },
+              ]}
+              title="Community Development Block Grant"
+              subtitle="Record #2024-001 · Active"
+              titleSize="large"
+            />
+          </div>
+        </div>
+
+        {/* Full (matching Figma) */}
+        <div>
+          <Text size="xs" weight="semibold" color="muted" className="mb-2 uppercase tracking-wider">Full (nav + utility + breadcrumbs + title + tabs)</Text>
+          <div className="rounded-lg overflow-hidden border border-border">
+            <ContentHeader
+              navActions={
+                <>
+                  <IconButton icon={ChevronLeft} label="Back" variant="outline" size="sm" />
+                  <IconButton icon={RefreshCw} label="Refresh" variant="outline" size="sm" />
+                </>
+              }
+              utilityActions={
+                <>
+                  <UILink href="#" size="sm" color="primary" display="inline">
+                    Get help
+                  </UILink>
+                  <UILink href="#" size="sm" color="primary" display="inline">
+                    Settings
+                  </UILink>
+                </>
+              }
+              breadcrumbs={[
+                { label: 'Home', href: '#' },
+                { label: 'HOPWA', href: '#' },
+                { label: 'Forms', href: '#' },
+                { label: 'Add Form' },
+              ]}
+              title="{Form Name}"
+              subtitle="Record #123456789"
+              tabs={
+                <Tabs defaultValue="overview">
+                  <TabsList>
+                    <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="contact">Contact Information</TabsTrigger>
+                    <TabsTrigger value="payment">Payment Method</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              }
+            />
+          </div>
+        </div>
+
+        {/* Small title variant */}
+        <div>
+          <Text size="xs" weight="semibold" color="muted" className="mb-2 uppercase tracking-wider">Small title + title actions</Text>
+          <div className="rounded-lg overflow-hidden border border-border">
+            <ContentHeader
+              title="Quarterly Report"
+              titleSize="small"
+              titleActions={<Badge variant="success" size="sm">Approved</Badge>}
+              subtitle="Submitted by Jane Smith on Mar 15, 2026"
+            />
+          </div>
+        </div>
+      </div>
+    </ComponentDemo>
+  );
+}
 
 function CardDemo() {
   return (

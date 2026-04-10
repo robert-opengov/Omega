@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/atoms';
 const tiers = [
   { label: 'Overview', href: '/ui', count: null },
   { label: 'Atoms', href: '/ui/atoms', count: 30 },
-  { label: 'Molecules', href: '/ui/molecules', count: 40 },
+  { label: 'Molecules', href: '/ui/molecules', count: 41 },
   { label: 'Organisms', href: '/ui/organisms', count: 14 },
 ] as const;
 

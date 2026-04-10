@@ -39,3 +39,4 @@ export { WizardCard, type WizardCardProps } from './WizardCard';
 export { ReviewTable, type ReviewTableProps, type ReviewTableColumn, type ReviewTableRow } from './ReviewTable';
 export { UploadSlot, type UploadSlotProps, type UploadSlotFile } from './UploadSlot';
 export { ProcessingChecklist, type ProcessingChecklistProps, type ProcessingChecklistStep } from './ProcessingChecklist';
+export { ContentHeader, type ContentHeaderProps } from './ContentHeader';
