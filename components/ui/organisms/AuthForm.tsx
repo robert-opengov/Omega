@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Label } from '@/components/ui/atoms';
+import { Button, Input, Label, Separator } from '@/components/ui/atoms';
 import { UILink } from '@/components/ui/atoms/Link';
 import { AlertCircle, CheckCircle, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { SsoLoginButton } from '@/components/ui/molecules/SsoLoginButton';
 import { cn } from '@/lib/utils';
 
 const loginSchema = z.object({
@@ -18,6 +19,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export interface AuthFormProps {
   onSubmit: (username: string, password: string) => Promise<boolean>;
+  /** When true, renders an SSO login button below the password form. */
+  showSsoLogin?: boolean;
   className?: string;
 }
 
@@ -25,7 +28,7 @@ export interface AuthFormProps {
  * Sign-in form matching Grant Management Figma (170:13511).
  * Renders inside AuthLayout's card slot.
  */
-export function AuthForm({ onSubmit, className }: AuthFormProps) {
+export function AuthForm({ onSubmit, showSsoLogin, className }: AuthFormProps) {
   const [serverError, setServerError] = useState('');
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -124,6 +127,17 @@ export function AuthForm({ onSubmit, className }: AuthFormProps) {
         </Button>
       </form>
 
+      {showSsoLogin && (
+          <div className="mt-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <Separator className="flex-1" />
+              <span className="text-xs text-muted-foreground uppercase tracking-wide">or</span>
+              <Separator className="flex-1" />
+            </div>
+            <SsoLoginButton className="h-11" />
+          </div>
+        )}
+        
       <p className="text-sm text-text-secondary">
         {"Don't have an account? "}
         <UILink href="/signup" display="inline" size="sm">Sign up</UILink>

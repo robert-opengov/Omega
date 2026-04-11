@@ -7,6 +7,7 @@
 /** Routes accessible without authentication */
 export const publicRoutes: string[] = [
   '/',
+  '/callback-handler',
 ];
 
 /** Route prefixes accessible without authentication (e.g., API endpoints) */

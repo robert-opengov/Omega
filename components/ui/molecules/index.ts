@@ -40,3 +40,4 @@ export { ReviewTable, type ReviewTableProps, type ReviewTableColumn, type Review
 export { UploadSlot, type UploadSlotProps, type UploadSlotFile } from './UploadSlot';
 export { ProcessingChecklist, type ProcessingChecklistProps, type ProcessingChecklistStep } from './ProcessingChecklist';
 export { ContentHeader, type ContentHeaderProps } from './ContentHeader';
+export { SsoLoginButton, type SsoLoginButtonProps } from './SsoLoginButton';

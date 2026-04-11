@@ -8,4 +8,6 @@ export const AUTH_COOKIE_NAMES = {
   accessToken: 'access_token',
   refreshToken: 'refresh_token',
   userInfo: 'user_info',
+  /** Tracks which auth flow was used: 'password' | 'sso' */
+  authProvider: 'auth_provider',
 } as const;

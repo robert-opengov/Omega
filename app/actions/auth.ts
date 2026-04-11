@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers';
 import { AUTH_COOKIE_NAMES } from '@/lib/constants';
 import { authPort } from '@/lib/core';
+import { gabConfig } from '@/config/gab.config';
 
 export interface SessionUser {
   userId: string;
@@ -118,4 +119,100 @@ export async function logoutAction(): Promise<void> {
   cookieStore.delete(AUTH_COOKIE_NAMES.accessToken);
   cookieStore.delete(AUTH_COOKIE_NAMES.refreshToken);
   cookieStore.delete(AUTH_COOKIE_NAMES.userInfo);
+  cookieStore.delete(AUTH_COOKIE_NAMES.authProvider);
+}
+
+// ---------------------------------------------------------------------------
+// SSO (Auth0) Actions
+// ---------------------------------------------------------------------------
+
+/**
+ * Called from the callback-handler page after Auth0 returns tokens.
+ * Bridges the client-side Auth0 SDK and server-side HTTP-only cookies.
+ */
+export async function ssoCallbackAction(
+  accessToken: string,
+  expiresIn: number,
+): Promise<{ success: boolean; user?: SessionUser; error?: string }> {
+  try {
+    const cookieStore = await cookies();
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    cookieStore.set(AUTH_COOKIE_NAMES.accessToken, accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: expiresIn,
+      path: '/',
+    });
+
+    cookieStore.set(AUTH_COOKIE_NAMES.authProvider, 'sso', {
+      httpOnly: false,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: expiresIn,
+      path: '/',
+    });
+
+    let userId = '';
+    let email = '';
+    let fullName = '';
+    let role: SessionUser['role'] = 'participant';
+
+    try {
+      const profile = await authPort.getProfile(accessToken);
+      userId = profile.id;
+      email = profile.email;
+      role = profile.role;
+      if (profile.firstName && profile.lastName) {
+        fullName = `${profile.firstName} ${profile.lastName}`;
+      }
+    } catch {
+      // Profile hydration failed — continue with minimal data
+    }
+
+    const user: SessionUser = {
+      userId,
+      email,
+      userName: email,
+      fullName,
+      clientId: gabConfig.clientId,
+      role,
+    };
+
+    cookieStore.set(AUTH_COOKIE_NAMES.userInfo, JSON.stringify(user), {
+      httpOnly: false,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: expiresIn,
+      path: '/',
+    });
+
+    return { success: true, user };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'SSO callback failed.';
+    console.error('SSO callback action error:', message);
+    return { success: false, error: message };
+  }
+}
+
+/**
+ * Checks whether an SSO user exists in the GAB backend.
+ * Called from the callback-handler after Auth0 authentication succeeds.
+ */
+export async function checkUserExistsAction(
+  token: string,
+  email: string,
+  applicationKey?: string,
+): Promise<boolean> {
+  try {
+    return await authPort.checkUserExists(token, email, applicationKey);
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return false;
+    }
+    // Non-fatal — treat as existing (matches gab-frontend behavior)
+    return true;
+  }
 }

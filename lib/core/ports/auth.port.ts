@@ -42,4 +42,14 @@ export interface IAuthPort {
    * Used to hydrate role and identity fields after login.
    */
   getProfile(token: string): Promise<UserProfile>;
+
+  /**
+   * Checks whether an SSO-authenticated user exists in the GAB backend.
+   * Used by the SSO callback flow to validate the user after Auth0 login.
+   */
+  checkUserExists(
+    token: string,
+    email: string,
+    applicationKey?: string,
+  ): Promise<boolean>;
 }

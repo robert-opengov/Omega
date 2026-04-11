@@ -99,6 +99,35 @@ export class NextAuthAdapter implements IAuthPort {
     };
   }
 
+  async checkUserExists(
+    token: string,
+    email: string,
+    applicationKey?: string,
+  ): Promise<boolean> {
+    const res = await fetch(`${this.apiUrl}/api/user/userExists`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        IsExternalLogin: 'true',
+      },
+      body: JSON.stringify({
+        Email: email,
+        ...(applicationKey ? { ApplicationKey: applicationKey } : {}),
+      }),
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      if (res.status === 401) throw new Error('Unauthorized');
+      // Treat other errors as non-fatal (matches gab-frontend behavior)
+      return true;
+    }
+
+    const data = await res.json();
+    return data?.userExists !== false;
+  }
+
   async getProfile(token: string): Promise<UserProfile> {
     const res = await fetch(`${this.apiUrl}/api/User/getprofile`, {
       headers: {
