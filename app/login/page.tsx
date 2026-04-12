@@ -1,34 +1,31 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthForm } from '@/components/ui/organisms/AuthForm';
 import { AuthLayout } from '@/components/ui/layouts/AuthLayout';
 import { useAuth } from '@/providers';
-import { auth0Config } from '@/config/auth0.config';
 import { getAuth0Client } from '@/lib/auth0-client';
 import { ssoCallbackAction, checkUserExistsAction } from '@/app/actions/auth';
-import { Suspense } from 'react';
 
 function LoginContent() {
-  const { login } = useAuth();
+  const { login, isSsoEnabled, isPasswordEnabled, enableSilentLogin } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect') || '/home';
 
-  const [silentLoginInProgress, setSilentLoginInProgress] = useState(
-    auth0Config.useExternalLogin,
-  );
+  const shouldAttemptSilentLogin = isSsoEnabled && enableSilentLogin;
+
+  const [silentLoginInProgress, setSilentLoginInProgress] = useState(shouldAttemptSilentLogin);
   const silentLoginAttempted = useRef(false);
 
   useEffect(() => {
-    if (!auth0Config.useExternalLogin) return;
+    if (!shouldAttemptSilentLogin) return;
     if (silentLoginAttempted.current) return;
     silentLoginAttempted.current = true;
 
-    // Skip silent login if coming from logout
     if (
-      typeof window !== 'undefined' &&
+      globalThis.window !== undefined &&
       sessionStorage.getItem('fromLogoutRoute') === '1'
     ) {
       sessionStorage.removeItem('fromLogoutRoute');
@@ -45,7 +42,6 @@ function LoginContent() {
       const client = await getAuth0Client();
       const token = await client.getTokenSilently();
 
-      // Silent login succeeded — user has an active Auth0 session
       const userData = await client.getUser();
       const result = await ssoCallbackAction(token, 7200);
 
@@ -57,8 +53,7 @@ function LoginContent() {
         }
       }
     } catch {
-      // Expected: `login_required` error when no Auth0 session exists.
-      // Silently fall through to show the login form.
+      // Expected: `login_required` when no Auth0 session exists.
     }
     setSilentLoginInProgress(false);
   }
@@ -72,7 +67,6 @@ function LoginContent() {
     return false;
   };
 
-  // Show a minimal loader while attempting silent login
   if (silentLoginInProgress) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-background">
@@ -85,7 +79,8 @@ function LoginContent() {
     <AuthLayout>
       <AuthForm
         onSubmit={handleLogin}
-        showSsoLogin={auth0Config.useExternalLogin}
+        showPasswordLogin={isPasswordEnabled}
+        showSsoLogin={isSsoEnabled}
       />
     </AuthLayout>
   );

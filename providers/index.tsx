@@ -1,15 +1,22 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import type { LoginMode } from '@/config/auth.config';
 import { ThemeProvider } from './theme-provider';
 import { AuthProvider } from './auth-provider';
 import { SidebarProvider } from './sidebar-provider';
 import { ToastProvider } from './toast-provider';
 
-export function Providers({ children }: { children: ReactNode }) {
+interface ProvidersProps {
+  children: ReactNode;
+  loginMode?: LoginMode;
+  enableSilentLogin?: boolean;
+}
+
+export function Providers({ children, loginMode = 'both', enableSilentLogin = false }: ProvidersProps) {
   return (
     <ThemeProvider>
-      <AuthProvider>
+      <AuthProvider loginMode={loginMode} enableSilentLogin={enableSilentLogin}>
         <SidebarProvider>
           <ToastProvider>
             {children}

@@ -1,8 +1,13 @@
 /**
- * Client-safe Auth0 configuration.
+ * Client-safe Auth0 SDK configuration.
  *
- * Unlike gab.config.ts (server-only), this file is safe to import from
- * client components because it reads only NEXT_PUBLIC_ env vars.
+ * These values are inherently public (they appear in every Auth0
+ * redirect URL) and are safe as NEXT_PUBLIC_ env vars. The Auth0
+ * SPA SDK needs them in the browser for PKCE flows.
+ *
+ * The DECISION of whether SSO is enabled lives in config/auth.config.ts
+ * (server-only) and is passed to the client via React Server Component
+ * props — never as a client-side env var.
  */
 export const auth0Config = {
   /** Auth0 tenant domain (without https://) */
@@ -13,9 +18,6 @@ export const auth0Config = {
 
   /** Auth0 API audience identifier */
   audience: process.env.NEXT_PUBLIC_AUTH0_AUDIENCE || '',
-
-  /** Whether the SSO login option is available */
-  useExternalLogin: process.env.NEXT_PUBLIC_USE_EXTERNAL_LOGIN === 'true',
 
   /** OAuth scopes requested from Auth0 */
   scope: 'openid profile email',

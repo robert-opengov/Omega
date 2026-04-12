@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from 'next';
 import { NavigationProgress } from '@/components/ui/atoms';
 import { Providers } from '@/providers';
 import { appConfig } from '@/config/app.config';
+import { authConfig } from '@/config/auth.config';
 import { hexToHsl, DEFAULT_THEME } from '@/lib/utils';
 
 const dmSans = DM_Sans({
@@ -55,7 +56,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning style={themeStyle}>
       <body className={`${dmSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>
+        <Providers
+          loginMode={authConfig.loginMode}
+          enableSilentLogin={authConfig.enableSilentLogin}
+        >
           <NavigationProgress />
           {children}
         </Providers>

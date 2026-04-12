@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { AUTH_COOKIE_NAMES } from '@/lib/constants';
 import { authPort } from '@/lib/core';
 import { gabConfig } from '@/config/gab.config';
+import { authConfig } from '@/config/auth.config';
 
 export interface SessionUser {
   userId: string;
@@ -44,6 +45,10 @@ export async function loginAction(
   username: string,
   password: string,
 ): Promise<{ success: boolean; user?: SessionUser; error?: string }> {
+  if (authConfig.loginMode === 'sso') {
+    return { success: false, error: 'Password login is disabled for this application.' };
+  }
+
   try {
     const loginResult = await authPort.login({ username, password });
 
@@ -134,6 +139,10 @@ export async function ssoCallbackAction(
   accessToken: string,
   expiresIn: number,
 ): Promise<{ success: boolean; user?: SessionUser; error?: string }> {
+  if (authConfig.loginMode === 'password') {
+    return { success: false, error: 'SSO login is disabled for this application.' };
+  }
+
   try {
     const cookieStore = await cookies();
     const isProduction = process.env.NODE_ENV === 'production';

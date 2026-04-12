@@ -19,7 +19,9 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export interface AuthFormProps {
   onSubmit: (username: string, password: string) => Promise<boolean>;
-  /** When true, renders an SSO login button below the password form. */
+  /** When true, renders the username/password form fields. Defaults to true. */
+  showPasswordLogin?: boolean;
+  /** When true, renders an SSO login button. */
   showSsoLogin?: boolean;
   className?: string;
 }
@@ -27,8 +29,13 @@ export interface AuthFormProps {
 /**
  * Sign-in form matching Grant Management Figma (170:13511).
  * Renders inside AuthLayout's card slot.
+ *
+ * Supports three modes controlled by the server-side AUTH_LOGIN_MODE:
+ * - password-only: form fields only
+ * - sso-only: SSO button only
+ * - both: form fields + "or" separator + SSO button
  */
-export function AuthForm({ onSubmit, showSsoLogin, className }: AuthFormProps) {
+export function AuthForm({ onSubmit, showPasswordLogin = true, showSsoLogin, className }: AuthFormProps) {
   const [serverError, setServerError] = useState('');
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -72,76 +79,82 @@ export function AuthForm({ onSubmit, showSsoLogin, className }: AuthFormProps) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
-        <div className="space-y-1.5">
-          <Label htmlFor="email">Username or email</Label>
-          <Input
-            id="email"
-            type="text"
-            disabled={isSubmitting}
-            {...register('email')}
-          />
-          {errors.email && (
-            <p className="text-sm text-danger-text">{errors.email.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="password">Password</Label>
-          <div className="relative">
+      {showPasswordLogin && (
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+          <div className="space-y-1.5">
+            <Label htmlFor="email">Username or email</Label>
             <Input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
+              id="email"
+              type="text"
               disabled={isSubmitting}
-              {...register('password')}
-              className="pr-10"
+              {...register('email')}
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors duration-200"
-              tabIndex={-1}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
+            {errors.email && (
+              <p className="text-sm text-danger-text">{errors.email.message}</p>
+            )}
           </div>
-          {errors.password && (
-            <p className="text-sm text-danger-text">{errors.password.message}</p>
-          )}
-        </div>
 
-        <UILink href="#" display="standalone" size="sm" className="inline-flex items-center gap-1">
-          Forgot Password <ArrowRight className="h-3.5 w-3.5" />
-        </UILink>
+          <div className="space-y-1.5">
+            <Label htmlFor="password">Password</Label>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                disabled={isSubmitting}
+                {...register('password')}
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors duration-200"
+                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-sm text-danger-text">{errors.password.message}</p>
+            )}
+          </div>
 
-        <p className="text-xs text-text-secondary leading-relaxed">
-          By continuing, you agree to our{' '}
-          <UILink href="#" display="inline" size="sm" color="muted">Terms of Use</UILink>
-          {' '}and{' '}
-          <UILink href="#" display="inline" size="sm" color="muted">Privacy Policy</UILink>.
-        </p>
+          <UILink href="#" display="standalone" size="sm" className="inline-flex items-center gap-1">
+            Forgot Password <ArrowRight className="h-3.5 w-3.5" />
+          </UILink>
 
-        <Button type="submit" fullWidth loading={isSubmitting} disabled={success} className="h-10">
-          {success ? 'Signed in' : 'Continue'}
-        </Button>
-      </form>
+          <p className="text-xs text-text-secondary leading-relaxed">
+            By continuing, you agree to our{' '}
+            <UILink href="#" display="inline" size="sm" color="muted">Terms of Use</UILink>
+            {' '}and{' '}
+            <UILink href="#" display="inline" size="sm" color="muted">Privacy Policy</UILink>.
+          </p>
+
+          <Button type="submit" fullWidth loading={isSubmitting} disabled={success} className="h-10">
+            {success ? 'Signed in' : 'Continue'}
+          </Button>
+        </form>
+      )}
 
       {showSsoLogin && (
-          <div className="mt-6 space-y-4">
+        <div className={showPasswordLogin ? 'mt-6 space-y-4' : 'space-y-4'}>
+          {showPasswordLogin && (
             <div className="flex items-center gap-3">
               <Separator className="flex-1" />
               <span className="text-xs text-muted-foreground uppercase tracking-wide">or</span>
               <Separator className="flex-1" />
             </div>
-            <SsoLoginButton className="h-11" />
-          </div>
-        )}
-        
-      <p className="text-sm text-text-secondary">
-        {"Don't have an account? "}
-        <UILink href="/signup" display="inline" size="sm">Sign up</UILink>
-      </p>
+          )}
+          <SsoLoginButton className="h-11" />
+        </div>
+      )}
+
+      {showPasswordLogin && (
+        <p className="text-sm text-text-secondary">
+          {"Don't have an account? "}
+          <UILink href="/signup" display="inline" size="sm">Sign up</UILink>
+        </p>
+      )}
     </div>
   );
 }

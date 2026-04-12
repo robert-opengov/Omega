@@ -10,6 +10,7 @@ import {
   useTransition,
   type ReactNode,
 } from 'react';
+import type { LoginMode } from '@/config/auth.config';
 import { getCurrentUser, loginAction, logoutAction, type SessionUser } from '@/app/actions/auth';
 import { AUTH_COOKIE_NAMES } from '@/lib/constants';
 import { useTokenRefresh } from '@/hooks/use-token-refresh';
@@ -24,23 +25,25 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  /** True when `user.role` is "admin" or "superadmin". */
   isAdmin: boolean;
-  /** True when `user.role` is "superadmin". */
   isSuperAdmin: boolean;
-  /** Which auth provider was used: 'password' | 'sso' | null */
+  /** Which auth provider was used for the current session: 'password' | 'sso' | null */
   authProvider: string | null;
-  /** Whether SSO login is configured and available */
+  /** Server-decided login mode for this deployment */
+  loginMode: LoginMode;
+  /** Whether password login is available (derived from loginMode) */
+  isPasswordEnabled: boolean;
+  /** Whether SSO login is available (derived from loginMode) */
   isSsoEnabled: boolean;
+  /** Whether to attempt silent SSO login (server-decided) */
+  enableSilentLogin: boolean;
   login: (username: string, password: string) => Promise<LoginResult>;
   logout: () => Promise<void>;
-  /** Re-read session from cookies into React state (call after SSO callback sets cookies). */
   refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-/** Read a non-httpOnly cookie by name on the client. */
 function getCookie(name: string): string | null {
   if (typeof document === 'undefined') return null;
   const prefix = `${name}=`;
@@ -48,12 +51,25 @@ function getCookie(name: string): string | null {
   return entry ? decodeURIComponent(entry.slice(prefix.length)) : null;
 }
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+interface AuthProviderProps {
+  children: ReactNode;
+  loginMode?: LoginMode;
+  enableSilentLogin?: boolean;
+}
+
+export function AuthProvider({
+  children,
+  loginMode = 'both',
+  enableSilentLogin = false,
+}: AuthProviderProps) {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [authProvider, setAuthProvider] = useState<string | null>(null);
   const [, startTransition] = useTransition();
+
+  const isSsoEnabled = loginMode === 'sso' || loginMode === 'both';
+  const isPasswordEnabled = loginMode === 'password' || loginMode === 'both';
 
   useEffect(() => {
     getCurrentUser()
@@ -94,7 +110,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     setIsLoading(true);
     try {
-      // If this was an SSO session, clean up Auth0 SDK artifacts
       const provider = getCookie(AUTH_COOKIE_NAMES.authProvider);
       if (provider === 'sso') {
         try {
@@ -108,7 +123,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       await logoutAction();
 
-      // Prevent silent re-login on the next login page load
       if (typeof sessionStorage !== 'undefined') {
         sessionStorage.setItem('fromLogoutRoute', '1');
       }
@@ -125,16 +139,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Proactively refresh SSO tokens before they expire
   useTokenRefresh(!!user);
 
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const isSuperAdmin = user?.role === 'superadmin';
-
-  const isSsoEnabled = useMemo(
-    () => process.env.NEXT_PUBLIC_USE_EXTERNAL_LOGIN === 'true',
-    [],
-  );
 
   const value = useMemo(
     () => ({
@@ -145,12 +153,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isSuperAdmin,
       error,
       authProvider,
+      loginMode,
+      isPasswordEnabled,
       isSsoEnabled,
+      enableSilentLogin,
       login,
       logout,
       refreshSession,
     }),
-    [user, isLoading, isAdmin, isSuperAdmin, error, authProvider, isSsoEnabled, login, logout, refreshSession],
+    [user, isLoading, isAdmin, isSuperAdmin, error, authProvider, loginMode, isPasswordEnabled, isSsoEnabled, enableSilentLogin, login, logout, refreshSession],
   );
 
   return (
