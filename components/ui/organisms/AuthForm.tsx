@@ -23,6 +23,8 @@ export interface AuthFormProps {
   showPasswordLogin?: boolean;
   /** When true, renders an SSO login button. */
   showSsoLogin?: boolean;
+  /** When true, renders the "Sign up" link below the form. Defaults to true. */
+  showSignupLink?: boolean;
   className?: string;
 }
 
@@ -35,7 +37,7 @@ export interface AuthFormProps {
  * - sso-only: SSO button only
  * - both: form fields + "or" separator + SSO button
  */
-export function AuthForm({ onSubmit, showPasswordLogin = true, showSsoLogin, className }: AuthFormProps) {
+export function AuthForm({ onSubmit, showPasswordLogin = true, showSsoLogin, showSignupLink = true, className }: AuthFormProps) {
   const [serverError, setServerError] = useState('');
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -149,7 +151,7 @@ export function AuthForm({ onSubmit, showPasswordLogin = true, showSsoLogin, cla
         </div>
       )}
 
-      {showPasswordLogin && (
+      {showPasswordLogin && showSignupLink && (
         <p className="text-sm text-text-secondary">
           {"Don't have an account? "}
           <UILink href="/signup" display="inline" size="sm">Sign up</UILink>

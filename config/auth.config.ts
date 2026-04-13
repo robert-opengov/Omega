@@ -15,6 +15,13 @@ export type LoginMode = 'password' | 'sso' | 'both';
 const loginMode = (process.env.AUTH_LOGIN_MODE || 'both') as LoginMode;
 
 export const authConfig = {
+  /**
+   * Master switch for authentication. When false, middleware skips all
+   * redirect logic and the root page always sends users to /home.
+   * Useful for public landing pages and kiosk apps.
+   */
+  enableAuth: process.env.AUTH_ENABLED !== 'false',
+
   /** Which login methods are available: 'password' | 'sso' | 'both' */
   loginMode,
 

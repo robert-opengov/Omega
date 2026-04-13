@@ -6,6 +6,7 @@ import {
   loginRedirect,
   homeRedirect,
 } from '@/config/routes.config';
+import { authConfig } from '@/config/auth.config';
 
 function isPublicRoute(pathname: string): boolean {
   if (publicRoutes.some((r) => pathname === r || pathname.startsWith(r + '/'))) return true;
@@ -26,12 +27,17 @@ function isStaticOrInternal(pathname: string): boolean {
 
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const accessToken = request.cookies.get('access_token')?.value;
-  const isAuthed = !!accessToken;
 
   if (isStaticOrInternal(pathname)) {
     return NextResponse.next();
   }
+
+  if (!authConfig.enableAuth) {
+    return NextResponse.next();
+  }
+
+  const accessToken = request.cookies.get('access_token')?.value;
+  const isAuthed = !!accessToken;
 
   if (isAuthed && isAuthOnlyRoute(pathname)) {
     return NextResponse.redirect(new URL(homeRedirect, request.url));

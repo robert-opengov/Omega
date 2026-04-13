@@ -48,8 +48,9 @@ export interface AppTheme {
  * - `navbar-sidebar` — Top navbar + left sidebar (GAB Horizontal)
  * - `navbar-only`    — Full-width top navbar, no sidebar (PSP-style)
  * - `sidebar-only`   — Left sidebar only, no top navbar
+ * - `none`           — No chrome at all (landing pages, kiosk apps)
  */
-export type LayoutMode = 'navbar-sidebar' | 'navbar-only' | 'sidebar-only';
+export type LayoutMode = 'navbar-sidebar' | 'navbar-only' | 'sidebar-only' | 'none';
 
 export interface AppLayout {
   mode: LayoutMode;
@@ -63,6 +64,12 @@ export interface AppFeatures {
   enableDarkMode: boolean;
   enableI18n: boolean;
   enableNotifications: boolean;
+  /** Show /signup route and "Sign up" links in the login form */
+  enableSignup: boolean;
+  /** Show Grants vertical in navigation and routes */
+  enableGrants: boolean;
+  /** Show 311 vertical in navigation and routes */
+  enable311: boolean;
 }
 
 export interface AppConfig {
@@ -80,7 +87,8 @@ export interface AppConfig {
 function deriveLayoutMode(navbar: boolean, sidebar: boolean): LayoutMode {
   if (navbar && sidebar) return 'navbar-sidebar';
   if (navbar) return 'navbar-only';
-  return 'sidebar-only';
+  if (sidebar) return 'sidebar-only';
+  return 'none';
 }
 
 const legacyMode = process.env.NEXT_PUBLIC_LAYOUT_MODE as LayoutMode | undefined;
@@ -116,8 +124,11 @@ export const appConfig: AppConfig = {
     mode: legacyMode || deriveLayoutMode(showNavbar, showSidebar),
   },
   features: {
-    enableDarkMode: true,
-    enableI18n: false,
-    enableNotifications: false,
+    enableDarkMode:      process.env.NEXT_PUBLIC_ENABLE_DARK_MODE !== 'false',
+    enableI18n:          process.env.NEXT_PUBLIC_ENABLE_I18N === 'true',
+    enableNotifications: process.env.NEXT_PUBLIC_ENABLE_NOTIFICATIONS === 'true',
+    enableSignup:        process.env.NEXT_PUBLIC_ENABLE_SIGNUP !== 'false',
+    enableGrants:        process.env.NEXT_PUBLIC_ENABLE_GRANTS === 'true',
+    enable311:           process.env.NEXT_PUBLIC_ENABLE_311 === 'true',
   },
 };

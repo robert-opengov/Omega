@@ -5,6 +5,7 @@
  */
 import { LayoutDashboard, Settings, Blocks, Bot, UserCircle, LogOut } from 'lucide-react';
 import type { ComponentType } from 'react';
+import type { AppFeatures } from '@/config/app.config';
 
 export interface NavItem {
   href: string;
@@ -16,6 +17,8 @@ export interface NavItem {
   divider?: boolean;
   /** Where this item appears: 'navbar', 'sidebar', or 'both' (default) */
   showIn?: 'navbar' | 'sidebar' | 'both';
+  /** Only show this item when the given feature flag is enabled */
+  featureFlag?: keyof AppFeatures;
 }
 
 export interface UserMenuItem {
@@ -70,4 +73,13 @@ export const userMenuItems: UserMenuItem[] = [
 export function isRouteActive(href: string, pathname: string): boolean {
   if (href === '/') return pathname === '/';
   return pathname === href || pathname.startsWith(href + '/');
+}
+
+/**
+ * Checks whether a nav item's feature flag (if any) is enabled.
+ * Items without a `featureFlag` are always visible.
+ */
+export function isFeatureEnabled(item: NavItem, features: AppFeatures): boolean {
+  if (!item.featureFlag) return true;
+  return !!features[item.featureFlag];
 }

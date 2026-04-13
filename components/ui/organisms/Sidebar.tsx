@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronRight, PanelLeftClose } from 'lucide-react';
 import { useSidebar, useAuth } from '@/providers';
-import { navigationItems, userMenuItems, isRouteActive } from '@/config/navigation.config';
+import { navigationItems, userMenuItems, isRouteActive, isFeatureEnabled } from '@/config/navigation.config';
 import type { UserMenuItem } from '@/config/navigation.config';
+import { appConfig } from '@/config/app.config';
 import { cn } from '@/lib/utils';
 import { Logo } from './Logo';
 
@@ -47,6 +48,7 @@ function NavigationContent({ isMobile = false }: { isMobile?: boolean }) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const visibleItems = navigationItems.filter((item) => {
+    if (!isFeatureEnabled(item, appConfig.features)) return false;
     if (item.roles?.length && !item.roles.includes(user?.role ?? '')) return false;
     return (item.showIn ?? 'both') !== 'navbar';
   });

@@ -29,6 +29,8 @@ interface AuthContextType {
   isSuperAdmin: boolean;
   /** Which auth provider was used for the current session: 'password' | 'sso' | null */
   authProvider: string | null;
+  /** Whether the entire auth system is enabled (server-decided) */
+  enableAuth: boolean;
   /** Server-decided login mode for this deployment */
   loginMode: LoginMode;
   /** Whether password login is available (derived from loginMode) */
@@ -37,6 +39,8 @@ interface AuthContextType {
   isSsoEnabled: boolean;
   /** Whether to attempt silent SSO login (server-decided) */
   enableSilentLogin: boolean;
+  /** Whether self-registration is available */
+  enableSignup: boolean;
   login: (username: string, password: string) => Promise<LoginResult>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
@@ -53,14 +57,18 @@ function getCookie(name: string): string | null {
 
 interface AuthProviderProps {
   children: ReactNode;
+  enableAuth?: boolean;
   loginMode?: LoginMode;
   enableSilentLogin?: boolean;
+  enableSignup?: boolean;
 }
 
 export function AuthProvider({
   children,
+  enableAuth = true,
   loginMode = 'both',
   enableSilentLogin = false,
+  enableSignup = true,
 }: AuthProviderProps) {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -153,15 +161,17 @@ export function AuthProvider({
       isSuperAdmin,
       error,
       authProvider,
+      enableAuth,
       loginMode,
       isPasswordEnabled,
       isSsoEnabled,
       enableSilentLogin,
+      enableSignup,
       login,
       logout,
       refreshSession,
     }),
-    [user, isLoading, isAdmin, isSuperAdmin, error, authProvider, loginMode, isPasswordEnabled, isSsoEnabled, enableSilentLogin, login, logout, refreshSession],
+    [user, isLoading, isAdmin, isSuperAdmin, error, authProvider, enableAuth, loginMode, isPasswordEnabled, isSsoEnabled, enableSilentLogin, enableSignup, login, logout, refreshSession],
   );
 
   return (

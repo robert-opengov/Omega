@@ -1,28 +1,11 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
-import { SignupForm } from '@/components/ui/organisms/SignupForm';
-import { AuthLayout } from '@/components/ui/layouts/AuthLayout';
+import { redirect } from 'next/navigation';
+import { appConfig } from '@/config/app.config';
+import { SignupContent } from './signup-content';
 
 export default function SignupPage() {
-  const router = useRouter();
+  if (!appConfig.features.enableSignup) {
+    redirect('/login');
+  }
 
-  const handleSignup = async (data: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    organization: string;
-    password: string;
-  }) => {
-    // Placeholder: replace with real registration API call
-    console.log('Signup:', data);
-    router.push('/login?registered=1');
-    return true;
-  };
-
-  return (
-    <AuthLayout>
-      <SignupForm onSubmit={handleSignup} />
-    </AuthLayout>
-  );
+  return <SignupContent />;
 }

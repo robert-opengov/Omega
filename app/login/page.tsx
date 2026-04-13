@@ -9,7 +9,7 @@ import { getAuth0Client } from '@/lib/auth0-client';
 import { ssoCallbackAction, checkUserExistsAction } from '@/app/actions/auth';
 
 function LoginContent() {
-  const { login, isSsoEnabled, isPasswordEnabled, enableSilentLogin } = useAuth();
+  const { login, isSsoEnabled, isPasswordEnabled, enableSilentLogin, enableSignup } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect') || '/home';
@@ -81,6 +81,7 @@ function LoginContent() {
         onSubmit={handleLogin}
         showPasswordLogin={isPasswordEnabled}
         showSsoLogin={isSsoEnabled}
+        showSignupLink={enableSignup}
       />
     </AuthLayout>
   );

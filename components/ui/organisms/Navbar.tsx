@@ -6,7 +6,7 @@ import { Menu, Moon, Sun, X, HelpCircle, Bell, Settings, ChevronDown } from 'luc
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { appConfig } from '@/config/app.config';
-import { navigationItems, isRouteActive } from '@/config/navigation.config';
+import { navigationItems, isRouteActive, isFeatureEnabled } from '@/config/navigation.config';
 import { cn } from '@/lib/utils';
 import { Logo, LogoMark } from './Logo';
 
@@ -67,6 +67,7 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
 
   const visibleItems = navigationItems.filter(
     (item) =>
+      isFeatureEnabled(item, appConfig.features) &&
       (!item.roles?.length || item.roles.includes(user?.role ?? '')) &&
       (item.showIn ?? 'both') !== 'sidebar',
   );
@@ -147,6 +148,7 @@ export function Navbar({ standalone = false }: NavbarProps) {
 
   const visibleItems = navigationItems.filter(
     (item) =>
+      isFeatureEnabled(item, appConfig.features) &&
       (!item.roles?.length || item.roles.includes(user?.role ?? '')) &&
       (item.showIn ?? 'both') !== 'sidebar',
   );

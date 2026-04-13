@@ -44,3 +44,11 @@ gab-aws-deploy-kit/*.values
 *.pem
 coverage/
 .vercel
+releases/release-2026-04-11-v1/.metadata
+releases/release-2026-04-11-v1/audit-report.json
+releases/release-2026-04-11-v1/commits.txt
+releases/release-2026-04-11-v1/eslint-report.json
+releases/release-2026-04-11-v1/release-notes.md
+releases/release-2026-04-11-v1/scan-report.html
+releases/release-2026-04-11-v1/trivy-report.json
+docs/sprint-plan-2026-04-14.md

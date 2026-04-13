@@ -57,8 +57,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning style={themeStyle}>
       <body className={`${dmSans.variable} ${geistMono.variable} antialiased`}>
         <Providers
+          enableAuth={authConfig.enableAuth}
           loginMode={authConfig.loginMode}
           enableSilentLogin={authConfig.enableSilentLogin}
+          enableSignup={appConfig.features.enableSignup}
         >
           <NavigationProgress />
           {children}

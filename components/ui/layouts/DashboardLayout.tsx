@@ -89,10 +89,20 @@ function SidebarOnlyLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
+function NoneLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      {SKIP_LINK}
+      <MainArea navbarHeight={0}>{children}</MainArea>
+    </>
+  );
+}
+
 const LAYOUT_MAP = {
   'navbar-sidebar': NavbarSidebarLayout,
   'navbar-only': NavbarOnlyLayout,
   'sidebar-only': SidebarOnlyLayout,
+  'none': NoneLayout,
 } as const;
 
 /**
@@ -103,6 +113,7 @@ const LAYOUT_MAP = {
  * - `navbar-sidebar` — Top navbar + left sidebar (default)
  * - `navbar-only`    — Full-width top navbar, no sidebar
  * - `sidebar-only`   — Left sidebar only, no top navbar
+ * - `none`           — No chrome at all (landing pages, kiosk apps)
  *
  * @example
  * <DashboardLayout>{children}</DashboardLayout>
