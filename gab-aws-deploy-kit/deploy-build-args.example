@@ -1,0 +1,16 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# AWS Deploy Kit - Build-Time Arguments
+# ─────────────────────────────────────────────────────────────────────────────
+# Copy this file to 'deploy-build-args' and fill in your values:
+#   cp deploy-build-args.example deploy-build-args
+#
+# These NEXT_PUBLIC_* variables are passed as --build-arg to `docker build`.
+# Next.js inlines them into the client JS bundle at build time.
+# They are NOT injected at runtime via SSM (see deploy-secrets for those).
+#
+# FORMAT: KEY=VALUE, one per line. Comments (#) and blank lines are ignored.
+# NEVER commit deploy-build-args -- it may contain sensitive build config.
+# ─────────────────────────────────────────────────────────────────────────────
+
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
+NEXT_PUBLIC_ARCGIS_API_KEY=your_arcgis_api_key

@@ -1,0 +1,72 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# AWS Deploy Kit Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+# Copy this file to 'deploy-config' and fill in your values:
+#   cp deploy-config.example deploy-config
+#
+# This file is the SINGLE SOURCE OF TRUTH for all AWS resource names, regions,
+# scaling, and deployment settings. The deploy-config file is gitignored.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── App Identity (REQUIRED) ──────────────────────────────────────────────────
+# Unique name used to prefix ALL AWS resources (ECR, ECS, ALB, S3, IAM, etc.)
+# Use lowercase, hyphens only. Must be globally unique within your AWS account.
+APP_NAME="gab-311"
+
+# Path to the app directory containing the Dockerfile.
+# Relative to aws-deploy-kit/ folder, or absolute.
+# Examples:
+#   ".."                 (Dockerfile at repo root -- default)
+#   "../discovery-app"   (app in a sibling folder)
+#   "/absolute/path"     (absolute path)
+APP_DIR=".."
+
+# Port your container listens on
+CONTAINER_PORT=3000
+
+# ── AWS Identity (REQUIRED) ──────────────────────────────────────────────────
+# AWS SSO profile name (each developer sets their own)
+PROFILE="gab-admin-dev"
+
+# AWS region for all resources
+AWS_REGION="us-east-2"
+
+# ── VPC Configuration ────────────────────────────────────────────────────────
+# How networking is set up for this app:
+#   dedicated  - Creates a new VPC per app with public+private subnets, NAT, IGW
+#                (recommended for production -- full network isolation)
+#   shared     - Uses the default VPC (quick for dev/testing)
+#   existing   - Uses a pre-existing VPC by ID
+VPC_MODE="dedicated"
+
+# Only needed if VPC_MODE=existing:
+# VPC_ID="vpc-0abc123def456789"
+
+# Only needed if VPC_MODE=dedicated (CIDR for the new VPC):
+VPC_CIDR="10.2.0.0/16"
+
+# ── Scaling Configuration ───────────────────────────────────────────────────
+MIN_TASKS=1
+MAX_TASKS=10
+TASK_CPU=2048       # 2 vCPU  (256, 512, 1024, 2048, 4096)
+TASK_MEMORY=4096    # 4 GB    (512, 1024, 2048, 4096, 8192, ...)
+SCALE_UP_CPU=70     # Scale out when avg CPU > this %
+SCALE_DOWN_CPU=30   # Scale in when avg CPU < this %
+
+# ── Deployment Configuration ────────────────────────────────────────────────
+DEPLOYMENT_MIN_PERCENT=100    # Min healthy % during deploy
+DEPLOYMENT_MAX_PERCENT=200    # Max % during deploy (allows double capacity)
+HEALTH_CHECK_GRACE=60         # Seconds before health check starts
+HEALTH_CHECK_PATH="/"         # ALB health check endpoint
+
+# ── CodeBuild (optional) ─────────────────────────────────────────────────────
+# Leave GITHUB_REPO empty to skip CodeBuild during setup (local CLI workflow).
+# GitHub repository for CodeBuild source (owner/repo format)
+GITHUB_REPO=""
+
+# AWS CodeStar connection ARN (for GitHub integration)
+# CODESTAR_ARN="arn:aws:codeconnections:us-east-2:123456789:connection/abc-def"
+
+# ── Release Notes ───────────────────────────────────────────────────────────
+# Regex pattern to extract ticket IDs from commit messages
+TICKET_PATTERN='[A-Z]+-[0-9]+'

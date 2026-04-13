@@ -1,0 +1,103 @@
+version: 0.2
+
+env:
+  variables:
+    # These are set by release-build.sh via --environment-variables-override
+    APP_NAME: ""
+    APP_DIR: ""
+    DOCKER_BUILDKIT: "1"
+    # NEXT_PUBLIC_ vars passed through to docker build --build-arg
+    NEXT_PUBLIC_API_URL: ""
+    NEXT_PUBLIC_APP_NAME: ""
+    NEXT_PUBLIC_APP_DESCRIPTION: ""
+    NEXT_PUBLIC_THEME_PRIMARY: ""
+    NEXT_PUBLIC_AUTH0_DOMAIN: ""
+    NEXT_PUBLIC_AUTH0_CLIENT_ID: ""
+    NEXT_PUBLIC_AUTH0_AUDIENCE: ""
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 24
+    commands:
+      - echo "Installing Trivy..."
+      - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+  pre_build:
+    commands:
+      - echo "=== Pre-Build Phase ==="
+      - COMMIT_SHA=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
+      - IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${APP_NAME}"
+      - REPORTS_DIR="/tmp/reports"
+      - mkdir -p "$REPORTS_DIR"
+      - echo "Logging into ECR..."
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+      - echo "Running npm audit..."
+      - cd "${APP_DIR}"
+      - npm ci
+      - npm audit --json > "$REPORTS_DIR/audit-report.json" 2>&1 || true
+      - "NPM_AUDIT_EXIT=$(npm audit --audit-level=high > /dev/null 2>&1; echo $?)"
+      - 'echo "npm audit exit code: $NPM_AUDIT_EXIT"'
+      - echo "Running ESLint..."
+      - npx eslint --format json -o "$REPORTS_DIR/eslint-report.json" . 2>&1 || true
+      - cd ..
+
+  build:
+    commands:
+      - echo "=== Build Phase ==="
+      - echo "Building Docker image..."
+      - cd "${APP_DIR}"
+      - >-
+        docker build
+        --build-arg NEXT_PUBLIC_API_URL
+        --build-arg NEXT_PUBLIC_APP_NAME
+        --build-arg NEXT_PUBLIC_APP_DESCRIPTION
+        --build-arg NEXT_PUBLIC_THEME_PRIMARY
+        --build-arg NEXT_PUBLIC_AUTH0_DOMAIN
+        --build-arg NEXT_PUBLIC_AUTH0_CLIENT_ID
+        --build-arg NEXT_PUBLIC_AUTH0_AUDIENCE
+        -t "${IMAGE_URI}:${RELEASE_TAG}"
+        -t "${IMAGE_URI}:${COMMIT_SHA}"
+        -t "${IMAGE_URI}:latest"
+        .
+      - cd ..
+
+  post_build:
+    commands:
+      - echo "=== Post-Build Phase ==="
+      - echo "Running Trivy scan..."
+      - trivy image --format json --output "$REPORTS_DIR/trivy-report.json" "${IMAGE_URI}:${RELEASE_TAG}" || true
+      - "TRIVY_EXIT=$(trivy image --severity CRITICAL,HIGH --exit-code 1 \"${IMAGE_URI}:${RELEASE_TAG}\" > /dev/null 2>&1; echo $?)"
+      - 'echo "Trivy exit code: $TRIVY_EXIT"'
+      - echo "Generating scan summary..."
+      - |
+        cat > "$REPORTS_DIR/build-summary.json" <<BUILDEOF
+        {
+          "release_tag": "${RELEASE_TAG}",
+          "commit_sha": "${CODEBUILD_RESOLVED_SOURCE_VERSION}",
+          "commit_sha_short": "${COMMIT_SHA}",
+          "build_id": "${CODEBUILD_BUILD_ID}",
+          "build_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "image_uri": "${IMAGE_URI}:${RELEASE_TAG}",
+          "scans": {
+            "npm_audit": { "exit_code": ${NPM_AUDIT_EXIT} },
+            "trivy": { "exit_code": ${TRIVY_EXIT} }
+          }
+        }
+        BUILDEOF
+      - echo "Uploading reports to S3..."
+      - aws s3 cp "$REPORTS_DIR/" "s3://${APP_NAME}-releases/releases/${RELEASE_TAG}/" --recursive
+      - echo "Pushing image to ECR..."
+      - docker push "${IMAGE_URI}:${RELEASE_TAG}"
+      - docker push "${IMAGE_URI}:${COMMIT_SHA}"
+      - docker push "${IMAGE_URI}:latest"
+      - echo "Generating imagedefinitions.json..."
+      - printf '[{"name":"%s","imageUri":"%s"}]' "$APP_NAME" "${IMAGE_URI}:${RELEASE_TAG}" > imagedefinitions.json
+      - echo "=== Build Complete ==="
+      - 'echo "Image: ${IMAGE_URI}:${RELEASE_TAG}"'
+      - 'echo "npm audit: exit=${NPM_AUDIT_EXIT}"'
+      - 'echo "Trivy:     exit=${TRIVY_EXIT}"'
+
+artifacts:
+  files:
+    - imagedefinitions.json

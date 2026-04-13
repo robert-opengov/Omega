@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.gitignore
+*.md
+.env*
+.vscode
+.idea
+coverage
+gab-aws-deploy-kit/deploy-config
+gab-aws-deploy-kit/deploy-build-args
+gab-aws-deploy-kit/*.values
