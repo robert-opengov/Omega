@@ -29,7 +29,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {...props}
         aria-describedby={describedBy}
         className={cn(
-          'w-full rounded border border-input-border transition-all duration-200 ease-in-out bg-background text-foreground',
+          'w-full rounded border border-input-border transition-all duration-75 ease-in-out bg-background text-foreground',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:border-ring',
           sizeClasses[inputSize],
           error && 'border-destructive bg-destructive/5 focus-visible:outline-destructive',

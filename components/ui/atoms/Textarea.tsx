@@ -53,7 +53,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           else if (ref) ref.current = node;
         }}
         className={cn(
-          'w-full px-3 py-2 rounded border border-input-border text-sm transition-all duration-200 ease-in-out bg-background text-foreground min-h-[80px] resize-y focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+          'w-full px-3 py-2 rounded border border-input-border text-sm transition-all duration-75 ease-in-out bg-background text-foreground min-h-[80px] resize-y focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
           error && 'border-destructive focus-visible:outline-destructive',
           className
         )}
