@@ -1,8 +1,18 @@
 /**
  * Centralized route configuration for the middleware.
- * The AI or the developer edits ONLY this file to control access rules.
- * The middleware.ts logic itself should never need to be touched.
+ *
+ * Protected route prefixes are AUTO-DERIVED from `navigationItems` in
+ * `navigation.config.ts`. Only auth-only routes, public overrides, and
+ * redirect targets need manual entries here.
+ *
+ * The middleware (`proxy.ts`) uses an implicit-deny pattern: any route
+ * that is not public and not auth-only requires authentication. The
+ * `protectedPrefixes` export makes the derived list explicit for
+ * documentation, testing, and future role-based enforcement.
+ *
+ * @see {@link ./navigation.config.ts} — single source of truth for routes + nav
  */
+import { collectProtectedPrefixes, navigationItems } from './navigation.config';
 
 /** Routes accessible without authentication */
 export const publicRoutes: string[] = [
@@ -21,6 +31,12 @@ export const authOnlyRoutes: string[] = [
   '/register',
   '/signup',
 ];
+
+/**
+ * All route prefixes that require authentication.
+ * Auto-derived from `navigationItems` — no manual sync needed.
+ */
+export const protectedPrefixes: string[] = collectProtectedPrefixes(navigationItems);
 
 /** The page to redirect unauthenticated users to */
 export const loginRedirect = '/login';

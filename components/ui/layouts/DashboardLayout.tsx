@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Menu } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/ui/organisms/Sidebar';
 import { Navbar } from '@/components/ui/organisms/Navbar';
+import { CommandPalette, type CommandItem } from '@/components/ui/molecules/CommandPalette';
 import { ToastContainer } from '@/components/ui/molecules/Toast';
-import { useSidebar } from '@/providers';
+import { useSidebar, useAuth } from '@/providers';
 import { appConfig } from '@/config/app.config';
+import { navigationItems, flattenNavItems } from '@/config/navigation.config';
 
 const SKIP_LINK = (
   <a
@@ -98,6 +101,36 @@ function NoneLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
+function GlobalCommandPalette() {
+  const [open, setOpen] = useState(false);
+  const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setOpen((prev) => !prev);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const items: CommandItem[] = useMemo(() => {
+    const flat = flattenNavItems(navigationItems, appConfig.features, user?.role);
+    return flat.map((nav) => ({
+      label: nav.label,
+      value: nav.href,
+      icon: nav.icon,
+      description: `Go to ${nav.label}`,
+      onSelect: () => { router.push(nav.href); setOpen(false); },
+    }));
+  }, [user?.role, router]);
+
+  return <CommandPalette open={open} onOpenChange={setOpen} items={items} placeholder="Where do you want to go?" />;
+}
+
 const LAYOUT_MAP = {
   'navbar-sidebar': NavbarSidebarLayout,
   'navbar-only': NavbarOnlyLayout,
@@ -123,6 +156,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Layout>{children}</Layout>
+      <GlobalCommandPalette />
       <ToastContainer />
     </>
   );

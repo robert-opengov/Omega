@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { ChevronRight, PanelLeftClose } from 'lucide-react';
 import { useSidebar, useAuth } from '@/providers';
 import { navigationItems, userMenuItems, isRouteActive, isFeatureEnabled } from '@/config/navigation.config';
-import type { UserMenuItem } from '@/config/navigation.config';
+import type { NavItem, UserMenuItem } from '@/config/navigation.config';
 import { appConfig } from '@/config/app.config';
 import { cn } from '@/lib/utils';
 import { Logo } from './Logo';
@@ -32,6 +32,93 @@ function UserMenuItemRow({ item, onAction }: { item: UserMenuItem; onAction: (ac
     >
       <span className="flex-1 truncate">{item.label}</span>
     </button>
+  );
+}
+
+/**
+ * Renders a single sidebar nav item with support for group headers,
+ * collapsible children, and badge counts.
+ * @internal
+ */
+function SidebarNavItem({ item, pathname, depth }: { item: NavItem; pathname: string; depth: number }) {
+  const isActive = isRouteActive(item.href, pathname);
+  const hasChildren = !!item.children?.length;
+  const childActive = hasChildren && item.children!.some(
+    (child) => isRouteActive(child.href, pathname),
+  );
+  const [expanded, setExpanded] = useState(isActive || childActive);
+
+  const visibleChildren = (item.children ?? []).filter((child) => {
+    if (!isFeatureEnabled(child, appConfig.features)) return false;
+    return (child.showIn ?? 'both') !== 'navbar';
+  });
+
+  return (
+    <div>
+      {item.divider && <div className="my-3 border-t border-border" />}
+
+      {item.group && (
+        <p className="px-2 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {item.group}
+        </p>
+      )}
+
+      {hasChildren ? (
+        <button
+          onClick={() => setExpanded((prev) => !prev)}
+          aria-expanded={expanded}
+          className={cn(
+            'flex w-full items-center gap-2 rounded-[4px] py-1 pr-2 text-sm tracking-[0.017em] leading-[1.43] transition-colors duration-200',
+            'text-text-primary font-normal hover:bg-action-hover',
+            depth === 0 ? 'pl-6' : 'pl-10',
+            (isActive || childActive) && 'bg-secondary',
+          )}
+          style={depth > 1 ? { paddingLeft: 24 + depth * 16 } : undefined}
+        >
+          <ChevronRight
+            className={cn(
+              'h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-200',
+              expanded && 'rotate-90',
+            )}
+            aria-hidden="true"
+          />
+          <span className="flex-1 truncate text-left">{item.label}</span>
+          {item.badge != null && (
+            <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[11px] font-medium rounded-full bg-primary/10 text-primary">
+              {item.badge}
+            </span>
+          )}
+        </button>
+      ) : (
+        <Link
+          href={item.href}
+          aria-current={isActive ? 'page' : undefined}
+          className={cn(
+            'flex items-center gap-2 rounded-[4px] py-1 pr-2 text-sm tracking-[0.017em] leading-[1.43] transition-colors duration-200',
+            depth === 0 ? 'pl-6' : 'pl-10',
+            isActive
+              ? 'bg-secondary text-text-primary font-normal'
+              : 'text-text-primary font-normal hover:bg-action-hover',
+          )}
+          style={depth > 1 ? { paddingLeft: 24 + depth * 16 } : undefined}
+        >
+          <span className="flex-1 truncate">{item.label}</span>
+          {item.badge != null && (
+            <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[11px] font-medium rounded-full bg-primary/10 text-primary">
+              {item.badge}
+            </span>
+          )}
+        </Link>
+      )}
+
+      {hasChildren && expanded && visibleChildren.length > 0 && (
+        <div className="space-y-0.5 mt-0.5">
+          {visibleChildren.map((child) => (
+            <SidebarNavItem key={child.href} item={child} pathname={pathname} depth={depth + 1} />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -76,30 +163,10 @@ function NavigationContent({ isMobile = false }: { isMobile?: boolean }) {
       </div>
 
       {/* ---- Navigation items ---- */}
-      <nav aria-label="Main navigation" className="flex-1 px-4 py-4 space-y-4 overflow-y-auto">
-        {visibleItems.map((item) => {
-          const isActive = isRouteActive(item.href, pathname);
-
-          return (
-            <div key={item.href}>
-              {item.divider && (
-                <div className="mb-4 border-t border-border" />
-              )}
-              <Link
-                href={item.href}
-                aria-current={isActive ? 'page' : undefined}
-                className={cn(
-                  'flex items-center gap-2 rounded-[4px] py-0.5 pl-6 pr-2 text-sm tracking-[0.017em] leading-[1.43] transition-colors duration-200',
-                  isActive
-                    ? 'bg-secondary text-text-primary font-normal'
-                    : 'text-text-primary font-normal hover:bg-action-hover',
-                )}
-              >
-                <span className="flex-1 truncate">{item.label}</span>
-              </Link>
-            </div>
-          );
-        })}
+      <nav aria-label="Main navigation" className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+        {visibleItems.map((item) => (
+          <SidebarNavItem key={item.href} item={item} pathname={pathname} depth={0} />
+        ))}
       </nav>
 
       {/* ---- Footer: expandable user menu ---- */}

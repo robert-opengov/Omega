@@ -117,7 +117,7 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
                   )}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
-                  <span>{item.label}</span>
+                  <span>{item.navbarLabel ?? item.label}</span>
                 </Link>
               </div>
             );
@@ -221,7 +221,7 @@ export function Navbar({ standalone = false }: NavbarProps) {
                     )}
                     style={{ height: NAVBAR_HEIGHT }}
                   >
-                    {item.label}
+                    {item.navbarLabel ?? item.label}
                     {active && (
                       <span
                         className="absolute bottom-0 inset-x-0 h-[3px] bg-primary rounded-t-sm"
