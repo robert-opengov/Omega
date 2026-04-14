@@ -656,7 +656,7 @@ export function ChildTable<T extends Record<string, unknown> = Record<string, un
       {/* Skip link for keyboard/screen-reader users */}
       <a
         href="#ct-grid-body"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-[var(--z-overlay)] focus:bg-primary focus:text-primary-foreground focus:px-3 focus:py-1 focus:rounded focus:text-sm"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-overlay focus:bg-primary focus:text-primary-foreground focus:px-3 focus:py-1 focus:rounded focus:text-sm"
       >
         Skip to table content
       </a>
@@ -734,7 +734,7 @@ export function ChildTable<T extends Record<string, unknown> = Record<string, un
             {/* Row select header (checkbox) */}
             <div
               role="columnheader"
-              className="sticky left-0 z-[var(--z-content)] flex items-center justify-center h-[50px] bg-muted border-b border-border"
+              className="sticky left-0 z-content flex items-center justify-center h-[50px] bg-muted border-b border-border"
             >
               {isSelectable && (
                 <input
@@ -898,7 +898,7 @@ export function ChildTable<T extends Record<string, unknown> = Record<string, un
                 <div
                   role="gridcell"
                   className={cn(
-                    'sticky left-0 z-[var(--z-content)] relative h-[50px] border-b border-border transition-colors duration-200',
+                    'sticky left-0 z-content relative h-[50px] border-b border-border transition-colors duration-200',
                     isRowSelected ? 'bg-primary-light' : 'bg-background',
                   )}
                   onMouseEnter={() => setHoveredRowIndex(rowIndex)}

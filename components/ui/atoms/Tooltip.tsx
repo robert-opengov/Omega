@@ -36,7 +36,7 @@ export function Tooltip({ children, content, side = 'top', delayDuration = 200, 
             side={side}
             sideOffset={4}
             className={cn(
-              'z-[var(--z-tooltip)] overflow-hidden rounded bg-black p-2 min-h-[26px] text-xs text-white shadow-soft',
+              'z-tooltip overflow-hidden rounded bg-black p-2 min-h-[26px] text-xs text-white shadow-soft',
               'animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
               className
             )}

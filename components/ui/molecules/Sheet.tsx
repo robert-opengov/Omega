@@ -17,6 +17,8 @@ export interface SheetTab {
   value: string;
 }
 
+export type SheetSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
 export interface SheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -24,6 +26,8 @@ export interface SheetProps {
   description?: string;
   children: ReactNode;
   side?: 'left' | 'right' | 'bottom';
+  /** Controls the width for left/right sheets. @default 'md' */
+  size?: SheetSize;
   className?: string;
   headerActions?: ReactNode;
   tabs?: SheetTab[];
@@ -34,9 +38,17 @@ export interface SheetProps {
   destructiveAction?: SheetAction;
 }
 
-const sideStyles = {
-  right: 'inset-y-0 right-0 h-full w-[400px] max-w-[90vw] border-l translate-x-full data-[state=open]:translate-x-0',
-  left: 'inset-y-0 left-0 h-full w-[400px] max-w-[90vw] border-r -translate-x-full data-[state=open]:translate-x-0',
+const sizeWidths: Record<SheetSize, string> = {
+  sm: 'w-[320px]',
+  md: 'w-[400px]',
+  lg: 'w-[520px]',
+  xl: 'w-[640px]',
+  '2xl': 'w-[800px]',
+};
+
+const sideBase = {
+  right: 'inset-y-0 right-0 h-full max-w-[90vw] border-l translate-x-full data-[state=open]:translate-x-0',
+  left: 'inset-y-0 left-0 h-full max-w-[90vw] border-r -translate-x-full data-[state=open]:translate-x-0',
   bottom: 'inset-x-0 bottom-0 h-auto max-h-[85vh] border-t translate-y-full data-[state=open]:translate-y-0',
 };
 
@@ -47,6 +59,7 @@ export function Sheet({
   description,
   children,
   side = 'right',
+  size = 'md',
   className,
   headerActions,
   tabs,
@@ -57,15 +70,17 @@ export function Sheet({
   destructiveAction,
 }: SheetProps) {
   const hasFooter = primaryAction || secondaryAction || destructiveAction;
+  const widthClass = side !== 'bottom' ? sizeWidths[size] : '';
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[var(--z-overlay)] bg-overlay backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
+        <Dialog.Overlay className="fixed inset-0 z-overlay bg-overlay backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
         <Dialog.Content
           className={cn(
-            'fixed z-[var(--z-overlay)] bg-card border-border shadow-overlay transition-transform duration-300 ease-in-out flex flex-col',
-            sideStyles[side],
+            'fixed z-overlay bg-card border-border shadow-overlay transition-transform duration-300 ease-in-out flex flex-col',
+            sideBase[side],
+            widthClass,
             className,
           )}
         >

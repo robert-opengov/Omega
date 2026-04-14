@@ -113,7 +113,7 @@ export function RowContextMenu({ items, position, onAction, onClose }: RowContex
       role="menu"
       aria-label="Row actions"
       onKeyDown={handleKeyDown}
-      className="fixed z-[var(--z-popover,50)] min-w-[200px] max-w-[280px] rounded-lg border border-border bg-card shadow-overlay py-1 animate-in fade-in-0 zoom-in-95"
+      className="fixed z-popover min-w-[200px] max-w-[280px] rounded-lg border border-border bg-card shadow-overlay py-1 animate-in fade-in-0 zoom-in-95"
       style={clampedStyle}
     >
       {items.map((item, i) => {

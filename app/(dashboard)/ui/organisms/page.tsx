@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { ClipboardEdit, BarChart3, FileSearch, Shield, Download, Send, AlertTriangle, CheckCircle, Users, Plus, Bell, Circle } from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
+import { ClipboardEdit, BarChart3, FileSearch, Shield, Download, Send, AlertTriangle, CheckCircle, Users, Plus, Bell, Circle, Trash2, Archive } from 'lucide-react';
 import { Badge, Button, Text, SelectionCard } from '@/components/ui/atoms';
 import { ShowcaseLayout } from '../_components/ShowcaseLayout';
-import { type Column, StatusChecklist } from '@/components/ui/molecules';
+import { type Column, StatusChecklist, MetricCard } from '@/components/ui/molecules';
 import {
   AuthForm,
   DataGrid,
@@ -29,7 +29,12 @@ import {
   type TimelineItem,
   GanttChart,
   type GanttRow,
+  DynamicForm,
+  KanbanBoard,
+  type KanbanColumn,
+  WidgetGrid,
 } from '@/components/ui/organisms';
+import type { FormSchema } from '@/lib/core/ports/form-schema';
 import { ComponentDemo, Section } from '../_components/ComponentDemo';
 
 export default function OrganismsPage() {
@@ -41,6 +46,12 @@ export default function OrganismsPage() {
         <DetailPageHeaderDemo />
         <TimelineDemo />
         <GanttChartDemo />
+      </Section>
+
+      <Section title="New Organisms" count={3} description="Dynamic forms, kanban boards, and customizable widget grids.">
+        <DynamicFormDemo />
+        <KanbanBoardDemo />
+        <WidgetGridDemo />
       </Section>
 
       <Section title="Organisms" count={8}>
@@ -147,7 +158,7 @@ function FullscreenWizardDemo() {
       <div className="space-y-4">
         <Button onClick={() => setOpen(true)}>Launch Wizard Demo</Button>
         {open && (
-          <div className="fixed inset-0 z-[var(--z-overlay)]">
+          <div className="fixed inset-0 z-overlay">
             <FullscreenWizard
               productName="Grants Management"
               steps={steps}
@@ -678,6 +689,197 @@ function DetailPageHeaderDemo() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
+    </ComponentDemo>
+  );
+}
+
+/* ---------- DynamicForm ---------- */
+
+const demoFormSchema: FormSchema = {
+  version: 1,
+  sections: [
+    {
+      key: 'contact',
+      label: 'Contact Information',
+      order: 1,
+      description: 'Primary contact details for the request.',
+      columns: 2,
+      fields: [
+        { key: 'firstName', label: 'First Name', type: 'text', required: true, placeholder: 'Jane' },
+        { key: 'lastName', label: 'Last Name', type: 'text', required: true, placeholder: 'Doe' },
+        { key: 'email', label: 'Email', type: 'email', placeholder: 'jane@example.com', validation: { pattern: '^[^@]+@[^@]+\\.[^@]+$', patternMessage: 'Enter a valid email' } },
+        { key: 'phone', label: 'Phone', type: 'phone', placeholder: '(555) 123-4567' },
+      ],
+    },
+    {
+      key: 'request',
+      label: 'Request Details',
+      order: 2,
+      fields: [
+        { key: 'category', label: 'Category', type: 'select', required: true, options: [
+          { label: 'Roads & Traffic', value: 'roads' },
+          { label: 'Water & Sewer', value: 'water' },
+          { label: 'Parks', value: 'parks' },
+          { label: 'Other', value: 'other' },
+        ] },
+        { key: 'description', label: 'Description', type: 'textarea', required: true, placeholder: 'Describe the issue...', validation: { minLength: 10 } },
+        { key: 'urgent', label: 'Mark as urgent', type: 'checkbox' },
+      ],
+    },
+  ],
+  rules: [
+    { if: { field: 'category', operator: 'equals', value: 'other' }, then: { action: 'show', target: 'otherCategory' } },
+    { if: { field: 'urgent', operator: 'equals', value: true }, then: { action: 'require', target: 'phone' } },
+  ],
+};
+
+function DynamicFormDemo() {
+  const [values, setValues] = useState<Record<string, unknown>>({});
+  const [readOnly, setReadOnly] = useState(false);
+
+  const handleChange = useCallback((key: string, value: unknown) => {
+    setValues((prev) => ({ ...prev, [key]: value }));
+  }, []);
+
+  return (
+    <ComponentDemo
+      name="DynamicForm"
+      description="Schema-driven form with field type registry, conditional rules (show/hide/require), section layouts, and read-only display mode."
+      props={`interface DynamicFormProps {
+  schema: FormSchema;
+  values: Record<string, unknown>;
+  onChange: (key: string, value: unknown) => void;
+  errors?: Record<string, string>;
+  disabled?: boolean;
+  readOnly?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  sectionRenderer?: (section, children) => ReactNode;
+  fieldRenderer?: (field, control) => ReactNode;
+}`}
+    >
+      <div className="max-w-2xl space-y-4">
+        <div className="flex gap-2">
+          <Button variant={readOnly ? 'outline' : 'primary'} size="sm" onClick={() => setReadOnly(false)}>Edit Mode</Button>
+          <Button variant={readOnly ? 'primary' : 'outline'} size="sm" onClick={() => setReadOnly(true)}>Read-Only Mode</Button>
+        </div>
+        <DynamicForm
+          schema={demoFormSchema}
+          values={values}
+          onChange={handleChange}
+          readOnly={readOnly}
+        />
+        {!readOnly && (
+          <pre className="text-xs bg-muted/50 rounded p-3 font-mono overflow-auto max-h-32">
+            {JSON.stringify(values, null, 2)}
+          </pre>
+        )}
+      </div>
+    </ComponentDemo>
+  );
+}
+
+/* ---------- KanbanBoard ---------- */
+
+function KanbanBoardDemo() {
+  const [columns, setColumns] = useState<KanbanColumn[]>([
+    {
+      id: 'new', title: 'New', color: 'hsl(var(--info-h) var(--info-s) var(--info-l))',
+      items: [
+        { id: 'k1', title: 'Pothole on Main St', description: 'Large pothole near downtown intersection', badge: { label: 'High' }, metadata: '2 days ago' },
+        { id: 'k2', title: 'Streetlight outage', description: 'Corner of Oak and 5th', metadata: '5 hours ago' },
+      ],
+    },
+    {
+      id: 'progress', title: 'In Progress', color: 'hsl(var(--warning-h) var(--warning-s) var(--warning-l))',
+      items: [
+        { id: 'k3', title: 'Water leak report', description: 'Slow leak on residential street', badge: { label: 'Medium' }, avatar: { fallback: 'JD' }, metadata: '1 day ago' },
+      ],
+    },
+    {
+      id: 'review', title: 'Under Review', color: 'hsl(var(--primary-h) var(--primary-s) var(--primary-l))',
+      items: [
+        { id: 'k4', title: 'Park bench replacement', description: 'Central Park area', metadata: '3 days ago' },
+      ],
+    },
+    {
+      id: 'done', title: 'Done', color: 'hsl(var(--success-h) var(--success-s) var(--success-l))',
+      items: [
+        { id: 'k5', title: 'Graffiti removal', description: 'Downtown underpass cleaned', metadata: 'Last week' },
+      ],
+    },
+  ]);
+
+  const handleMove = useCallback((itemId: string, fromCol: string, toCol: string, newIndex: number) => {
+    setColumns((prev) => {
+      const next = prev.map((col) => ({ ...col, items: [...col.items] }));
+      const fromColumn = next.find((c) => c.id === fromCol);
+      const toColumn = next.find((c) => c.id === toCol);
+      if (!fromColumn || !toColumn) return prev;
+
+      const itemIndex = fromColumn.items.findIndex((i) => i.id === itemId);
+      if (itemIndex === -1) return prev;
+
+      const [item] = fromColumn.items.splice(itemIndex, 1);
+      toColumn.items.splice(newIndex, 0, item);
+      return next;
+    });
+  }, []);
+
+  return (
+    <ComponentDemo
+      name="KanbanBoard"
+      description="Drag-and-drop kanban board with @hello-pangea/dnd. Supports custom card/column renderers."
+      props={`interface KanbanBoardProps {
+  columns: KanbanColumn[];
+  onItemMove?: (itemId, fromColumn, toColumn, newIndex) => void;
+  onItemClick?: (item, columnId) => void;
+  renderItem?: (item, columnId) => ReactNode;
+  renderColumnHeader?: (column) => ReactNode;
+  draggable?: boolean;
+}`}
+    >
+      <KanbanBoard
+        columns={columns}
+        onItemMove={handleMove}
+      />
+    </ComponentDemo>
+  );
+}
+
+/* ---------- WidgetGrid ---------- */
+
+function WidgetGridDemo() {
+  const [config, setConfig] = useState<{ id: string; visible?: boolean; order?: number }[]>([
+    { id: 'revenue', visible: true, order: 0 },
+    { id: 'requests', visible: true, order: 1 },
+    { id: 'users', visible: true, order: 2 },
+    { id: 'satisfaction', visible: true, order: 3 },
+  ]);
+
+  return (
+    <ComponentDemo
+      name="WidgetGrid"
+      description="Dashboard widget grid with optional drag-to-reorder customization sheet."
+      props={`interface WidgetGridProps {
+  children: ReactNode;
+  config?: WidgetConfig[];
+  columns?: ResponsiveGridColumns;
+  gap?: 'sm' | 'md' | 'lg';
+  onConfigChange?: (config: WidgetConfig[]) => void;
+  customizable?: boolean;
+}`}
+    >
+      <WidgetGrid
+        config={config}
+        onConfigChange={setConfig}
+        customizable
+        columns={{ default: 1, sm: 2, lg: 4 }}
+      >
+        <MetricCard data-widget-id="revenue" title="Revenue" value="$2.4M" description="This quarter" />
+        <MetricCard data-widget-id="requests" title="Open Requests" value="42" description="Pending review" />
+        <MetricCard data-widget-id="users" title="Active Users" value="1,284" description="+12% vs last month" />
+        <MetricCard data-widget-id="satisfaction" title="Satisfaction" value="94%" description="Citizen rating" />
+      </WidgetGrid>
     </ComponentDemo>
   );
 }

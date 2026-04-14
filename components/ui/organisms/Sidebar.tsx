@@ -192,7 +192,7 @@ function MobileSidebar() {
     <>
       <div
         className={cn(
-          'fixed inset-0 z-[var(--z-overlay)] lg:hidden transition-opacity duration-300',
+          'fixed inset-0 z-overlay lg:hidden transition-opacity duration-300',
           isMobileOpen ? 'opacity-100 bg-overlay backdrop-blur-sm' : 'opacity-0 pointer-events-none'
         )}
         onClick={closeMobileSidebar}
@@ -203,7 +203,7 @@ function MobileSidebar() {
         role={isMobileOpen ? 'dialog' : undefined}
         aria-modal={isMobileOpen ? true : undefined}
         aria-label={isMobileOpen ? 'Navigation menu' : undefined}
-        className="fixed top-0 left-0 h-screen w-64 z-[var(--z-overlay)] flex flex-col bg-background border-r border-border transition-transform duration-300 ease-in-out lg:hidden"
+        className="fixed top-0 left-0 h-screen w-64 z-overlay flex flex-col bg-background border-r border-border transition-transform duration-300 ease-in-out lg:hidden"
         style={{ transform: isMobileOpen ? 'translateX(0)' : 'translateX(-100%)' }}
       >
         <NavigationContent isMobile />
@@ -223,7 +223,7 @@ function DesktopSidebar() {
   return (
     <aside
       className={cn(
-        'fixed top-0 left-0 bottom-0 bg-background border-r border-border z-[var(--z-ground)] hidden lg:flex flex-col w-64 transition-transform duration-300 ease-in-out',
+        'fixed top-0 left-0 bottom-0 bg-background border-r border-border z-ground hidden lg:flex flex-col w-64 transition-transform duration-300 ease-in-out',
         isDesktopCollapsed ? '-translate-x-full' : 'translate-x-0',
       )}
     >

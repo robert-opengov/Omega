@@ -125,7 +125,7 @@ export function SelectEditor({
           ref={listRef}
           role="listbox"
           className={cn(
-            'absolute left-0 top-full z-[var(--z-form)] mt-0.5',
+            'absolute left-0 top-full z-form mt-0.5',
             'max-h-48 w-full overflow-auto',
             'rounded-[var(--radius)] border border-border bg-popover shadow-medium',
             'py-0.5',

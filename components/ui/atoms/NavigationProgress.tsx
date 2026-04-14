@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
  * A thin progress bar fixed at the top of the viewport that animates
  * during client-side navigations, providing visual feedback.
  *
- * Uses `z-[var(--z-overlay)]` from the CDS-37 z-index scale.
+ * Uses `z-overlay` from the CDS-37 z-index scale.
  */
 export function NavigationProgress() {
   const pathname = usePathname();
@@ -79,7 +79,7 @@ export function NavigationProgress() {
   if (!visible && progress === 0) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[var(--z-overlay)] h-0.5 pointer-events-none">
+    <div className="fixed top-0 left-0 right-0 z-overlay h-0.5 pointer-events-none">
       <div
         className={cn(
           'h-full bg-primary transition-all ease-out',

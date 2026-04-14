@@ -137,22 +137,7 @@
   --radius-button: 4px;
   --radius-card: 4px;
 
-  /* --- Z-index scale --- */
-  --z-ground: 1;
-  --z-content: 100;
-  --z-editable: 200;
-  --z-sticky: 250;
-  --z-header: 300;
-  --z-panel: 400;
-  --z-dropdown: 450;
-  --z-popover: 450;
-  --z-tooltip: 475;
-  --z-form: 500;
-  --z-nav: 600;
-  --z-flash: 700;
-  --z-alert: 800;
-  --z-dialog: 900;
-  --z-overlay: 1000;
+  /* --- Z-index scale (values live in @theme inline as --z-index-*) --- */
 }
 
 /* ================================================================
@@ -235,6 +220,23 @@
    Maps design tokens to Tailwind utility classes.
    ================================================================ */
 @theme inline {
+  /* Z-index scale — generates z-ground, z-content, z-sticky, etc. utilities */
+  --z-index-ground: 1;
+  --z-index-content: 100;
+  --z-index-editable: 200;
+  --z-index-sticky: 250;
+  --z-index-header: 300;
+  --z-index-panel: 400;
+  --z-index-dropdown: 450;
+  --z-index-popover: 450;
+  --z-index-tooltip: 475;
+  --z-index-form: 500;
+  --z-index-nav: 600;
+  --z-index-flash: 700;
+  --z-index-alert: 800;
+  --z-index-dialog: 900;
+  --z-index-overlay: 1000;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

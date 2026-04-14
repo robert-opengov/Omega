@@ -68,7 +68,7 @@ export function ToastContainer() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-[var(--z-overlay)] flex flex-col gap-2 w-96 max-w-[calc(100vw-2rem)]">
+    <div className="fixed top-4 right-4 z-overlay flex flex-col gap-2 w-96 max-w-[calc(100vw-2rem)]">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} {...toast} />
       ))}

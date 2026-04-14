@@ -50,7 +50,7 @@ export function CoverStates({
   return (
     <div
       className={cn(
-        'flex items-center justify-center z-[var(--z-content)] animate-in fade-in-0 duration-200',
+        'flex items-center justify-center z-content animate-in fade-in-0 duration-200',
         coverState === 'empty'
           ? 'relative bg-muted/20 border border-dashed border-border rounded-lg mx-4 my-6'
           : 'absolute inset-0 bg-background/80 backdrop-blur-[2px]',

@@ -26,7 +26,7 @@ export function DropdownMenuContent({ className, sideOffset = 4, ...props }: Com
       <DropdownPrimitive.Content
         sideOffset={sideOffset}
         className={cn(
-          'z-[var(--z-dropdown)] min-w-[160px] rounded border border-border bg-card p-1 shadow-medium',
+          'z-dropdown min-w-[160px] rounded border border-border bg-card p-1 shadow-medium',
           'animate-in fade-in-0 zoom-in-95',
           className
         )}

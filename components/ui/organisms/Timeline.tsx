@@ -62,7 +62,7 @@ export interface TimelineProps {
 /* ------------------------------------------------------------------ */
 
 const iconCircleVariants = cva(
-  'relative flex items-center justify-center rounded-full shrink-0 z-[var(--z-content)] bg-background',
+  'relative flex items-center justify-center rounded-full shrink-0 z-content bg-background',
   {
     variants: {
       variant: {

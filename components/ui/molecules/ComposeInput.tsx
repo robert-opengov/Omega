@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, type ElementType, type ReactNode } from 'react';
+import { useState, useRef, useCallback, type ElementType, type ReactNode, type KeyboardEvent } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
-import { Avatar, Button, Input } from '@/components/ui/atoms';
+import { Avatar, Button, Input, Textarea } from '@/components/ui/atoms';
 
 export interface ComposeInputMediaType {
   label: string;
@@ -33,6 +33,14 @@ export interface ComposeInputProps extends VariantProps<typeof composeInputVaria
   onSubmit?: (content: string) => void;
   submitLabel?: ReactNode;
   mediaTypes?: ComposeInputMediaType[];
+  /** Called when a media type button is clicked */
+  onMediaClick?: (type: ComposeInputMediaType) => void;
+  /** Called when files are attached (e.g. via drag-and-drop or file input) */
+  onAttach?: (files: File[]) => void;
+  /** Maximum character count; shows counter when set */
+  maxLength?: number;
+  /** When true, uses a Textarea with Shift+Enter for newlines and Enter to submit */
+  multiline?: boolean;
   footer?: ReactNode;
   className?: string;
 }
@@ -43,50 +51,104 @@ export function ComposeInput({
   onSubmit,
   submitLabel = 'Submit',
   mediaTypes = [],
+  onMediaClick,
+  onAttach,
+  maxLength,
+  multiline = false,
   footer,
   variant,
   size,
   className,
 }: ComposeInputProps) {
   const [content, setContent] = useState('');
+  const fileRef = useRef<HTMLInputElement>(null);
   const resolvedSize = size ?? 'md';
   const isCompact = variant === 'compact';
+  const charCount = content.length;
+  const isOverLimit = maxLength !== undefined && charCount > maxLength;
 
-  const handleSubmit = () => {
-    if (content.trim()) {
+  const handleSubmit = useCallback(() => {
+    if (content.trim() && !isOverLimit) {
       onSubmit?.(content);
       setContent('');
+    }
+  }, [content, isOverLimit, onSubmit]);
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      if (multiline && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit();
+      } else if (!multiline) {
+        handleSubmit();
+      }
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      onAttach?.(Array.from(files));
+      e.target.value = '';
     }
   };
 
   return (
     <div className={cn(composeInputVariants({ variant, size }), className)}>
-      <div className="flex items-center gap-3">
+      <div className={cn('flex gap-3', multiline ? 'items-start' : 'items-center')}>
         <Avatar
           src={avatar?.src}
           fallback={avatar?.fallback || 'U'}
           size={avatarSizeMap[resolvedSize]}
         />
-        <Input
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder={placeholder}
-          aria-label="Compose a message"
-          className="flex-1"
-          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-        />
-        <Button variant="primary" size={resolvedSize === 'sm' ? 'sm' : 'md'} onClick={handleSubmit}>
+        <div className="flex-1 min-w-0">
+          {multiline ? (
+            <Textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder={placeholder}
+              aria-label="Compose a message"
+              rows={3}
+              onKeyDown={handleKeyDown}
+              className="resize-none"
+            />
+          ) : (
+            <Input
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder={placeholder}
+              aria-label="Compose a message"
+              onKeyDown={handleKeyDown}
+            />
+          )}
+          {maxLength !== undefined && (
+            <p className={cn('text-xs mt-1 text-right', isOverLimit ? 'text-destructive' : 'text-muted-foreground')}>
+              {charCount}/{maxLength}
+            </p>
+          )}
+        </div>
+        <Button variant="primary" size={resolvedSize === 'sm' ? 'sm' : 'md'} onClick={handleSubmit} disabled={isOverLimit || !content.trim()}>
           {submitLabel}
         </Button>
       </div>
       {!isCompact && mediaTypes.length > 0 && (
         <div className="flex items-center gap-2">
-          {mediaTypes.map(({ label, icon: Icon }) => (
-            <Button key={label} variant="outline" size="sm" icon={Icon} className="flex-1">
-              {label}
+          {mediaTypes.map((mediaType) => (
+            <Button
+              key={mediaType.label}
+              variant="outline"
+              size="sm"
+              icon={mediaType.icon}
+              className="flex-1"
+              onClick={() => onMediaClick?.(mediaType)}
+            >
+              {mediaType.label}
             </Button>
           ))}
         </div>
+      )}
+      {onAttach && (
+        <input ref={fileRef} type="file" multiple className="hidden" onChange={handleFileChange} aria-hidden="true" />
       )}
       {footer}
     </div>

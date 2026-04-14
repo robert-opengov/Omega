@@ -2,7 +2,7 @@ export { Sidebar } from './Sidebar';
 export { Navbar } from './Navbar';
 export { Logo, LogoMark } from './Logo';
 export { ChartCard, type ChartCardProps, type ChartType } from './ChartCard';
-export { DataGrid, type DataGridProps } from './DataGrid';
+export { DataGrid, type DataGridProps, type BulkAction } from './DataGrid';
 export { AuthForm, type AuthFormProps } from './AuthForm';
 export { AIConversation, AIMessage, type AIConversationProps, type AIMessageProps, type AIMessageData } from './AIConversation';
 export { AIDisclaimer, type AIDisclaimerProps } from './AIDisclaimer';
@@ -15,3 +15,7 @@ export { FullscreenWizard, useWizard, type FullscreenWizardProps, type WizardSte
 export { DetailPageHeader, type DetailPageHeaderProps } from './DetailPageHeader';
 export { Timeline, type TimelineProps, type TimelineItem, type TimelineVariant } from './Timeline';
 export { GanttChart, type GanttChartProps, type GanttEvent, type GanttEventVariant, type GanttRow } from './GanttChart';
+export { DynamicForm, type DynamicFormProps } from './DynamicForm';
+export { LocationMap, type LocationMapProps } from './LocationMap';
+export { KanbanBoard, type KanbanBoardProps, type KanbanItem, type KanbanColumn } from './KanbanBoard';
+export { WidgetGrid, type WidgetGridProps, type WidgetConfig } from './WidgetGrid';

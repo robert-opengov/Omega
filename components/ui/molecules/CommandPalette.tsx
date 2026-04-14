@@ -51,9 +51,9 @@ export function CommandPalette({ open, onOpenChange, items, placeholder = 'Searc
   return (
     <Dialog.Root open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) setQuery(''); }}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[var(--z-overlay)] bg-overlay backdrop-blur-sm" />
+        <Dialog.Overlay className="fixed inset-0 z-overlay bg-overlay backdrop-blur-sm" />
         <Dialog.Content className={cn(
-          'fixed left-1/2 top-[20%] z-[var(--z-overlay)] -translate-x-1/2 w-[95vw] max-w-lg rounded bg-card border border-border shadow-overlay overflow-hidden',
+          'fixed left-1/2 top-[20%] z-overlay -translate-x-1/2 w-[95vw] max-w-lg rounded bg-card border border-border shadow-overlay overflow-hidden',
         )}>
           <Dialog.Title className="sr-only">Command Palette</Dialog.Title>
           <Dialog.Description className="sr-only">Search and run commands</Dialog.Description>

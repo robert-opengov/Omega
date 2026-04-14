@@ -76,7 +76,7 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
     <>
       <div
         className={cn(
-          'fixed inset-0 z-[var(--z-overlay)] transition-opacity duration-300',
+          'fixed inset-0 z-overlay transition-opacity duration-300',
           open ? 'opacity-100 bg-overlay backdrop-blur-sm' : 'opacity-0 pointer-events-none',
         )}
         onClick={onClose}
@@ -87,7 +87,7 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
         role={open ? 'dialog' : undefined}
         aria-modal={open || undefined}
         aria-label={open ? 'Navigation menu' : undefined}
-        className="fixed top-0 left-0 h-screen w-72 z-[var(--z-overlay)] flex flex-col bg-background border-r border-border transition-transform duration-300 ease-in-out"
+        className="fixed top-0 left-0 h-screen w-72 z-overlay flex flex-col bg-background border-r border-border transition-transform duration-300 ease-in-out"
         style={{ transform: open ? 'translateX(0)' : 'translateX(-100%)' }}
       >
         <div
@@ -171,7 +171,7 @@ export function Navbar({ standalone = false }: NavbarProps) {
     <>
       {standalone && <NavDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />}
 
-      <header className="sticky top-0 z-[var(--z-header)] bg-background border-b border-border">
+      <header className="sticky top-0 z-header bg-background border-b border-border">
         <div
           className="w-full px-4 flex items-center justify-between overflow-hidden"
           style={{ height: NAVBAR_HEIGHT }}

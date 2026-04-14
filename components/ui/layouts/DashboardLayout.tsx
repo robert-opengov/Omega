@@ -11,7 +11,7 @@ import { appConfig } from '@/config/app.config';
 const SKIP_LINK = (
   <a
     href="#main-content"
-    className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[var(--z-overlay)] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded focus:text-sm focus:font-medium"
+    className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-overlay focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded focus:text-sm focus:font-medium"
   >
     Skip to main content
   </a>
@@ -59,7 +59,7 @@ function NavbarOnlyLayout({ children }: { children: React.ReactNode }) {
 function MobileMenuBar() {
   const { toggleMobileOpen } = useSidebar();
   return (
-    <div className="sticky top-0 z-[var(--z-header)] flex items-center h-12 px-4 bg-background border-b border-border lg:hidden">
+    <div className="sticky top-0 z-header flex items-center h-12 px-4 bg-background border-b border-border lg:hidden">
       <button
         onClick={toggleMobileOpen}
         className="p-2 -ml-2 rounded text-muted-foreground hover:bg-muted transition-all duration-300 ease-in-out"

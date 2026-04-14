@@ -56,11 +56,11 @@ export function Modal({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[var(--z-overlay)] bg-overlay backdrop-blur-sm animate-in fade-in-0" />
+        <Dialog.Overlay className="fixed inset-0 z-overlay bg-overlay backdrop-blur-sm animate-in fade-in-0" />
         <Dialog.Content
           aria-label={!title ? ariaLabel : undefined}
           className={cn(
-            'fixed left-1/2 top-1/2 z-[var(--z-overlay)] -translate-x-1/2 -translate-y-1/2 w-[95vw] flex flex-col bg-card border border-border shadow-overlay',
+            'fixed left-1/2 top-1/2 z-overlay -translate-x-1/2 -translate-y-1/2 w-[95vw] flex flex-col bg-card border border-border shadow-overlay',
             'animate-in fade-in-0 zoom-in-95',
             isFullscreen ? 'rounded-none' : 'rounded-xl max-h-[90vh]',
             sizeMap[size],
@@ -104,7 +104,7 @@ export function Modal({
 
           {!hideCloseButton && (
             <Dialog.Close
-              className="absolute top-4 right-4 p-1 rounded hover:bg-muted text-muted-foreground z-[var(--z-content)] transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="absolute top-4 right-4 p-1 rounded hover:bg-muted text-muted-foreground z-content transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               aria-label="Close dialog"
             >
               <X className="h-4 w-4" />

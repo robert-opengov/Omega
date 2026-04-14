@@ -78,7 +78,7 @@ export function EditorHost({
   return (
     <div
       ref={wrapperRef}
-      className="absolute inset-0 z-[var(--z-editable)] flex items-center"
+      className="absolute inset-0 z-editable flex items-center"
       onKeyDown={stopPropagation}
       role="dialog"
       aria-label={`Editing ${column.label}`}

@@ -75,7 +75,7 @@ export function AlertModal({ config }: AlertModalProps) {
   const isWarning = config.icon === 'warning';
 
   const content = (
-    <div className="fixed inset-0 z-[var(--z-overlay,60)]">
+    <div className="fixed inset-0 z-overlay">
       <div className="absolute inset-0 bg-overlay backdrop-blur-sm animate-in fade-in-0" />
 
       <div

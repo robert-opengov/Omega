@@ -300,7 +300,7 @@ export function ImportModal({
   };
 
   const content = (
-    <div className="fixed inset-0 z-[var(--z-overlay,60)]">
+    <div className="fixed inset-0 z-overlay">
       {/* Backdrop */}
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
       <div

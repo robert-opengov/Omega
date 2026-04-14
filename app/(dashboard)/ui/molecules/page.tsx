@@ -7,6 +7,7 @@ import {
   Bell, CheckCircle, Info, Star, Archive, Copy,
   AlertTriangle, Clock, Mail, Filter, MapPin, Blocks, Shield, Palette, File, Image,
   ChevronLeft, RefreshCw, Sparkles, DollarSign, TrendingUp,
+  Building2, Car, TreePine, Droplets, Zap, MessageSquare, UserCheck,
 } from 'lucide-react';
 import { ShowcaseLayout } from '../_components/ShowcaseLayout';
 import { z } from 'zod';
@@ -68,6 +69,13 @@ import {
   ExpandableListItem,
   ComposeInput,
   LabeledProgressRow,
+  PageContent,
+  ResponsiveGrid,
+  AddressInput,
+  MentionInput,
+  CategoryGrid,
+  ActivityFeed,
+  DashboardWidget,
 } from '@/components/ui/molecules';
 import { useToast } from '@/providers/toast-provider';
 import { ComponentDemo, Section } from '../_components/ComponentDemo';
@@ -77,9 +85,11 @@ export default function MoleculesPage() {
     <ShowcaseLayout>
       <div className="space-y-12">
 
-      <Section title="Layout" count={5}>
+      <Section title="Layout" count={7}>
         <ContentHeaderDemo />
         <CardDemo />
+        <PageContentDemo />
+        <ResponsiveGridDemo />
         <PageHeaderDemo />
         <BreadcrumbsDemo />
         <EmptyStateDemo />
@@ -140,6 +150,17 @@ export default function MoleculesPage() {
         <SummaryCardDemo />
         <FilePreviewCardDemo />
         <CheckboxTreeDemo />
+      </Section>
+
+      <Section title="Interactive Inputs" count={3} description="Specialized input molecules for address lookup, mentions, and category selection.">
+        <AddressInputDemo />
+        <MentionInputDemo />
+        <CategoryGridDemo />
+      </Section>
+
+      <Section title="Feed & Widgets" count={2} description="Activity feed and dashboard widget patterns.">
+        <ActivityFeedDemo />
+        <DashboardWidgetDemo />
       </Section>
 
       <Section title="Domain Components" count={9} description="Molecules built for data-intensive verticals, reusable across any application.">
@@ -1932,6 +1953,230 @@ function ComposeInputDemo() {
       <div className="space-y-4 max-w-lg">
         <ComposeInput avatar={{ fallback: 'S' }} submitLabel="Post" />
         <ComposeInput avatar={{ fallback: 'S' }} variant="compact" size="sm" placeholder="Quick note..." submitLabel="Send" />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+/* ---------- Layout (new) ---------- */
+
+function PageContentDemo() {
+  return (
+    <ComponentDemo
+      name="PageContent"
+      description="Standardized page-level wrapper with max-width, padding, and gap variants via CVA."
+      props={`interface PageContentProps {
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  padding?: 'none' | 'sm' | 'md' | 'lg';
+  gap?: 'none' | 'sm' | 'md' | 'lg';
+  children: ReactNode;
+  className?: string;
+}`}
+    >
+      <div className="space-y-4">
+        <Text size="xs" weight="semibold" color="muted" className="uppercase tracking-wider">maxWidth=&quot;lg&quot;, padding=&quot;md&quot;, gap=&quot;md&quot;</Text>
+        <div className="border border-dashed border-border rounded">
+          <PageContent maxWidth="lg" padding="md" gap="md">
+            <div className="bg-primary-light rounded px-4 py-2 text-sm text-foreground">Section 1</div>
+            <div className="bg-primary-light rounded px-4 py-2 text-sm text-foreground">Section 2</div>
+            <div className="bg-primary-light rounded px-4 py-2 text-sm text-foreground">Section 3</div>
+          </PageContent>
+        </div>
+        <Text size="xs" weight="semibold" color="muted" className="uppercase tracking-wider">maxWidth=&quot;sm&quot;, padding=&quot;lg&quot;, gap=&quot;lg&quot;</Text>
+        <div className="border border-dashed border-border rounded">
+          <PageContent maxWidth="sm" padding="lg" gap="lg">
+            <div className="bg-muted rounded px-4 py-2 text-sm text-foreground">Narrow content</div>
+            <div className="bg-muted rounded px-4 py-2 text-sm text-foreground">With more spacing</div>
+          </PageContent>
+        </div>
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function ResponsiveGridDemo() {
+  return (
+    <ComponentDemo
+      name="ResponsiveGrid"
+      description="Responsive CSS grid with configurable columns per breakpoint."
+      props={`interface ResponsiveGridProps {
+  columns?: { default?: number; sm?: number; md?: number; lg?: number; xl?: number };
+  gap?: 'sm' | 'md' | 'lg';
+  as?: ElementType;
+  children: ReactNode;
+  className?: string;
+}`}
+    >
+      <ResponsiveGrid columns={{ default: 1, sm: 2, lg: 4 }} gap="md">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="bg-primary-light border border-primary/20 rounded px-3 py-2 text-sm text-center">
+            Item {i + 1}
+          </div>
+        ))}
+      </ResponsiveGrid>
+    </ComponentDemo>
+  );
+}
+
+/* ---------- Interactive Inputs ---------- */
+
+function AddressInputDemo() {
+  const [value, setValue] = useState('');
+  const [suggestions] = useState([
+    { id: '1', label: '123 Main St, Springfield, IL 62704', sublabel: 'Springfield, Illinois' },
+    { id: '2', label: '456 Oak Ave, Springfield, MO 65804', sublabel: 'Springfield, Missouri' },
+    { id: '3', label: '789 Elm Blvd, Springfield, MA 01103', sublabel: 'Springfield, Massachusetts' },
+  ]);
+  return (
+    <ComponentDemo
+      name="AddressInput"
+      description="Provider-agnostic address autocomplete with WAI-ARIA combobox pattern. Parent handles geocoding."
+      props={`interface AddressInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  onSelect: (location: GeocodedLocation) => void;
+  suggestions?: AddressSuggestion[];
+  onSearch?: (query: string) => void;
+  loading?: boolean;
+  error?: string;
+  disabled?: boolean;
+}`}
+    >
+      <div className="max-w-md space-y-2">
+        <AddressInput
+          value={value}
+          onChange={setValue}
+          onSelect={(loc) => setValue(loc.address)}
+          suggestions={value.length >= 2 ? suggestions : []}
+          placeholder="Type to search addresses..."
+        />
+        <AddressInput value="" onChange={() => {}} onSelect={() => {}} error="Address is required" placeholder="With error state" />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function MentionInputDemo() {
+  const [value, setValue] = useState('');
+  return (
+    <ComponentDemo
+      name="MentionInput"
+      description="Textarea with @mention support. Triggers dropdown on typing '@', inserts mention tokens."
+      props={`interface MentionInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  mentionables: Mentionable[];
+  trigger?: string;
+  placeholder?: string;
+  rows?: number;
+  maxLength?: number;
+}`}
+    >
+      <div className="max-w-md space-y-2">
+        <MentionInput
+          value={value}
+          onChange={setValue}
+          mentionables={[
+            { id: '1', label: 'Jane Smith', sublabel: 'Engineering', avatar: { fallback: 'JS' } },
+            { id: '2', label: 'Bob Johnson', sublabel: 'Design', avatar: { fallback: 'BJ' } },
+            { id: '3', label: 'Alice Chen', sublabel: 'Product', avatar: { fallback: 'AC' } },
+          ]}
+          placeholder="Type @ to mention someone..."
+          maxLength={280}
+        />
+        <Text size="xs" color="muted">Value: &quot;{value}&quot;</Text>
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function CategoryGridDemo() {
+  const [selected, setSelected] = useState('');
+  return (
+    <ComponentDemo
+      name="CategoryGrid"
+      description="Selectable card grid for choosing categories. Uses role='radiogroup' with keyboard arrow navigation."
+      props={`interface CategoryGridProps {
+  items: CategoryItem[];
+  selected?: string;
+  onSelect?: (id: string) => void;
+  columns?: { default?: number; sm?: number; lg?: number };
+  size?: 'sm' | 'md' | 'lg';
+}`}
+    >
+      <CategoryGrid
+        items={[
+          { id: 'roads', icon: Car, label: 'Roads & Traffic', description: 'Potholes, signals, signs' },
+          { id: 'water', icon: Droplets, label: 'Water & Sewer', description: 'Leaks, drainage, flooding' },
+          { id: 'parks', icon: TreePine, label: 'Parks & Recreation', description: 'Maintenance, facilities' },
+          { id: 'buildings', icon: Building2, label: 'Buildings', description: 'Code violations, permits' },
+          { id: 'power', icon: Zap, label: 'Utilities', description: 'Power outages, streetlights' },
+          { id: 'other', icon: MapPin, label: 'Other', description: 'General requests', disabled: true },
+        ]}
+        selected={selected}
+        onSelect={setSelected}
+        columns={{ default: 2, sm: 3, lg: 3 }}
+      />
+    </ComponentDemo>
+  );
+}
+
+/* ---------- Feed & Widgets ---------- */
+
+function ActivityFeedDemo() {
+  return (
+    <ComponentDemo
+      name="ActivityFeed"
+      description="Vertical activity feed with icon/avatar column, connecting lines, and variant-based styling."
+      props={`interface ActivityFeedProps {
+  items: ActivityItem[];
+  size?: 'sm' | 'md' | 'lg';
+  emptyMessage?: ReactNode;
+  renderItem?: (item: ActivityItem, index: number) => ReactNode;
+}
+
+type ActivityVariant = 'comment' | 'status' | 'assignment' | 'system' | 'note';`}
+    >
+      <div className="max-w-lg">
+        <ActivityFeed
+          items={[
+            { id: '1', variant: 'comment', title: 'Jane Smith commented', description: 'Looks good, approved for next phase.', timestamp: '2 hours ago', avatar: { fallback: 'JS' } },
+            { id: '2', variant: 'status', title: 'Status changed to In Progress', description: 'Moved from "Pending Review" to "In Progress"', timestamp: '5 hours ago' },
+            { id: '3', variant: 'assignment', title: 'Assigned to Bob Johnson', description: 'Transferred from the general queue.', timestamp: 'Yesterday' },
+            { id: '4', variant: 'system', title: 'Request created', description: 'Submitted via citizen portal.', timestamp: '2 days ago' },
+            { id: '5', variant: 'note', title: 'Internal note added', description: 'Follow up with contractor about timeline.', timestamp: '3 days ago' },
+          ]}
+        />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function DashboardWidgetDemo() {
+  return (
+    <ComponentDemo
+      name="DashboardWidget"
+      description="Standardized card wrapper for dashboard widgets with header, loading skeleton, and empty state."
+      props={`interface DashboardWidgetProps {
+  title: ReactNode;
+  description?: ReactNode;
+  action?: { label: string; onClick?: () => void; href?: string };
+  loading?: boolean;
+  empty?: ReactNode;
+  children: ReactNode;
+}`}
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <DashboardWidget title="Recent Activity" action={{ label: 'View All', href: '#' }}>
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p>3 new requests submitted</p>
+            <p>2 requests resolved</p>
+            <p>1 request escalated</p>
+          </div>
+        </DashboardWidget>
+        <DashboardWidget title="Loading Widget" loading>
+          <p>This content is hidden during loading</p>
+        </DashboardWidget>
       </div>
     </ComponentDemo>
   );

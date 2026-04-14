@@ -24,7 +24,7 @@ export function PopoverContent({ className, sideOffset = 4, ...props }: Componen
       <PopoverPrimitive.Content
         sideOffset={sideOffset}
         className={cn(
-          'z-[var(--z-dropdown)] w-72 rounded border border-border bg-card p-4 shadow-medium',
+          'z-dropdown w-72 rounded border border-border bg-card p-4 shadow-medium',
           'animate-in fade-in-0 zoom-in-95',
           className
         )}

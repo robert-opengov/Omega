@@ -238,7 +238,7 @@ export function GanttChart({
           {/* Resource header */}
           <div
             role="columnheader"
-            className="sticky left-0 z-[var(--z-content)] flex items-center bg-card px-4 border-r border-border shrink-0"
+            className="sticky left-0 z-content flex items-center bg-card px-4 border-r border-border shrink-0"
             style={{ width: resourceWidth, minWidth: resourceWidth }}
           >
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -289,7 +289,7 @@ export function GanttChart({
               <div
                 role="gridcell"
                 className={cn(
-                  'sticky left-0 z-[var(--z-content)] flex items-center px-4 border-r border-border shrink-0',
+                  'sticky left-0 z-content flex items-center px-4 border-r border-border shrink-0',
                   striped && rowIdx % 2 === 1 ? 'bg-muted/30' : 'bg-background',
                 )}
                 style={{ width: resourceWidth, minWidth: resourceWidth }}
@@ -334,7 +334,7 @@ export function GanttChart({
         {/* ---- Now Indicator ---- */}
         {nowIndicator != null && nowIndicator >= 0 && nowIndicator <= colCount && (
           <div
-            className="absolute top-0 bottom-0 z-[var(--z-editable)] pointer-events-none"
+            className="absolute top-0 bottom-0 z-editable pointer-events-none"
             style={{ left: resourceWidth + (nowIndicator / colCount) * gridWidth }}
             aria-hidden="true"
           >
