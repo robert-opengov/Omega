@@ -4,6 +4,19 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/atoms';
+import { appConfig } from '@/config/app.config';
+
+function getStickyTopClass(): string {
+  switch (appConfig.layout.mode) {
+    case 'navbar-sidebar':
+    case 'navbar-only':
+      return 'top-[52px]';
+    case 'sidebar-only':
+      return 'top-12 lg:top-0';
+    case 'none':
+      return 'top-0';
+  }
+}
 
 const tiers = [
   { label: 'Overview', href: '/ui', count: null },
@@ -32,7 +45,7 @@ export function ShowcaseLayout({ children }: ShowcaseLayoutProps) {
 
   return (
     <div className="flex flex-col min-h-full">
-      <div className="sticky top-[52px] z-sticky bg-background border-b border-border">
+      <div className={cn('sticky z-sticky bg-background border-b border-border', getStickyTopClass())}>
         <div className="px-6 lg:px-8">
           {/* Breadcrumbs */}
           <nav aria-label="Breadcrumb" className="pt-4 pb-2">
