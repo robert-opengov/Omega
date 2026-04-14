@@ -4,12 +4,8 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/atoms';
+import type { DialogAction } from '@/components/ui/types';
 import type { ReactNode } from 'react';
-
-export interface ModalAction {
-  label: string;
-  onClick: () => void;
-}
 
 export interface ModalProps {
   open: boolean;
@@ -21,9 +17,9 @@ export interface ModalProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | 'fullscreen';
   className?: string;
   hideCloseButton?: boolean;
-  primaryAction?: ModalAction;
-  secondaryAction?: ModalAction;
-  destructiveAction?: ModalAction;
+  primaryAction?: DialogAction;
+  secondaryAction?: DialogAction;
+  destructiveAction?: DialogAction;
 }
 
 const sizeMap: Record<string, string> = {
@@ -56,7 +52,7 @@ export function Modal({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-overlay bg-overlay backdrop-blur-sm animate-in fade-in-0" />
+        <Dialog.Overlay className="fixed inset-0 z-overlay bg-overlay backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
         <Dialog.Content
           aria-label={!title ? ariaLabel : undefined}
           className={cn(
@@ -70,12 +66,15 @@ export function Modal({
           {title ? (
             <div className="shrink-0 px-6 pt-6 pb-0">
               <Dialog.Title className="text-lg font-semibold text-foreground">{title}</Dialog.Title>
-              {description && (
-                <Dialog.Description className="text-sm text-muted-foreground mt-1">{description}</Dialog.Description>
-              )}
             </div>
           ) : (
             <Dialog.Title className="sr-only">{ariaLabel || 'Dialog'}</Dialog.Title>
+          )}
+
+          {description && (
+            <Dialog.Description className={cn('text-sm text-muted-foreground', title ? 'px-6 mt-1' : 'sr-only')}>
+              {description}
+            </Dialog.Description>
           )}
 
           <div className="flex-1 overflow-y-auto px-6 py-4">{children}</div>

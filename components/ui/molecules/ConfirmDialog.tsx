@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { Modal } from './Modal';
+import { Button } from '@/components/ui/atoms';
 import { AlertTriangle } from 'lucide-react';
 
 export interface ConfirmDialogProps {
@@ -62,26 +63,22 @@ export function ConfirmDialog({
           </div>
         )}
         <div className="flex items-center justify-end gap-2 pt-1">
-          <button
-            type="button"
+          <Button
+            variant="outline"
+            size="md"
             disabled={loading}
             onClick={() => onOpenChange(false)}
-            className="px-3.5 py-2 text-sm font-medium rounded border border-border text-foreground hover:bg-action-hover-primary transition-all duration-200 ease-in-out disabled:opacity-50"
           >
             {cancelLabel}
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant={isDanger ? 'danger' : 'primary'}
+            size="md"
             disabled={loading}
             onClick={onConfirm}
-            className={`px-3.5 py-2 text-sm font-medium rounded transition-all duration-200 ease-in-out disabled:opacity-50 ${
-              isDanger
-                ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
-                : 'bg-primary text-primary-foreground hover:bg-primary/90'
-            }`}
           >
             {loading ? loadingLabel : confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </Modal>

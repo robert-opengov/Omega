@@ -864,31 +864,78 @@ function ModalDemo() {
 function SheetDemo() {
   const [open, setOpen] = useState(false);
   const [side, setSide] = useState<'left' | 'right' | 'bottom'>('right');
+  const [modal, setModal] = useState(true);
+  const [footerMode, setFooterMode] = useState<'none' | 'actions' | 'custom'>('none');
   return (
     <ComponentDemo
       name="Sheet"
-      description="Slide-over panel from left, right, or bottom."
+      description="Slide-over panel from left, right, or bottom. Supports modal (overlay + focus trap) and modeless modes."
       props={`interface SheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  title?: string;
-  description?: string;
+  title?: ReactNode;
+  description?: ReactNode;
   children: ReactNode;
   side?: 'left' | 'right' | 'bottom';
-  className?: string;
+  modal?: boolean;           // default true
+  hideCloseButton?: boolean;
+  footer?: ReactNode;
+  footerLeft?: ReactNode;
+  footerRight?: ReactNode;
+  primaryAction?: DialogAction;
+  secondaryAction?: DialogAction;
+  destructiveAction?: DialogAction;
 }`}
     >
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {(['left', 'right', 'bottom'] as const).map((s) => (
           <Button key={s} variant="outline" size="sm" onClick={() => { setSide(s); setOpen(true); }}>
             Sheet ({s})
           </Button>
         ))}
       </div>
-      <Sheet open={open} onOpenChange={setOpen} side={side} title={`Sheet — ${side}`} description="Slide-over panel content.">
-        <div className="p-4 space-y-4">
-          <Text>This panel slides from the {side}.</Text>
-          <Button variant="outline" onClick={() => setOpen(false)}>Close</Button>
+      <div className="flex flex-wrap items-center gap-3 mt-2">
+        <label className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <input type="checkbox" checked={modal} onChange={(e) => setModal(e.target.checked)} />
+          Modal overlay
+        </label>
+        <select
+          value={footerMode}
+          onChange={(e) => setFooterMode(e.target.value as 'none' | 'actions' | 'custom')}
+          className="text-sm border border-border rounded px-2 py-1 bg-background text-foreground"
+        >
+          <option value="none">No footer</option>
+          <option value="actions">Action buttons</option>
+          <option value="custom">Custom footer</option>
+        </select>
+      </div>
+      <Sheet
+        open={open}
+        onOpenChange={setOpen}
+        side={side}
+        modal={modal}
+        title={`Sheet — ${side}`}
+        description={modal ? 'Modal: overlay locks the background.' : 'Modeless: interact with the page behind.'}
+        {...(footerMode === 'actions' ? {
+          primaryAction: { label: 'Save', onClick: () => setOpen(false) },
+          secondaryAction: { label: 'Cancel', onClick: () => setOpen(false) },
+        } : {})}
+        {...(footerMode === 'custom' ? {
+          footer: (
+            <div className="flex items-center justify-between w-full">
+              <Text className="text-xs text-muted-foreground">Custom footer slot</Text>
+              <Button variant="primary" size="sm" onClick={() => setOpen(false)}>Done</Button>
+            </div>
+          ),
+        } : {})}
+      >
+        <div className="space-y-4">
+          <Text>This panel slides from the <strong>{side}</strong>.</Text>
+          <Text className="text-sm text-muted-foreground">
+            {modal
+              ? 'The backdrop overlay is visible and focus is trapped inside. Press Escape or click the overlay to close.'
+              : 'No overlay — you can interact with the content behind this panel. Press Escape or the X to close.'}
+          </Text>
         </div>
       </Sheet>
     </ComponentDemo>
