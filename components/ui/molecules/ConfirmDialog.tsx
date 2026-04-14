@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { Modal } from './Modal';
 import { AlertTriangle } from 'lucide-react';
 
@@ -8,7 +9,7 @@ export interface ConfirmDialogProps {
   onOpenChange: (open: boolean) => void;
   /** @default 'Are you sure?' */
   title?: string;
-  description?: string;
+  description?: ReactNode;
   /** @default 'Confirm' */
   confirmLabel?: string;
   /** @default 'Cancel' */
@@ -16,6 +17,8 @@ export interface ConfirmDialogProps {
   /** @default 'default' */
   variant?: 'danger' | 'default' | 'primary';
   loading?: boolean;
+  /** Label shown on the confirm button while loading. @default 'Processing...' */
+  loadingLabel?: ReactNode;
   onConfirm: () => void;
 }
 
@@ -40,6 +43,7 @@ export function ConfirmDialog({
   cancelLabel = 'Cancel',
   variant = 'default',
   loading = false,
+  loadingLabel = 'Processing...',
   onConfirm,
 }: ConfirmDialogProps) {
   const isDanger = variant === 'danger';
@@ -76,7 +80,7 @@ export function ConfirmDialog({
                 : 'bg-primary text-primary-foreground hover:bg-primary/90'
             }`}
           >
-            {loading ? 'Deleting…' : confirmLabel}
+            {loading ? loadingLabel : confirmLabel}
           </button>
         </div>
       </div>

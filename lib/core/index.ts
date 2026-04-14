@@ -3,6 +3,7 @@ import { NextAuthAdapter } from './adapters/gab-v1/auth.adapter';
 import { GabDataV1Adapter } from './adapters/gab-v1/data.v1.adapter';
 import { GabSchemaV1Adapter } from './adapters/gab-v1/schema.v1.adapter';
 import { GabChildTableV1Adapter } from './adapters/gab-v1/child-table.v1.adapter';
+import { GrantsMockAdapter } from './adapters/mock/grants.mock.adapter';
 
 // ---------------------------------------------------------------------------
 // Composition Root — the single place where ports are wired to adapters.
@@ -34,3 +35,5 @@ export const gabDataRepo = new GabDataV1Adapter(authPort, gabConfig.apiUrl);
 export const gabSchemaRepo = new GabSchemaV1Adapter(authPort, gabConfig.apiUrl);
 
 export const gabChildTableRepo = new GabChildTableV1Adapter(authPort, gabConfig.apiUrl);
+
+export const grantsRepo = new GrantsMockAdapter();

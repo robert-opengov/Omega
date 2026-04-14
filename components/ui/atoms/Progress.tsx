@@ -1,7 +1,7 @@
 'use client';
 
 import * as ProgressPrimitive from '@radix-ui/react-progress';
-import { forwardRef } from 'react';
+import { forwardRef, type ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
@@ -19,6 +19,8 @@ const progressVariants = cva('relative w-full overflow-hidden rounded-full bg-mu
 export interface ProgressProps
   extends ProgressPrimitive.ProgressProps,
     VariantProps<typeof progressVariants> {
+  /** Custom label text displayed above the bar. */
+  label?: ReactNode;
   /** Show a percentage label above the bar. */
   showLabel?: boolean;
 }
@@ -33,12 +35,12 @@ export interface ProgressProps
  * <Progress value={80} size="lg" showLabel />
  */
 const Progress = forwardRef<HTMLDivElement, ProgressProps>(
-  ({ className, value = 0, size, showLabel, ...props }, ref) => {
+  ({ className, value = 0, size, label, showLabel, ...props }, ref) => {
     return (
       <div className="space-y-1">
         {showLabel && (
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Progress</span>
+            {label && <span>{label}</span>}
             <span>{value}%</span>
           </div>
         )}

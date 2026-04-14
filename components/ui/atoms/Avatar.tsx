@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
@@ -24,13 +24,19 @@ export interface AvatarProps extends VariantProps<typeof avatarVariants> {
   src?: string;
   /** Alt text for the avatar image. */
   alt?: string;
-  /** Fallback name used to generate initials when no image is available. */
-  fallback?: string;
+  /** Fallback content when no image is available. Strings are converted to initials. */
+  fallback?: ReactNode;
   className?: string;
 }
 
 function getInitials(name: string): string {
   return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
+}
+
+function renderFallback(fallback?: ReactNode): ReactNode {
+  if (!fallback) return '?';
+  if (typeof fallback === 'string') return getInitials(fallback);
+  return fallback;
 }
 
 /**
@@ -46,14 +52,16 @@ export function Avatar({ src, alt, fallback, size, className }: AvatarProps) {
   const [imgError, setImgError] = useState(false);
 
   return (
-    <div className={cn(avatarVariants({ size }), className)} role="img" aria-label={alt || fallback || 'Avatar'}>
+    <div className={cn(avatarVariants({ size }), className)} role="img" aria-label={alt || (typeof fallback === 'string' ? fallback : undefined) || 'Avatar'}>
       {src && !imgError ? (
         <img src={src} alt={alt || ''} className="h-full w-full object-cover" onError={() => setImgError(true)} />
       ) : (
-        <span>{fallback ? getInitials(fallback) : '?'}</span>
+        <span>{renderFallback(fallback)}</span>
       )}
     </div>
   );
 }
+
+export type AvatarSize = NonNullable<VariantProps<typeof avatarVariants>['size']>;
 
 export default Avatar;

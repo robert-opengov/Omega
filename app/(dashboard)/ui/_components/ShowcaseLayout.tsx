@@ -8,8 +8,8 @@ import { Badge } from '@/components/ui/atoms';
 const tiers = [
   { label: 'Overview', href: '/ui', count: null },
   { label: 'Atoms', href: '/ui/atoms', count: 30 },
-  { label: 'Molecules', href: '/ui/molecules', count: 41 },
-  { label: 'Organisms', href: '/ui/organisms', count: 14 },
+  { label: 'Molecules', href: '/ui/molecules', count: 40 },
+  { label: 'Organisms', href: '/ui/organisms', count: 15 },
 ] as const;
 
 function getBreadcrumbs(pathname: string) {
@@ -32,7 +32,7 @@ export function ShowcaseLayout({ children }: ShowcaseLayoutProps) {
 
   return (
     <div className="flex flex-col min-h-full">
-      <div className="sticky top-[52px] z-10 bg-background border-b border-border">
+      <div className="sticky top-[52px] z-[var(--z-sticky)] bg-background border-b border-border">
         <div className="px-6 lg:px-8">
           {/* Breadcrumbs */}
           <nav aria-label="Breadcrumb" className="pt-4 pb-2">
@@ -69,6 +69,7 @@ export function ShowcaseLayout({ children }: ShowcaseLayoutProps) {
                 <Link
                   key={tier.href}
                   href={tier.href}
+                  scroll={true}
                   role="tab"
                   aria-selected={isActive}
                   className={cn(

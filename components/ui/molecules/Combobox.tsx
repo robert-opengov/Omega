@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useId } from 'react';
 import { ChevronDown, Check, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useClickOutside } from '@/hooks/use-click-outside';
@@ -33,6 +33,9 @@ export interface ComboboxProps {
  * />
  */
 export function Combobox({ options, value, onChange, placeholder = 'Select...', searchable = true, disabled, className }: ComboboxProps) {
+  const instanceId = useId();
+  const labelId = `${instanceId}-label`;
+  const triggerId = `${instanceId}-trigger`;
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const ref = useRef<HTMLDivElement>(null);
@@ -53,8 +56,8 @@ export function Combobox({ options, value, onChange, placeholder = 'Select...', 
         onClick={() => setOpen(!open)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-labelledby="combobox-label"
-        id="combobox-trigger"
+        aria-labelledby={labelId}
+        id={triggerId}
         className={cn(
           'flex w-full items-center justify-between rounded border border-input-border bg-background px-3 py-2 text-sm transition-all duration-200 ease-in-out',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
@@ -62,7 +65,7 @@ export function Combobox({ options, value, onChange, placeholder = 'Select...', 
           !selected && 'text-muted-foreground'
         )}
       >
-        <span id="combobox-label" className="truncate">{selected?.label || placeholder}</span>
+        <span id={labelId} className="truncate">{selected?.label || placeholder}</span>
         <ChevronDown className={cn('h-4 w-4 text-muted-foreground transition-transform duration-200', open && 'rotate-180')} />
       </button>
       {open && (
@@ -80,7 +83,7 @@ export function Combobox({ options, value, onChange, placeholder = 'Select...', 
               />
             </div>
           )}
-          <div className="max-h-48 overflow-y-auto p-1" role="listbox" aria-labelledby="combobox-label">
+          <div className="max-h-48 overflow-y-auto p-1" role="listbox" aria-labelledby={labelId}>
             {filtered.length === 0 ? (
               <p className="py-4 text-center text-sm text-muted-foreground" id="combobox-empty">No options found.</p>
             ) : (

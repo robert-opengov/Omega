@@ -3,7 +3,7 @@
  * AI or developer edits ONLY this array to control sidebar and navbar items.
  * Both components read this config — no code changes needed.
  */
-import { LayoutDashboard, Settings, Blocks, Bot, UserCircle, LogOut } from 'lucide-react';
+import { LayoutDashboard, Settings, Blocks, Bot, FileText, UserCircle, LogOut } from 'lucide-react';
 import type { ComponentType } from 'react';
 import type { AppFeatures } from '@/config/app.config';
 
@@ -47,6 +47,12 @@ export const navigationItems: NavItem[] = [
     href: '/ai-builder',
     label: 'AI Builder',
     icon: Bot,
+  },
+  {
+    href: '/grants',
+    label: 'Grants',
+    icon: FileText,
+    featureFlag: 'enableGrants',
   },
   {
     href: '/settings',

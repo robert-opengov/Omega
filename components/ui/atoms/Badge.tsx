@@ -37,5 +37,7 @@ export function Badge({ variant, size, shape, className, ...props }: BadgeProps)
   return <span className={cn(badgeVariants({ variant, size, shape }), className)} {...props} />;
 }
 
+export type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>['variant']>;
+
 export { badgeVariants };
 export default Badge;

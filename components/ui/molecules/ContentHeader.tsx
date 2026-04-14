@@ -20,9 +20,9 @@ export interface ContentHeaderProps {
   /** Breadcrumb trail rendered above the title. Uses the existing Breadcrumbs molecule. */
   breadcrumbs?: BreadcrumbItem[];
   /** Primary heading text — the only required prop. */
-  title: string;
+  title: ReactNode;
   /** Secondary text below the title (e.g. "Record #123456789"). */
-  subtitle?: string;
+  subtitle?: ReactNode;
   /** Heading scale. `"large"` renders h1 (32 px), `"small"` renders h3 (20 px). @default "large" */
   titleSize?: 'large' | 'small';
   /** Inline content placed beside the title (e.g. status badges). */

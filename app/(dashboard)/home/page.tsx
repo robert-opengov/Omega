@@ -1,6 +1,7 @@
 'use client';
 
-import { Banner, Hero, FeatureCard, StatsCard, Alert } from '@/components/ui/molecules';
+import { Banner, Hero, SummaryCard, MetricCard, Alert } from '@/components/ui/molecules';
+import { TrendingUp } from 'lucide-react';
 import { Footer } from '@/components/ui/organisms';
 import { Blocks, Settings, BookOpen, Bot, Palette, Shield, BarChart3, Component } from 'lucide-react';
 import { appConfig } from '@/config/app.config';
@@ -47,9 +48,9 @@ const features = [
 ];
 
 const stats = [
-  { title: 'Atoms', value: '28', icon: Component, change: 12.5, changeLabel: 'new in v2' },
-  { title: 'Molecules', value: '36', icon: Blocks, change: 18.0, changeLabel: 'new in v2' },
-  { title: 'Organisms', value: '13', icon: BarChart3, change: 8.3, changeLabel: 'new in v2' },
+  { title: 'Atoms', value: '28', icon: Component, change: '+12.5%', changeLabel: 'new in v2' },
+  { title: 'Molecules', value: '36', icon: Blocks, change: '+18.0%', changeLabel: 'new in v2' },
+  { title: 'Organisms', value: '13', icon: BarChart3, change: '+8.3%', changeLabel: 'new in v2' },
 ];
 
 const footerSections = [
@@ -97,7 +98,7 @@ export default function HomePage() {
           <h2 className="text-xl font-bold text-foreground mb-4">Platform Highlights</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {features.map((f) => (
-              <FeatureCard key={f.title} {...f} />
+              <SummaryCard key={String(f.title)} variant="feature" {...f} />
             ))}
           </div>
         </section>
@@ -106,7 +107,19 @@ export default function HomePage() {
           <h2 className="text-xl font-bold text-foreground mb-4">Component Library</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {stats.map((s) => (
-              <StatsCard key={s.title} {...s} />
+              <MetricCard
+                key={String(s.title)}
+                title={s.title}
+                value={s.value}
+                icon={s.icon}
+                trend={
+                  <div className="flex items-center gap-1 text-xs">
+                    <TrendingUp className="h-3 w-3 text-success-text" aria-hidden="true" />
+                    <span className="text-success-text">{s.change}</span>
+                    <span className="text-muted-foreground">{s.changeLabel}</span>
+                  </div>
+                }
+              />
             ))}
           </div>
         </section>

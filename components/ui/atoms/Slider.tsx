@@ -1,12 +1,12 @@
 'use client';
 
 import * as SliderPrimitive from '@radix-ui/react-slider';
-import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+import { forwardRef, useId, type ComponentPropsWithoutRef, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface SliderProps extends ComponentPropsWithoutRef<typeof SliderPrimitive.Root> {
   /** Optional visible label above the slider. */
-  label?: string;
+  label?: ReactNode;
 }
 
 /**
@@ -20,7 +20,8 @@ export interface SliderProps extends ComponentPropsWithoutRef<typeof SliderPrimi
  */
 const Slider = forwardRef<HTMLSpanElement, SliderProps>(
   ({ className, label, ...props }, ref) => {
-    const labelId = label ? `slider-label-${(label || '').replaceAll(/\s+/g, '-').toLowerCase()}` : undefined;
+    const autoId = useId();
+    const labelId = label ? autoId : undefined;
 
     return (
       <div className="space-y-2">

@@ -31,12 +31,6 @@ export interface DataTableProps<T> {
   onRowClick?: (row: T) => void;
   /** @default 'Data table' */
   tableLabel?: string;
-  /** Enable pagination controls. @default false */
-  pagination?: boolean;
-  /** Rows per page when pagination is enabled. @default 10 */
-  pageSize?: number;
-  /** Show a search bar above the table. @default false */
-  search?: boolean;
 }
 
 type SortDir = 'asc' | 'desc' | null;
@@ -55,11 +49,10 @@ type SortDir = 'asc' | 'desc' | null;
  * />
  *
  * @example
- * <DataTable data={users} columns={columns} pagination pageSize={5} search />
+ * <DataTable data={users} columns={columns} />
  */
 export function DataTable<T extends Record<string, unknown>>({
   data, columns, keyExtractor, className, emptyMessage = 'No data', onRowClick, tableLabel = 'Data table',
-  pagination = false, pageSize = 10, search = false,
 }: DataTableProps<T>) {
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>(null);

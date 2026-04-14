@@ -11,19 +11,28 @@ export interface WizardStep {
   content: ReactNode;
 }
 
+export interface OnboardingWizardLabels {
+  back?: string;
+  next?: string;
+  finish?: string;
+  stepOf?: (current: number, total: number) => string;
+}
+
 export interface OnboardingWizardProps {
   steps: WizardStep[];
   onComplete?: () => void;
   className?: string;
   /** Start at a specific step (0-indexed). @default 0 */
   initialStep?: number;
+  /** Override default button and step labels for i18n or customisation. */
+  labels?: OnboardingWizardLabels;
 }
 
 /**
  * Step-based onboarding wizard with numbered indicators, content slots,
  * and back/next/finish navigation.
  */
-export function OnboardingWizard({ steps, onComplete, className, initialStep = 0 }: OnboardingWizardProps) {
+export function OnboardingWizard({ steps, onComplete, className, initialStep = 0, labels }: OnboardingWizardProps) {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const isFirst = currentStep === 0;
   const isLast = currentStep === steps.length - 1;
@@ -93,18 +102,18 @@ export function OnboardingWizard({ steps, onComplete, className, initialStep = 0
           onClick={() => setCurrentStep((s) => s - 1)}
           disabled={isFirst}
         >
-          Back
+          {labels?.back ?? 'Back'}
         </Button>
         <span className="text-xs text-text-secondary">
-          Step {currentStep + 1} of {steps.length}
+          {labels?.stepOf ? labels.stepOf(currentStep + 1, steps.length) : `Step ${currentStep + 1} of ${steps.length}`}
         </span>
         {isLast ? (
           <Button size="sm" onClick={onComplete}>
-            Finish
+            {labels?.finish ?? 'Finish'}
           </Button>
         ) : (
           <Button size="sm" onClick={() => setCurrentStep((s) => s + 1)}>
-            Next
+            {labels?.next ?? 'Next'}
           </Button>
         )}
       </div>

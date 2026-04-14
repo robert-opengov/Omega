@@ -1,7 +1,7 @@
 'use client';
 
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
-import { forwardRef } from 'react';
+import { forwardRef, type ReactNode } from 'react';
 import { Check, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -12,7 +12,7 @@ const sizeClasses = {
 } as const;
 
 export interface CheckboxProps extends CheckboxPrimitive.CheckboxProps {
-  label?: string;
+  label?: ReactNode;
   indeterminate?: boolean;
   /** Visual size of the checkbox. @default 'md' */
   size?: 'sm' | 'md' | 'lg';

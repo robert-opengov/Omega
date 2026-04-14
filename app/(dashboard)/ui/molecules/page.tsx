@@ -6,7 +6,7 @@ import {
   FileText, MoreHorizontal,
   Bell, CheckCircle, Info, Star, Archive, Copy,
   AlertTriangle, Clock, Mail, Filter, MapPin, Blocks, Shield, Palette, File, Image,
-  ChevronLeft, RefreshCw,
+  ChevronLeft, RefreshCw, Sparkles, DollarSign, TrendingUp,
 } from 'lucide-react';
 import { ShowcaseLayout } from '../_components/ShowcaseLayout';
 import { z } from 'zod';
@@ -14,15 +14,17 @@ import {
   Button,
   Text,
   Badge,
+  Chip,
   IconButton,
   UILink,
+  StatusDot,
 } from '@/components/ui/atoms';
 import {
   Card, CardContent, CardHeader, CardTitle, CardSubtitle, CardDescription, CardFooter, CardInfo, CardMedia,
   FormField,
   SearchInput,
   DataTable, type Column,
-  StatsCard,
+  MetricCard,
   Alert,
   Modal,
   Sheet,
@@ -45,20 +47,27 @@ import {
   ZodForm,
   List, ListItem, ListItemIcon, ListItemAvatar, ListItemText, ListDivider,
   LabelValuePair,
-  Timeline, TimelineItem, TimelineDot, TimelineConnector, TimelineContent,
   Toolbar,
   Result,
   OnboardingWizard,
   Banner,
   Hero,
-  FeatureCard,
+  SummaryCard,
   FilePreviewCard,
   CheckboxTree,
   WizardCard,
-  ReviewTable,
+  CollapsibleTable, type CollapsibleTableColumn, type CollapsibleTableRow,
   UploadSlot,
-  ProcessingChecklist,
+  StatusChecklist,
   ContentHeader,
+  SectionHeader,
+  InfoCard,
+  ValueItem,
+  DeadlineItem,
+  BreakdownCard,
+  ExpandableListItem,
+  ComposeInput,
+  LabeledProgressRow,
 } from '@/components/ui/molecules';
 import { useToast } from '@/providers/toast-provider';
 import { ComponentDemo, Section } from '../_components/ComponentDemo';
@@ -78,7 +87,7 @@ export default function MoleculesPage() {
 
       <Section title="Data Display" count={4}>
         <DataTableDemo />
-        <StatsCardDemo />
+        <MetricCardDemo />
         <AvatarGroupDemo />
         <ProgressStepsDemo />
       </Section>
@@ -111,27 +120,37 @@ export default function MoleculesPage() {
         <OnboardingWizardDemo />
       </Section>
 
-      <Section title="Parity Components" count={5}>
+      <Section title="Parity Components" count={4}>
         <ListDemo />
         <LabelValuePairDemo />
-        <TimelineDemo />
         <ToolbarDemo />
         <ResultDemo />
       </Section>
 
       <Section title="Wizard Components" count={4} description="Molecules for fullscreen form wizard flows.">
         <WizardCardDemo />
-        <ReviewTableDemo />
+        <CollapsibleTableDemo />
         <UploadSlotDemo />
-        <ProcessingChecklistDemo />
+        <StatusChecklistDemo />
       </Section>
 
       <Section title="Content Components" count={5} description="Heroes, banners, file previews, and hierarchical selection.">
         <BannerDemo />
         <HeroDemo />
-        <FeatureCardDemo />
+        <SummaryCardDemo />
         <FilePreviewCardDemo />
         <CheckboxTreeDemo />
+      </Section>
+
+      <Section title="Domain Components" count={9} description="Molecules built for data-intensive verticals, reusable across any application.">
+        <SectionHeaderDemo />
+        <InfoCardDemo />
+        <ValueItemDemo />
+        <DeadlineItemDemo />
+        <BreakdownCardDemo />
+        <ExpandableListItemDemo />
+        <ComposeInputDemo />
+        <LabeledProgressRowDemo />
       </Section>
       </div>
     </ShowcaseLayout>
@@ -172,17 +191,17 @@ function ContentHeaderDemo() {
             <ContentHeader
               breadcrumbs={[
                 { label: 'Home', href: '#', icon: Home },
-                { label: 'Grants', href: '#' },
-                { label: 'CDBG-2024-001' },
+                { label: 'Projects', href: '#' },
+                { label: 'PRJ-2024-001' },
               ]}
-              title="Community Development Block Grant"
+              title="Infrastructure Improvement Program"
               subtitle="Record #2024-001 · Active"
               titleSize="large"
             />
           </div>
         </div>
 
-        {/* Full (matching Figma) */}
+        {/* Full */}
         <div>
           <Text size="xs" weight="semibold" color="muted" className="mb-2 uppercase tracking-wider">Full (nav + utility + breadcrumbs + title + tabs)</Text>
           <div className="rounded-lg overflow-hidden border border-border">
@@ -205,7 +224,7 @@ function ContentHeaderDemo() {
               }
               breadcrumbs={[
                 { label: 'Home', href: '#' },
-                { label: 'HOPWA', href: '#' },
+                { label: 'Programs', href: '#' },
                 { label: 'Forms', href: '#' },
                 { label: 'Add Form' },
               ]}
@@ -259,10 +278,9 @@ Sub-components (all optional):
   CardFooter     — bottom row with flex gap for buttons`}
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Worst case: all slots filled */}
         <Card>
           <CardMedia src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=300&fit=crop" alt="City skyline" />
-          <CardHeader action={<CardInfo content="Infrastructure request submitted by a citizen via the 311 portal." />}>
+          <CardHeader action={<CardInfo content="Infrastructure request submitted via the service portal." />}>
             <CardSubtitle>Infrastructure</CardSubtitle>
             <CardTitle>Pothole on Main St</CardTitle>
             <CardDescription>Large pothole causing traffic issues near the downtown area.</CardDescription>
@@ -279,7 +297,6 @@ Sub-components (all optional):
           </CardFooter>
         </Card>
 
-        {/* Mid complexity: title + info + content + actions */}
         <Card variant="outlined">
           <CardHeader action={<CardInfo content="Monthly performance metrics for Q1 2026." />}>
             <CardTitle>Performance Report</CardTitle>
@@ -307,7 +324,6 @@ Sub-components (all optional):
           </CardFooter>
         </Card>
 
-        {/* Simplest case: title + description only */}
         <Card variant="elevated">
           <CardHeader>
             <CardTitle>Simple Card</CardTitle>
@@ -331,7 +347,7 @@ function PageHeaderDemo() {
       description="Page title bar with breadcrumbs, stats, status chips, and configurable title size."
       props={`interface PageHeaderProps {
   title: string; description?: string; actions?: ReactNode;
-  breadcrumbs?: { title: string; href?: string }[];
+  breadcrumbs?: BreadcrumbItem[];
   stats?: { label: string; value: string; icon?: 'up' | 'down' | 'flat' }[];
   status?: { label: string; variant?: string }[];
   titleSize?: 'large' | 'small'; condensed?: boolean;
@@ -341,7 +357,7 @@ function PageHeaderDemo() {
         <PageHeader
           title="Service Requests"
           description="Manage all incoming citizen requests"
-          breadcrumbs={[{ title: 'Home', href: '#' }, { title: 'Requests' }]}
+          breadcrumbs={[{ label: 'Home', href: '#' }, { label: 'Requests' }]}
           stats={[
             { label: 'Open', value: '42', icon: 'up' },
             { label: 'Resolved', value: '128', icon: 'flat' },
@@ -429,16 +445,13 @@ function DataTableDemo() {
   return (
     <ComponentDemo
       name="DataTable"
-      description="Sortable table with optional pagination and search."
+      description="Sortable data table with custom cell renderers."
       props={`interface DataTableProps<T> {
   data: T[];
   columns: Column<T>[];
   keyExtractor?: (row: T) => string;
   emptyMessage?: string;
   onRowClick?: (row: T) => void;
-  pagination?: boolean;
-  pageSize?: number;
-  search?: boolean;
   tableLabel?: string;
   className?: string;
 }`}
@@ -447,33 +460,68 @@ function DataTableDemo() {
         data={sampleTableData}
         columns={tableColumns}
         keyExtractor={(r) => r.id}
-        search
-        pagination
-        pageSize={3}
         tableLabel="Users table"
       />
     </ComponentDemo>
   );
 }
 
-function StatsCardDemo() {
+function MetricCardDemo() {
   return (
     <ComponentDemo
-      name="StatsCard"
-      description="Metric card with trend indicator and optional icon."
-      props={`interface StatsCardProps {
-  title: string;
-  value: string | number;
-  change?: number;
-  changeLabel?: string;
+      name="MetricCard"
+      description="Metric card with value, optional trend, icon, description, and children slot. Supports variant and size."
+      props={`interface MetricCardProps {
+  title: ReactNode;
+  value: ReactNode;
+  description?: ReactNode;
+  trend?: ReactNode;
   icon?: ElementType;
-  className?: string;
+  children?: ReactNode;
+  variant?: 'default' | 'outlined' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
 }`}
     >
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatsCard title="Total Users" value="1,284" change={12.5} changeLabel="vs last month" icon={Users} />
-        <StatsCard title="Open Requests" value={42} change={-8.3} changeLabel="vs last week" icon={FileText} />
-        <StatsCard title="Resolution Rate" value="94%" icon={CheckCircle} />
+        <MetricCard
+          title="Total Users"
+          value="1,284"
+          description="12.5% increase vs last month"
+          icon={Users}
+          trend={<Badge variant="success" size="sm">+12.5%</Badge>}
+        />
+        <MetricCard
+          title="Open Requests"
+          value={42}
+          description="Down 8.3% vs last week"
+          icon={FileText}
+          trend={<Badge variant="danger" size="sm">-8.3%</Badge>}
+        />
+        <MetricCard
+          title="Resolution Rate"
+          value="94%"
+          icon={CheckCircle}
+          variant="outlined"
+        />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+        <MetricCard
+          title="Budget Allocated"
+          value="$2.4M"
+          description="Fiscal year 2026"
+          icon={DollarSign}
+          size="lg"
+          variant="default"
+          trend={<Badge variant="success" size="sm">On track</Badge>}
+        />
+        <MetricCard
+          title="Compact Metric"
+          value="37"
+          description="Small card with ghost variant"
+          icon={TrendingUp}
+          size="sm"
+          variant="ghost"
+        />
       </div>
     </ComponentDemo>
   );
@@ -1190,45 +1238,6 @@ function LabelValuePairDemo() {
   );
 }
 
-function TimelineDemo() {
-  return (
-    <ComponentDemo
-      name="Timeline"
-      description="Vertical event timeline with colored dots and connectors."
-      props={`Compound: Timeline, TimelineItem, TimelineDot, TimelineConnector, TimelineContent
-Timeline: position?: 'left' | 'right' | 'alternate'
-TimelineDot: icon?, color?, outlined?`}
-    >
-      <Timeline>
-        <TimelineItem>
-          <TimelineDot color="success" icon={CheckCircle} />
-          <TimelineConnector />
-          <TimelineContent>
-            <Text weight="medium">Request Approved</Text>
-            <Text size="xs" color="muted">March 15, 2026 — 2:30 PM</Text>
-          </TimelineContent>
-        </TimelineItem>
-        <TimelineItem>
-          <TimelineDot color="info" icon={Clock} />
-          <TimelineConnector />
-          <TimelineContent>
-            <Text weight="medium">Under Review</Text>
-            <Text size="xs" color="muted">March 14, 2026 — 10:00 AM</Text>
-          </TimelineContent>
-        </TimelineItem>
-        <TimelineItem>
-          <TimelineDot color="primary" icon={Mail} />
-          <TimelineConnector />
-          <TimelineContent>
-            <Text weight="medium">Request Submitted</Text>
-            <Text size="xs" color="muted">March 13, 2026 — 9:15 AM</Text>
-          </TimelineContent>
-        </TimelineItem>
-      </Timeline>
-    </ComponentDemo>
-  );
-}
-
 function ToolbarDemo() {
   return (
     <ComponentDemo
@@ -1349,20 +1358,52 @@ function HeroDemo() {
   );
 }
 
-function FeatureCardDemo() {
+function SummaryCardDemo() {
   return (
     <ComponentDemo
-      name="FeatureCard"
-      description="Icon + title + description card with optional link and badge."
-      props={`interface FeatureCardProps {
-  icon: ComponentType; title: string; description: string;
-  href?: string; badge?: string;
+      name="SummaryCard"
+      description="Summary card with badge/footer slots, optional icon, href support, and feature variant with highlighted icon treatment."
+      props={`interface SummaryCardProps {
+  title: ReactNode;
+  description?: ReactNode;
+  badge?: ReactNode;
+  footer?: ReactNode;
+  icon?: ElementType;
+  href?: string;
+  onClick?: () => void;
+  variant?: 'default' | 'feature';
+  size?: 'sm' | 'md' | 'lg';
 }`}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <FeatureCard icon={Blocks} title="Atomic Design" description="Atoms, molecules, and organisms compose every view." href="#" />
-        <FeatureCard icon={Shield} title="Auth Guards" description="Middleware-based route protection with role support." badge="New" />
-        <FeatureCard icon={Palette} title="HSL Theming" description="One hex value cascades to the entire shade scale." />
+      <div className="space-y-6">
+        <Text size="xs" weight="semibold" color="muted" className="uppercase tracking-wider">Default variant</Text>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <SummaryCard
+            title="Infrastructure Improvement Program FY2025"
+            description="PRJ-25-MC-06-0001"
+            footer={<span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4" aria-hidden="true" />Due: 12 days</span>}
+            badge={<Chip label="Medium" color="warning" size="sm" />}
+          />
+          <SummaryCard
+            title="Public Safety Hiring Program FY2024"
+            description="2024-UL-WX-0012"
+            footer={<span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4" aria-hidden="true" />Due: 8 days</span>}
+            badge={<Chip label="High" color="danger" size="sm" />}
+          />
+          <SummaryCard
+            title="Environmental Assessment Project"
+            description="ENV-00E03421-0"
+            icon={FileText}
+            size="sm"
+            badge={<Badge variant="success" size="sm" shape="pill">Submitted</Badge>}
+          />
+        </div>
+        <Text size="xs" weight="semibold" color="muted" className="uppercase tracking-wider">Feature variant (merged from FeatureCard)</Text>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <SummaryCard variant="feature" icon={Blocks} title="Atomic Design" description="Atoms, molecules, and organisms compose every view." href="#" />
+          <SummaryCard variant="feature" icon={Shield} title="Auth Guards" description="Middleware-based route protection with role support." badge="New" />
+          <SummaryCard variant="feature" icon={Palette} title="HSL Theming" description="One hex value cascades to the entire shade scale." />
+        </div>
       </div>
     </ComponentDemo>
   );
@@ -1475,13 +1516,13 @@ function WizardCardDemo() {
         <WizardCard
           stepLabel="Step 1 of 4"
           title="Hi Alex, let's get you set up"
-          description="What best describes your role in grant management?"
+          description="What best describes your role?"
           actions={<Button className="w-full">Continue</Button>}
           footer={<Text size="sm" color="muted">Have questions? Contact your administrator or call our support team.</Text>}
         >
           <div className="space-y-3">
             <div className="border border-primary bg-primary-light rounded p-4">
-              <Text weight="semibold">Grant Administrator</Text>
+              <Text weight="semibold">Program Administrator</Text>
               <Text size="xs" color="muted">I manage day-to-day compliance and reporting.</Text>
             </div>
             <div className="border border-border rounded p-4">
@@ -1495,45 +1536,47 @@ function WizardCardDemo() {
   );
 }
 
-function ReviewTableDemo() {
+function CollapsibleTableDemo() {
+  const columns: CollapsibleTableColumn[] = [
+    { key: 'field', label: 'Field' },
+    { key: 'value', label: 'Value' },
+  ];
+
+  const detailRows: CollapsibleTableRow[] = [
+    { cells: { field: 'Program Name', value: 'Community Development Block Grant (CDBG)' } },
+    { cells: { field: 'Reference Number', value: '14.218' } },
+    { cells: { field: 'Total Amount', value: '$1,250,000' } },
+    { cells: { field: 'Performance Period', value: 'Needs Review' }, alert: { icon: <AlertTriangle className="h-3.5 w-3.5 text-warning" />, className: 'bg-warning-light' } },
+  ];
+
+  const budgetColumns: CollapsibleTableColumn[] = [
+    { key: 'category', label: 'Category' },
+    { key: 'amount', label: 'Amount', align: 'right' },
+  ];
+
+  const budgetRows: CollapsibleTableRow[] = [
+    { cells: { category: 'Personnel', amount: '$450,000' } },
+    { cells: { category: 'Contractual', amount: '$320,000' } },
+    { cells: { category: 'Equipment', amount: '$80,000' }, alert: { icon: <AlertTriangle className="h-3.5 w-3.5 text-warning" />, className: 'bg-warning-light' } },
+  ];
+
   return (
     <ComponentDemo
-      name="ReviewTable"
-      description="Collapsible data review section with optional warning rows and AI confidence Badge chips."
-      props={`interface ReviewTableProps {
-  title: string;
-  columns: Array<{ key: string; label: string; align?: 'left' | 'center' | 'right' }>;
-  rows: Array<{ cells: Record<string, string | number>; warning?: boolean; confidence?: number }>;
+      name="CollapsibleTable"
+      description="Collapsible data section with configurable columns, alert rows, and optional extra columns with custom renderers."
+      props={`interface CollapsibleTableProps {
+  title: ReactNode;
+  columns: CollapsibleTableColumn[];
+  rows: CollapsibleTableRow[];
+  extraColumns?: CollapsibleTableExtraColumn[];
   defaultOpen?: boolean;
-}`}
+}
+interface CollapsibleTableColumn { key: string; label: string; align?: 'left' | 'center' | 'right'; }
+interface CollapsibleTableRow { cells: Record<string, string | number | ReactNode>; alert?: { icon?: ReactNode; className?: string }; }`}
     >
       <div className="space-y-4 max-w-2xl">
-        <ReviewTable
-          title="Award Details"
-          columns={[
-            { key: 'field', label: 'Field' },
-            { key: 'value', label: 'Value' },
-          ]}
-          rows={[
-            { cells: { field: 'Award Name', value: 'Community Development Block Grant (CDBG)' }, confidence: 97 },
-            { cells: { field: 'CFDA Number', value: '14.218' }, confidence: 95 },
-            { cells: { field: 'Award Amount', value: '$1,250,000' }, confidence: 92 },
-            { cells: { field: 'Performance Period', value: 'Needs Review' }, warning: true, confidence: 72 },
-          ]}
-        />
-        <ReviewTable
-          title="Budget Categories"
-          columns={[
-            { key: 'category', label: 'Category' },
-            { key: 'amount', label: 'Amount', align: 'right' },
-          ]}
-          rows={[
-            { cells: { category: 'Personnel', amount: '$450,000' }, confidence: 98 },
-            { cells: { category: 'Contractual', amount: '$320,000' }, confidence: 91 },
-            { cells: { category: 'Equipment', amount: '$80,000' }, confidence: 88, warning: true },
-          ]}
-          defaultOpen={false}
-        />
+        <CollapsibleTable title="Program Details" columns={columns} rows={detailRows} />
+        <CollapsibleTable title="Budget Categories" columns={budgetColumns} rows={budgetRows} defaultOpen={false} />
       </div>
     </ComponentDemo>
   );
@@ -1568,24 +1611,351 @@ function UploadSlotDemo() {
   );
 }
 
-function ProcessingChecklistDemo() {
+function StatusChecklistDemo() {
   return (
     <ComponentDemo
-      name="ProcessingChecklist"
-      description="Vertical checklist wrapping ProcessingStep atoms for async wizard operations."
-      props={`interface ProcessingChecklistProps {
-  steps: Array<{ label: string; status: 'completed' | 'in-progress' | 'pending' }>;
+      name="StatusChecklist"
+      description="Vertical checklist wrapping StatusStep atoms for async workflow operations."
+      props={`interface StatusChecklistProps {
+  steps: StatusChecklistStep[];
+}
+interface StatusChecklistStep {
+  label: ReactNode;
+  status: 'completed' | 'in-progress' | 'pending';
 }`}
     >
       <div className="max-w-sm">
-        <ProcessingChecklist
+        <StatusChecklist
           steps={[
-            { label: 'Confirm award details', status: 'completed' },
+            { label: 'Confirm program details', status: 'completed' },
             { label: 'Map budget categories', status: 'completed' },
             { label: 'Check compliance conditions', status: 'in-progress' },
             { label: 'Set reporting deadlines', status: 'pending' },
           ]}
         />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+/* ---------- Domain Components ---------- */
+
+function SectionHeaderDemo() {
+  return (
+    <ComponentDemo
+      name="SectionHeader"
+      description="Semantic heading + description + optional right-aligned action. Supports heading level (as) and CVA size."
+      props={`interface SectionHeaderProps {
+  title: string;
+  description?: string;
+  action?: ReactNode;
+  as?: 'h2' | 'h3' | 'h4';
+  size?: 'sm' | 'md' | 'lg';
+}`}
+    >
+      <div className="space-y-6">
+        <SectionHeader title="Default (h3 / md)" description="4 items need attention" />
+        <SectionHeader as="h2" size="lg" title="Large (h2 / lg)" description="Top-level section heading" action={<Button variant="outline" size="sm">View All</Button>} />
+        <SectionHeader as="h4" size="sm" title="Small (h4 / sm)" description="Compact sub-section" />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function InfoCardDemo() {
+  return (
+    <ComponentDemo
+      name="InfoCard"
+      description="Callout card with icon/badge, description, action buttons, and children slot. Supports default and highlighted variants."
+      props={`interface InfoCardProps {
+  title: ReactNode;
+  description?: ReactNode;
+  badge?: ReactNode;
+  icon?: ElementType | ReactNode;
+  actions?: ComponentAction[];
+  children?: ReactNode;
+  variant?: 'default' | 'highlighted';
+  size?: 'sm' | 'md' | 'lg';
+}`}
+    >
+      <div className="space-y-4 max-w-xl">
+        <Text size="xs" weight="semibold" color="muted" className="uppercase tracking-wider">Default variant</Text>
+        <InfoCard
+          title="Budget at 91% utilization"
+          description="Contractual: $45,500 of $50,000 spent"
+          badge={<Badge variant="danger" size="sm" shape="pill">Critical</Badge>}
+          actions={[{ label: 'Manage Budget' }]}
+        />
+        <InfoCard
+          title="Burn rate below pace"
+          description="68% of period elapsed · 29% of $4.2M spent"
+          badge={<Badge variant="warning" size="sm" shape="pill">Warning</Badge>}
+          actions={[{ label: 'Review' }]}
+        />
+        <InfoCard
+          title="New policy update available"
+          description="Review the latest compliance guidelines."
+          icon={Info}
+          size="sm"
+        />
+
+        <Text size="xs" weight="semibold" color="muted" className="uppercase tracking-wider">Highlighted variant</Text>
+        <InfoCard
+          title="Consulting Contract – Apex Group"
+          description="Coded to Supplies but description matches Contractual"
+          icon={Sparkles}
+          variant="highlighted"
+          actions={[{ label: 'Review' }]}
+        />
+        <InfoCard
+          title="Drawdown #5 pending 37 days"
+          description="$12,300 submitted Oct 5 – no status update."
+          icon={<StatusDot color="primary" size="md" />}
+          variant="highlighted"
+          actions={[{ label: 'Follow Up' }]}
+        />
+        <InfoCard
+          title="Deadline approaching"
+          description="Only 5 days remaining to submit the quarterly report."
+          icon={<StatusDot color="warning" size="md" />}
+          variant="default"
+          size="sm"
+        />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function ValueItemDemo() {
+  return (
+    <ComponentDemo
+      name="ValueItem"
+      description="Value display with amount, title, description, actions, tag, timestamp, and meta slot. Supports card and row layouts."
+      props={`interface ValueItemProps {
+  value: ReactNode;
+  valueColor?: 'danger' | 'success' | 'warning' | 'muted' | 'primary';
+  title: ReactNode;
+  description?: ReactNode;
+  actions?: ComponentAction[];
+  meta?: ReactNode;
+  tag?: ReactNode;
+  tagColor?: ChipColor;
+  timestamp?: ReactNode;
+  layout?: 'card' | 'row';
+  size?: 'sm' | 'md' | 'lg';
+}`}
+    >
+      <div className="space-y-6 max-w-xl">
+        <Text size="xs" weight="semibold" color="muted" className="uppercase tracking-wider">Card layout (default)</Text>
+        <div className="space-y-3">
+          <ValueItem
+            value="-$8,400.00"
+            valueColor="danger"
+            title="Habitat for Humanity"
+            description="Block Grant Program · Apr 11"
+            actions={[{ label: 'Approve' }, { label: 'Review' }]}
+            meta={
+              <span className="inline-flex items-center gap-1 rounded bg-muted px-2 py-1 text-xs font-medium text-foreground">
+                <Clock className="h-3.5 w-3.5" aria-hidden="true" />2 days waiting
+              </span>
+            }
+          />
+          <ValueItem
+            value="+$5,000.00"
+            valueColor="success"
+            title="Reimbursement received"
+            description="Housing Program · Apr 8"
+            size="sm"
+          />
+        </div>
+
+        <Text size="xs" weight="semibold" color="muted" className="uppercase tracking-wider">Row layout (activity feed style)</Text>
+        <div className="rounded border border-border bg-card p-4">
+          <ValueItem
+            layout="row"
+            value="-$10,416.16"
+            valueColor="danger"
+            title="System (FIN Sync)"
+            description="City Payroll – March 2026"
+            tag="Personnel"
+            tagColor="primary"
+            timestamp="10/24/26"
+          />
+          <ValueItem
+            layout="row"
+            value="+$5,000.00"
+            valueColor="success"
+            title="Drawdown Processed"
+            description="Reimbursement – March 2026"
+            tag="Travel"
+            tagColor="warning"
+            timestamp="10/24/26"
+          />
+          <ValueItem
+            layout="row"
+            value="$1,200.00"
+            valueColor="muted"
+            title="Pending Review"
+            description="Equipment purchase – Feb 2026"
+            tag="Equipment"
+            tagColor="info"
+            timestamp="09/15/26"
+          />
+        </div>
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function DeadlineItemDemo() {
+  return (
+    <ComponentDemo
+      name="DeadlineItem"
+      description="Deadline row with countdown badge (or custom leading slot), title, description, and action via ComponentAction."
+      props={`interface DeadlineItemProps {
+  month: string;
+  daysRemaining: number;
+  title: ReactNode;
+  description?: ReactNode;
+  badgeVariant?: StatBadgeProps['variant'];
+  leading?: ReactNode;
+  action?: ComponentAction;
+  size?: 'sm' | 'md' | 'lg';
+}`}
+    >
+      <div className="space-y-3 max-w-xl">
+        <DeadlineItem month="APR" daysRemaining={6} title="SF-425 Q1 Report" description="Due Apr 19 · Submit via portal" action={{ label: 'Start' }} />
+        <DeadlineItem month="APR" daysRemaining={8} title="Progress Report Q1" description="Due Apr 21 · Submit via system" badgeVariant="warning" action={{ label: 'Start' }} />
+        <DeadlineItem month="MAY" daysRemaining={30} title="Annual Performance Report" description="Due May 30" badgeVariant="success" />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function BreakdownCardDemo() {
+  return (
+    <ComponentDemo
+      name="BreakdownCard"
+      description="Segmented breakdown card with threshold progress bar and key-value detail footer. All values pre-formatted."
+      props={`interface BreakdownCardProps {
+  title: ReactNode;
+  description?: ReactNode;
+  segments: Array<{ label: string; value: string; sublabel?: string }>;
+  progressValue?: number;
+  progressColor?: ThresholdProgressProps['color'];
+  progressThresholds?: { warning: number; danger: number };
+  details?: Array<{ label: string; value: string }>;
+  action?: { label: string; href?: string; onClick?: () => void };
+  size?: 'sm' | 'md' | 'lg';
+}`}
+    >
+      <div className="max-w-lg">
+        <BreakdownCard
+          title="Budget Summary"
+          description="Total Award: $847k"
+          segments={[
+            { label: 'Expended', value: '$387,250', sublabel: '46%' },
+            { label: 'Remaining', value: '$460,250', sublabel: '54%' },
+          ]}
+          progressValue={46}
+          progressThresholds={{ warning: 75, danger: 90 }}
+          details={[
+            { label: 'Period Start', value: 'Oct 1, 2024' },
+            { label: 'Period End', value: 'Sep 30, 2026' },
+            { label: 'Days Remaining', value: '543' },
+          ]}
+          action={{ label: 'View Budget Detail' }}
+        />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function ExpandableListItemDemo() {
+  return (
+    <ComponentDemo
+      name="ExpandableListItem"
+      description="Expandable row with status badge, generic sections, and action buttons."
+      props={`interface ExpandableListItemProps {
+  title: ReactNode;
+  description?: ReactNode;
+  status: { label: string; variant: BadgeVariant };
+  sections?: ExpandableListItemSection[];
+  actions?: ComponentAction[];
+  defaultExpanded?: boolean;
+}
+interface ExpandableListItemSection { label: ReactNode; content: ReactNode; }`}
+    >
+      <div className="max-w-lg">
+        <ExpandableListItem
+          title="Environmental Review (24 CFR Part 58)"
+          description="Due before committing funds"
+          status={{ label: 'Met', variant: 'success' }}
+          sections={[
+            { label: 'Evidence', content: <a href="#" className="text-primary text-xs hover:underline">RROF submitted 02/14/2026</a> },
+            { label: 'Notes', content: 'Covered all FY26 activities under single Tiered Review.' },
+          ]}
+          defaultExpanded
+        />
+        <ExpandableListItem
+          title="Section 3 Plan (Economic Opportunities)"
+          description="Due before procurement > $200k"
+          status={{ label: 'In Progress', variant: 'inProgress' }}
+          actions={[{ label: 'Upload Evidence', variant: 'outline' }]}
+        />
+        <ExpandableListItem
+          title="Davis-Bacon Wage Rates"
+          description="Due ongoing (construction > $2k)"
+          status={{ label: 'N/A', variant: 'default' }}
+        />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function ComposeInputDemo() {
+  return (
+    <ComponentDemo
+      name="ComposeInput"
+      description="Compose input with avatar, text field, submit button, optional media types and footer. Supports compact variant."
+      props={`interface ComposeInputProps {
+  avatar?: { src?: string; fallback?: string };
+  placeholder?: string;
+  onSubmit?: (content: string) => void;
+  submitLabel?: ReactNode;
+  mediaTypes?: Array<{ label: string; icon: ElementType }>;
+  footer?: ReactNode;
+  variant?: 'default' | 'compact';
+  size?: 'sm' | 'md' | 'lg';
+}`}
+    >
+      <div className="space-y-4 max-w-lg">
+        <ComposeInput avatar={{ fallback: 'S' }} submitLabel="Post" />
+        <ComposeInput avatar={{ fallback: 'S' }} variant="compact" size="sm" placeholder="Quick note..." submitLabel="Send" />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function LabeledProgressRowDemo() {
+  return (
+    <ComponentDemo
+      name="LabeledProgressRow"
+      description="Labeled row with threshold progress bar, configurable label width, color, icon, and CVA size."
+      props={`interface LabeledProgressRowProps {
+  label: ReactNode;
+  value: number;
+  color?: ThresholdProgressProps['color'];
+  icon?: ElementType;
+  labelWidth?: string;
+  size?: 'sm' | 'md' | 'lg';
+}`}
+    >
+      <div className="rounded border border-border bg-card p-4 max-w-md">
+        <LabeledProgressRow label="Participant 1" value={50} />
+        <LabeledProgressRow label="Participant 2" value={50} />
+        <LabeledProgressRow label="Participant 3" value={13} icon={AlertTriangle} />
+        <LabeledProgressRow label="Participant 4" value={75} />
       </div>
     </ComponentDemo>
   );

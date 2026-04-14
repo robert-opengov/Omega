@@ -1,18 +1,14 @@
 'use client';
 
-import { useCallback, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
+import { useCallback, useRef, useState, forwardRef, type ChangeEvent, type KeyboardEvent } from 'react';
 import { cn } from '@/lib/utils';
 
-export interface AccountNumberInputProps {
+export interface MaskedInputProps extends Omit<React.ComponentPropsWithoutRef<'input'>, 'onChange' | 'value' | 'type'> {
   /** Mask pattern using # for digits, any other char as literal separator. E.g. "###-####-###.##" */
   mask: string;
   value?: string;
   onChange?: (value: string) => void;
   error?: boolean;
-  disabled?: boolean;
-  placeholder?: string;
-  className?: string;
-  'aria-label'?: string;
 }
 
 function extractDigits(str: string): string {
@@ -37,16 +33,10 @@ function maxDigits(mask: string): number {
   return mask.split('').filter((c) => c === '#').length;
 }
 
-export function AccountNumberInput({
-  mask,
-  value: controlledValue,
-  onChange,
-  error = false,
-  disabled = false,
-  placeholder,
-  className,
-  'aria-label': ariaLabel,
-}: AccountNumberInputProps) {
+export const MaskedInput = forwardRef<HTMLInputElement, MaskedInputProps>(function MaskedInput(
+  { mask, value: controlledValue, onChange, error = false, disabled = false, placeholder, className, ...rest },
+  forwardedRef,
+) {
   const [internalValue, setInternalValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const value = controlledValue ?? internalValue;
@@ -54,6 +44,8 @@ export function AccountNumberInput({
   const displayValue = applyMask(extractDigits(value), mask);
 
   const defaultPlaceholder = placeholder ?? mask.replaceAll('#', '_');
+
+  const ref = (forwardedRef as React.RefObject<HTMLInputElement>) ?? inputRef;
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -85,7 +77,7 @@ export function AccountNumberInput({
 
   return (
     <input
-      ref={inputRef}
+      ref={ref}
       type="text"
       inputMode="numeric"
       value={displayValue}
@@ -93,7 +85,6 @@ export function AccountNumberInput({
       onKeyDown={handleKeyDown}
       disabled={disabled}
       placeholder={defaultPlaceholder}
-      aria-label={ariaLabel}
       aria-invalid={error || undefined}
       className={cn(
         'flex h-10 w-full rounded border bg-transparent px-3 py-2 text-sm font-mono tracking-wider',
@@ -106,8 +97,9 @@ export function AccountNumberInput({
           : 'border-input-border text-foreground',
         className,
       )}
+      {...rest}
     />
   );
-}
+});
 
-export default AccountNumberInput;
+export default MaskedInput;

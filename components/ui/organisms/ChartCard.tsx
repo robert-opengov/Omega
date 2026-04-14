@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/molecules';
 import {
   ResponsiveContainer,
@@ -61,8 +61,9 @@ function useVizColors(): string[] {
 export type ChartType = 'bar' | 'line' | 'area' | 'pie';
 
 export interface ChartCardProps {
-  title: string;
-  description?: string;
+  title: ReactNode;
+  description?: ReactNode;
+  headerActions?: ReactNode;
   /** @default 'bar' */
   type: ChartType;
   data: Record<string, unknown>[];
@@ -85,8 +86,10 @@ export interface ChartCardProps {
  * @example
  * <ChartCard title="Revenue" type="bar" data={data} dataKey="amount" />
  */
-export function ChartCard({ title, description, type, data, dataKey, xAxisKey = 'name', className, height = 300, color }: ChartCardProps) {
-  const chartLabel = `${title}${description ? `: ${description}` : ''}`;
+export function ChartCard({ title, description, headerActions, type, data, dataKey, xAxisKey = 'name', className, height = 300, color }: ChartCardProps) {
+  const chartLabel = typeof title === 'string'
+    ? `${title}${typeof description === 'string' ? `: ${description}` : ''}`
+    : 'Chart';
   const vars = useResolvedCssVars();
   const vizColors = useVizColors();
   const chartColor = color || vizColors[0];
@@ -104,7 +107,10 @@ export function ChartCard({ title, description, type, data, dataKey, xAxisKey = 
   return (
     <Card className={cn('overflow-hidden', className)}>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle>{title}</CardTitle>
+          {headerActions}
+        </div>
         {description && <p className="text-sm text-muted-foreground mt-1">{description}</p>}
       </CardHeader>
       <CardContent>

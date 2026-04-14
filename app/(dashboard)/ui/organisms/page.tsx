@@ -1,22 +1,35 @@
 'use client';
 
 import { useState } from 'react';
-import { ClipboardEdit, BarChart3, FileSearch, Shield } from 'lucide-react';
+import { ClipboardEdit, BarChart3, FileSearch, Shield, Download, Send, AlertTriangle, CheckCircle, Users, Plus, Bell, Circle } from 'lucide-react';
 import { Badge, Button, Text, SelectionCard } from '@/components/ui/atoms';
 import { ShowcaseLayout } from '../_components/ShowcaseLayout';
-import { type Column, ProcessingChecklist } from '@/components/ui/molecules';
-import { AuthForm } from '@/components/ui/organisms/AuthForm';
-import { DataGrid } from '@/components/ui/organisms/DataGrid';
-import { ChartCard } from '@/components/ui/organisms/ChartCard';
-import { Logo, LogoMark } from '@/components/ui/organisms/Logo';
-import { AIConversation, type AIMessageData } from '@/components/ui/organisms/AIConversation';
-import { AIDisclaimer } from '@/components/ui/organisms/AIDisclaimer';
-import { AIPromptInput } from '@/components/ui/organisms/AIPromptInput';
-import { ChildTable } from '@/components/ui/organisms/ChildTable';
-import type { ChildTableConfig } from '@/components/ui/organisms/ChildTable';
-import { FlexibleInquiry, type FilterCondition, type InquiryField } from '@/components/ui/organisms/FlexibleInquiry';
-import { Footer } from '@/components/ui/organisms/Footer';
-import { FullscreenWizard, useWizard, type WizardStepConfig } from '@/components/ui/organisms/FullscreenWizard';
+import { type Column, StatusChecklist } from '@/components/ui/molecules';
+import {
+  AuthForm,
+  DataGrid,
+  ChartCard,
+  Logo,
+  LogoMark,
+  AIConversation,
+  type AIMessageData,
+  AIDisclaimer,
+  AIPromptInput,
+  ChildTable,
+  type ChildTableConfig,
+  FilterBuilder,
+  type FilterBuilderField,
+  type FilterCondition,
+  Footer,
+  FullscreenWizard,
+  useWizard,
+  type WizardStepConfig,
+  DetailPageHeader,
+  Timeline,
+  type TimelineItem,
+  GanttChart,
+  type GanttRow,
+} from '@/components/ui/organisms';
 import { ComponentDemo, Section } from '../_components/ComponentDemo';
 
 export default function OrganismsPage() {
@@ -24,13 +37,19 @@ export default function OrganismsPage() {
     <ShowcaseLayout>
       <div className="space-y-12">
 
+      <Section title="Detail Page Organisms" count={3}>
+        <DetailPageHeaderDemo />
+        <TimelineDemo />
+        <GanttChartDemo />
+      </Section>
+
       <Section title="Organisms" count={8}>
         <FullscreenWizardDemo />
         <AuthFormDemo />
         <ChildTableDemo />
         <DataGridDemo />
         <ChartCardDemo />
-        <FlexibleInquiryDemo />
+        <FilterBuilderDemo />
         <FooterDemo />
         <LogoDemo />
       </Section>
@@ -81,7 +100,7 @@ function WizardStepContent() {
 
 function ProcessingStepContent() {
   return (
-    <ProcessingChecklist
+    <StatusChecklist
       steps={[
         { label: 'Confirm award details', status: 'completed' },
         { label: 'Map budget categories', status: 'in-progress' },
@@ -128,7 +147,7 @@ function FullscreenWizardDemo() {
       <div className="space-y-4">
         <Button onClick={() => setOpen(true)}>Launch Wizard Demo</Button>
         {open && (
-          <div className="fixed inset-0 z-50">
+          <div className="fixed inset-0 z-[var(--z-overlay)]">
             <FullscreenWizard
               productName="Grants Management"
               steps={steps}
@@ -279,7 +298,7 @@ function ChildTableDemo() {
             data={budgetData}
             title="FY2025 Budget Line Items"
             pageSizeOptions={[5, 10, 25]}
-            onSave={async (rows) => {
+            onSave={async () => {
               await new Promise((r) => setTimeout(r, 800));
             }}
           />
@@ -439,15 +458,15 @@ function LogoMark({ className }: { className?: string })`}
   );
 }
 
-/* ---------- FlexibleInquiry ---------- */
+/* ---------- FilterBuilder ---------- */
 
-function FlexibleInquiryDemo() {
+function FilterBuilderDemo() {
   const [filters, setFilters] = useState<FilterCondition[]>([
     { id: 'f1', field: 'name', operator: 'contains', value: '' },
   ]);
   const [logic, setLogic] = useState<'and' | 'or'>('and');
 
-  const fields: InquiryField[] = [
+  const fields: FilterBuilderField[] = [
     { key: 'name', label: 'Name', type: 'text' },
     { key: 'amount', label: 'Amount', type: 'number' },
     { key: 'date', label: 'Date', type: 'date' },
@@ -460,17 +479,21 @@ function FlexibleInquiryDemo() {
 
   return (
     <ComponentDemo
-      name="FlexibleInquiry"
-      description="Dynamic filter/query builder with AND/OR logic, multiple field types, and add/remove conditions."
-      props={`interface FlexibleInquiryProps {
-  fields: InquiryField[]; filters: FilterCondition[];
+      name="FilterBuilder"
+      description="Dynamic filter/query builder with AND/OR logic, multiple field types, add/remove conditions, i18n label overrides, and custom value editors."
+      props={`interface FilterBuilderProps {
+  fields: FilterBuilderField[];
+  filters: FilterCondition[];
   onFiltersChange: (filters: FilterCondition[]) => void;
   maxConditions?: number;
   logicOperator?: 'and' | 'or';
   onLogicOperatorChange?: (op: 'and' | 'or') => void;
+  labels?: FilterBuilderLabels;
+  renderValueEditor?: (field, operator, value, onChange) => ReactNode;
+  className?: string;
 }`}
     >
-      <FlexibleInquiry
+      <FilterBuilder
         fields={fields}
         filters={filters}
         onFiltersChange={setFilters}
@@ -536,10 +559,11 @@ function AIConversationDemo() {
   loading?: boolean;
   emptyPlaceholder?: ReactNode;
   renderContent?: (content: string) => ReactNode;
+  maxWidthClassName?: string;
 }`}
     >
       <div className="border border-border rounded h-[400px] flex flex-col">
-        <AIConversation messages={sampleMessages} />
+        <AIConversation messages={sampleMessages} maxWidthClassName="max-w-3xl" />
       </div>
     </ComponentDemo>
   );
@@ -584,7 +608,7 @@ function AIPromptInputDemo() {
         <AIPromptInput
           value={input}
           onChange={setInput}
-          onSubmit={(v) => { setInput(''); }}
+          onSubmit={() => { setInput(''); }}
           placeholder="Ask a question about your data..."
           maxLength={500}
           showAttach
@@ -596,6 +620,332 @@ function AIPromptInputDemo() {
           loading
           placeholder="Generating response..."
         />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+/* ---------- DetailPageHeader ---------- */
+
+function DetailPageHeaderDemo() {
+  const [activeTab, setActiveTab] = useState('overview');
+  return (
+    <ComponentDemo
+      name="DetailPageHeader"
+      description="Shared page header for detail views with breadcrumbs, metadata, risk badge, tab navigation, and optional action buttons."
+      props={`interface DetailPageHeaderProps {
+  breadcrumbs: BreadcrumbItem[];
+  title: ReactNode;
+  description?: ReactNode;
+  badge?: ReactNode;
+  metadata: Array<{ label: string; value: ReactNode }>;
+  actions?: ReactNode;
+  tabs: Array<{ label: string; value: string; badge?: number }>;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  className?: string;
+}`}
+    >
+      <DetailPageHeader
+        breadcrumbs={[
+          { label: 'Grants', href: '#' },
+          { label: 'Awards', href: '#' },
+          { label: 'CDBG Entitlement' },
+        ]}
+        title="Community Development Block Grant (CDBG)"
+        description="B-21-MC-06-0001"
+        badge={<Badge variant="danger" size="sm" shape="pill">High-Risk</Badge>}
+        metadata={[
+          { label: 'FAIN', value: 'B-21-MC-06-0001' },
+          { label: 'Award', value: '$847,500' },
+          { label: 'CFDA/ALN', value: '14.218' },
+          { label: 'Performance', value: 'Oct 1, 2024 – Sep 30, 2026' },
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" icon={Download}>Export</Button>
+            <Button size="sm" icon={Send}>Submit Report</Button>
+          </div>
+        }
+        tabs={[
+          { label: 'Overview', value: 'overview' },
+          { label: 'Budget', value: 'budget' },
+          { label: 'Compliance', value: 'compliance', badge: 2 },
+          { label: 'Reports', value: 'reports' },
+          { label: 'Sub-Recipients', value: 'sub-recipients' },
+          { label: 'Documents', value: 'documents' },
+        ]}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
+    </ComponentDemo>
+  );
+}
+
+/* ---------- GanttChart ---------- */
+
+const scheduleColumns = ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00'];
+
+const scheduleRows: GanttRow[] = [
+  {
+    id: 'john',
+    label: 'John Smith',
+    sublabel: 'IT Department',
+    avatar: { fallback: 'John Smith' },
+    events: [
+      { id: 'j1', start: 0, end: 1.5, title: 'Service Call', subtitle: 'Downtown Office', variant: 'success' },
+      { id: 'j2', start: 3.5, end: 5.5, title: 'Equipment Maintenance', subtitle: 'Server Room A', variant: 'info', tooltip: '10:30 AM – 12:30 PM · Server Room A' },
+      { id: 'j3', start: 6, end: 7.5, title: 'Client Meeting', subtitle: 'Room B', variant: 'danger' },
+    ],
+  },
+  {
+    id: 'sarah',
+    label: 'Sarah Johnson',
+    sublabel: 'Marketing',
+    avatar: { fallback: 'Sarah Johnson' },
+    events: [
+      { id: 's1', start: 1, end: 3, title: 'Campaign Planning', subtitle: 'Conference Room C', variant: 'primary' },
+      { id: 's2', start: 4, end: 5.5, title: 'Content Review', subtitle: 'Marketing Studio', variant: 'warning' },
+      { id: 's3', start: 6, end: 8, title: 'Social Media', subtitle: 'Creative Lab', variant: 'inProgress' },
+    ],
+  },
+  {
+    id: 'mike',
+    label: 'Mike Chen',
+    sublabel: 'Engineering',
+    avatar: { fallback: 'Mike Chen' },
+    events: [
+      { id: 'm1', start: 1.5, end: 4, title: 'Code Review', subtitle: 'Development Lab', variant: 'info' },
+      { id: 'm2', start: 5.5, end: 7.5, title: 'Feature Development', subtitle: 'Workspace 2A', variant: 'primary' },
+    ],
+  },
+  {
+    id: 'emma',
+    label: 'Emma Stone',
+    sublabel: 'Design',
+    avatar: { fallback: 'Emma Stone' },
+    events: [
+      { id: 'e1', start: 0.5, end: 2.5, title: 'UI Mockups', subtitle: 'Design Studio A', variant: 'success' },
+      { id: 'e2', start: 3.5, end: 5.5, title: 'Client Presentation', subtitle: 'Meeting Room 1', variant: 'danger' },
+      { id: 'e3', start: 6.5, end: 8, title: 'Design Update', subtitle: 'Design Studio B', variant: 'warning' },
+    ],
+  },
+  {
+    id: 'david',
+    label: 'David Chen',
+    sublabel: 'Operations',
+    avatar: { fallback: 'David Chen' },
+    events: [
+      { id: 'd1', start: 1, end: 3.5, title: 'Inventory Check', subtitle: 'Warehouse B', variant: 'inProgress' },
+      { id: 'd2', start: 5.5, end: 7.5, title: 'Vendor Meeting', subtitle: 'Conference Room D', variant: 'danger' },
+    ],
+  },
+];
+
+const projectColumns = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'];
+
+const projectRows: GanttRow[] = [
+  {
+    id: 'design',
+    label: 'Design',
+    events: [
+      { id: 'p1', start: 0, end: 2, title: 'Wireframes', variant: 'primary' },
+      { id: 'p2', start: 2, end: 3.5, title: 'Visual Design', variant: 'primary' },
+    ],
+  },
+  {
+    id: 'frontend',
+    label: 'Frontend',
+    events: [
+      { id: 'p3', start: 1.5, end: 4, title: 'Component Build', variant: 'info' },
+      { id: 'p4', start: 4, end: 5.5, title: 'Integration', variant: 'info' },
+    ],
+  },
+  {
+    id: 'backend',
+    label: 'Backend',
+    events: [
+      { id: 'p5', start: 1, end: 3.5, title: 'API Development', variant: 'success' },
+      { id: 'p6', start: 3.5, end: 5, title: 'Database Tuning', variant: 'warning' },
+    ],
+  },
+  {
+    id: 'qa',
+    label: 'QA',
+    events: [
+      { id: 'p7', start: 3, end: 5, title: 'Testing', variant: 'danger' },
+      { id: 'p8', start: 5, end: 6, title: 'UAT', variant: 'success' },
+    ],
+  },
+];
+
+function GanttChartDemo() {
+  return (
+    <ComponentDemo
+      name="GanttChart"
+      description="Resource-based Gantt chart with fractional event positioning, sticky resource column, now-indicator, HSL semantic colors, and custom renderers."
+      props={`interface GanttChartProps {
+  columns: ReactNode[];
+  rows: GanttRow[];
+  columnWidth?: number;       // default 120
+  resourceWidth?: number;     // default 200
+  size?: 'sm' | 'md' | 'lg'; // row density
+  nowIndicator?: number;      // vertical "now" line at column position
+  striped?: boolean;          // alternating rows (default true)
+  resourceLabel?: ReactNode;  // header for resource column
+  renderEvent?: (event: GanttEvent, row: GanttRow) => ReactNode;
+  renderResource?: (row: GanttRow) => ReactNode;
+  renderColumnHeader?: (column: ReactNode, index: number) => ReactNode;
+  onEventClick?: (event: GanttEvent, row: GanttRow) => void;
+  onRowClick?: (row: GanttRow) => void;
+  ariaLabel?: string;
+}
+
+interface GanttRow {
+  id: string;
+  label: ReactNode;
+  sublabel?: ReactNode;
+  avatar?: { src?: string; fallback?: ReactNode };
+  events: GanttEvent[];
+}
+
+interface GanttEvent {
+  id: string;
+  start: number;  // 0-based fractional column index
+  end: number;
+  title: ReactNode;
+  subtitle?: ReactNode;
+  variant?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'inProgress' | 'muted';
+  tooltip?: ReactNode;
+}`}
+    >
+      <div className="space-y-8">
+        <div>
+          <Text weight="semibold" className="mb-2">Employee Schedule</Text>
+          <Text size="sm" color="muted" className="mb-4">
+            Hourly schedule with avatars, color-coded events, and a &quot;now&quot; indicator at 10:30 AM. Hover events for tooltips.
+          </Text>
+          <GanttChart
+            columns={scheduleColumns}
+            rows={scheduleRows}
+            resourceLabel="Employee"
+            nowIndicator={3.5}
+            ariaLabel="Employee daily schedule"
+          />
+        </div>
+
+        <div>
+          <Text weight="semibold" className="mb-2">Compact Project Timeline</Text>
+          <Text size="sm" color="muted" className="mb-4">
+            Same component with <code className="text-primary">size=&quot;sm&quot;</code> and no avatars — works as a project Gantt chart.
+          </Text>
+          <GanttChart
+            columns={projectColumns}
+            rows={projectRows}
+            size="sm"
+            columnWidth={100}
+            resourceWidth={120}
+            resourceLabel="Team"
+            striped={false}
+            ariaLabel="Project timeline"
+          />
+        </div>
+      </div>
+    </ComponentDemo>
+  );
+}
+
+/* ---------- Timeline ---------- */
+
+const verticalTimelineItems: TimelineItem[] = [
+  {
+    id: '1',
+    title: '3.0 update is now live!',
+    description: 'It\'s finally here — comes packed with many awesome features. Be sure to download it and let us know what you think!',
+    icon: CheckCircle,
+    variant: 'success',
+  },
+  {
+    id: '2',
+    title: 'Maintenance notice',
+    description: 'We are going to apply some security fixes next week. Please check out the schedule for more information about any downtime.',
+    icon: AlertTriangle,
+    variant: 'warning',
+  },
+  {
+    id: '3',
+    title: 'We reached 3,500 paying users',
+    description: 'Thank you all so much for your support!',
+    icon: Users,
+    variant: 'info',
+  },
+  {
+    id: '4',
+    title: 'Beta registrations are now open',
+    description: 'We are going to be beta testing our 3.0 release. Be sure to register for a chance to participate and check out all the new features before everyone else.',
+    icon: Plus,
+    variant: 'default',
+  },
+];
+
+const horizontalTimelineItems: TimelineItem[] = [
+  { id: 'h1', title: 'Phase 2 environmental assessment completed.', date: 'Jan 8', icon: CheckCircle, variant: 'success' },
+  { id: 'h2', title: 'Hire project coordinator Carlos Mendez.', date: 'Jan 16', icon: Circle, variant: 'default', avatar: { fallback: 'Carlos Mendez', label: 'Carlos Mendez' } },
+  { id: 'h3', title: 'Fair Housing Council outreach — 200 households.', date: 'Feb 2', icon: AlertTriangle, variant: 'warning' },
+  { id: 'h4', title: 'Submit quarterly financial report to HUD.', date: 'Mar 15', icon: CheckCircle, variant: 'success' },
+];
+
+function TimelineDemo() {
+  return (
+    <ComponentDemo
+      name="Timeline"
+      description="Vertical or horizontal timeline with semantic icon circles, alternating cards, rich content, and responsive mobile layout."
+      props={`interface TimelineProps {
+  items: TimelineItem[];
+  orientation?: 'vertical' | 'horizontal';
+  alternating?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  renderItem?: (item: TimelineItem, index: number) => ReactNode;
+  onItemClick?: (item: TimelineItem, index: number) => void;
+  lineClassName?: string;
+  ariaLabel?: string;
+}
+
+interface TimelineItem {
+  id: string;
+  title: ReactNode;
+  description?: ReactNode;
+  date?: ReactNode;
+  icon?: ElementType;
+  variant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'inProgress' | 'muted';
+  avatar?: { src?: string; fallback?: ReactNode; label?: ReactNode };
+  children?: ReactNode;
+}`}
+    >
+      <div className="space-y-10">
+        <div>
+          <Text weight="semibold" className="mb-2">Vertical (alternating)</Text>
+          <Text size="sm" color="muted" className="mb-4">
+            Cards alternate left/right on desktop, collapse to a single column on mobile. Each item has a colored icon circle.
+          </Text>
+          <Timeline items={verticalTimelineItems} />
+        </div>
+
+        <div>
+          <Text weight="semibold" className="mb-2">Vertical (left-aligned)</Text>
+          <Text size="sm" color="muted" className="mb-4">
+            All cards on one side with <code className="text-primary">alternating=false</code>.
+          </Text>
+          <Timeline items={verticalTimelineItems.slice(0, 3)} alternating={false} size="sm" />
+        </div>
+
+        <div>
+          <Text weight="semibold" className="mb-2">Horizontal</Text>
+          <Text size="sm" color="muted" className="mb-4">
+            Scrollable horizontal mode with <code className="text-primary">orientation=&quot;horizontal&quot;</code>. Cards alternate above/below the line.
+          </Text>
+          <Timeline items={horizontalTimelineItems} orientation="horizontal" />
+        </div>
       </div>
     </ComponentDemo>
   );

@@ -1,11 +1,11 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useId, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { Button, Select, Input } from '@/components/ui/atoms';
 import { X, Plus } from 'lucide-react';
 
-export interface InquiryField {
+export interface FilterBuilderField {
   key: string;
   label: string;
   type: 'text' | 'number' | 'date' | 'select';
@@ -19,13 +19,39 @@ export interface FilterCondition {
   value: string;
 }
 
-export interface FlexibleInquiryProps {
-  fields: InquiryField[];
+export interface FilterBuilderLabels {
+  match?: string;
+  allConditions?: string;
+  anyConditions?: string;
+  conditions?: string;
+  addCondition?: string;
+  removeCondition?: string;
+  valuePlaceholder?: string;
+  selectPlaceholder?: string;
+}
+
+const defaultLabels: Required<FilterBuilderLabels> = {
+  match: 'Match',
+  allConditions: 'ALL',
+  anyConditions: 'ANY',
+  conditions: 'conditions',
+  addCondition: 'Add condition',
+  removeCondition: 'Remove condition',
+  valuePlaceholder: 'Value\u2026',
+  selectPlaceholder: 'Select\u2026',
+};
+
+export interface FilterBuilderProps {
+  fields: FilterBuilderField[];
   filters: FilterCondition[];
   onFiltersChange: (filters: FilterCondition[]) => void;
   maxConditions?: number;
   logicOperator?: 'and' | 'or';
   onLogicOperatorChange?: (op: 'and' | 'or') => void;
+  /** Override default labels for i18n */
+  labels?: FilterBuilderLabels;
+  /** Custom value editor per field type */
+  renderValueEditor?: (field: FilterBuilderField, operator: string, value: string, onChange: (v: string) => void) => ReactNode;
   className?: string;
 }
 
@@ -39,11 +65,11 @@ const operatorsByType: Record<string, { label: string; value: string }[]> = {
   ],
   number: [
     { label: '=', value: 'eq' },
-    { label: '≠', value: 'neq' },
+    { label: '\u2260', value: 'neq' },
     { label: '>', value: 'gt' },
-    { label: '≥', value: 'gte' },
+    { label: '\u2265', value: 'gte' },
     { label: '<', value: 'lt' },
-    { label: '≤', value: 'lte' },
+    { label: '\u2264', value: 'lte' },
   ],
   date: [
     { label: 'is', value: 'is' },
@@ -63,20 +89,20 @@ function inputTypeFor(fieldType: string): string {
   return 'text';
 }
 
-let nextId = 0;
-function generateId(): string {
-  return `filter-${++nextId}-${Date.now()}`;
-}
-
-export function FlexibleInquiry({
+export function FilterBuilder({
   fields,
   filters,
   onFiltersChange,
   maxConditions = 10,
   logicOperator = 'and',
   onLogicOperatorChange,
+  labels: labelsProp,
+  renderValueEditor,
   className,
-}: Readonly<FlexibleInquiryProps>) {
+}: Readonly<FilterBuilderProps>) {
+  const instanceId = useId();
+  const l = { ...defaultLabels, ...labelsProp };
+
   const updateFilter = useCallback(
     (id: string, patch: Partial<FilterCondition>) => {
       onFiltersChange(filters.map((f) => (f.id === id ? { ...f, ...patch } : f)));
@@ -94,32 +120,34 @@ export function FlexibleInquiry({
   const addFilter = useCallback(() => {
     if (filters.length >= maxConditions || fields.length === 0) return;
     const newFilter: FilterCondition = {
-      id: generateId(),
+      id: `${instanceId}-${crypto.randomUUID()}`,
       field: fields[0].key,
       operator: operatorsByType[fields[0].type]?.[0]?.value ?? 'equals',
       value: '',
     };
     onFiltersChange([...filters, newFilter]);
-  }, [filters, maxConditions, fields, onFiltersChange]);
+  }, [filters, maxConditions, fields, onFiltersChange, instanceId]);
 
-  const getFieldType = (key: string) => fields.find((f) => f.key === key)?.type ?? 'text';
-  const getFieldOptions = (key: string) => fields.find((f) => f.key === key)?.options;
+  const getField = (key: string) => fields.find((f) => f.key === key);
+  const getFieldType = (key: string) => getField(key)?.type ?? 'text';
+  const getFieldOptions = (key: string) => getField(key)?.options;
 
   return (
     <div className={cn('rounded border border-border bg-card p-4 space-y-3', className)}>
       {filters.length > 1 && onLogicOperatorChange && (
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-xs text-muted-foreground">Match</span>
+          <span className="text-xs text-muted-foreground">{l.match}</span>
           <button
+            type="button"
             onClick={() => onLogicOperatorChange(logicOperator === 'and' ? 'or' : 'and')}
             className={cn(
               'px-2 py-0.5 text-xs font-medium rounded border transition-colors duration-200',
               'border-primary/30 text-primary bg-primary/5 hover:bg-primary/10',
             )}
           >
-            {logicOperator === 'and' ? 'ALL' : 'ANY'}
+            {logicOperator === 'and' ? l.allConditions : l.anyConditions}
           </button>
-          <span className="text-xs text-muted-foreground">conditions</span>
+          <span className="text-xs text-muted-foreground">{l.conditions}</span>
         </div>
       )}
 
@@ -127,6 +155,7 @@ export function FlexibleInquiry({
         const fieldType = getFieldType(filter.field);
         const operators = operatorsByType[fieldType] ?? operatorsByType.text;
         const selectOptions = getFieldOptions(filter.field);
+        const fieldDef = getField(filter.field);
 
         return (
           <div key={filter.id} className="flex items-center gap-2 flex-wrap">
@@ -165,13 +194,15 @@ export function FlexibleInquiry({
               ))}
             </Select>
 
-            {selectOptions ? (
+            {renderValueEditor && fieldDef ? (
+              renderValueEditor(fieldDef, filter.operator, filter.value, (v) => updateFilter(filter.id, { value: v }))
+            ) : selectOptions ? (
               <Select
                 value={filter.value}
                 onChange={(e) => updateFilter(filter.id, { value: e.target.value })}
                 className="flex-1 min-w-[120px]"
               >
-                <option value="">Select…</option>
+                <option value="">{l.selectPlaceholder}</option>
                 {selectOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
@@ -181,15 +212,16 @@ export function FlexibleInquiry({
                 type={inputTypeFor(fieldType)}
                 value={filter.value}
                 onChange={(e) => updateFilter(filter.id, { value: e.target.value })}
-                placeholder="Value…"
+                placeholder={l.valuePlaceholder}
                 className="flex-1 min-w-[120px]"
               />
             )}
 
             <button
+              type="button"
               onClick={() => removeFilter(filter.id)}
               className="p-1.5 rounded hover:bg-action-hover-primary text-muted-foreground transition-colors duration-200"
-              aria-label="Remove condition"
+              aria-label={l.removeCondition}
             >
               <X className="h-4 w-4" />
             </button>
@@ -200,15 +232,15 @@ export function FlexibleInquiry({
       <Button
         variant="ghost"
         size="sm"
+        icon={Plus}
         onClick={addFilter}
         disabled={filters.length >= maxConditions}
         className="mt-2"
       >
-        <Plus className="h-4 w-4 mr-1.5" />
-        Add condition
+        {l.addCondition}
       </Button>
     </div>
   );
 }
 
-export default FlexibleInquiry;
+export default FilterBuilder;

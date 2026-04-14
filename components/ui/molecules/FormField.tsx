@@ -2,15 +2,15 @@
 
 import { cn } from '@/lib/utils';
 import { Label, Input } from '@/components/ui/atoms';
-import type { InputHTMLAttributes } from 'react';
+import type { InputHTMLAttributes, ReactNode } from 'react';
 
 export interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   /** The text label for the input field. */
-  label: string;
+  label: ReactNode;
   /** Error message to display below the input. */
-  error?: string;
+  error?: ReactNode;
   /** Helper text shown below the input when there is no error. */
-  hint?: string;
+  hint?: ReactNode;
   /** If true, an asterisk will be shown next to the label. @default false */
   required?: boolean;
 }
@@ -27,7 +27,7 @@ export interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
  * <FormField label="Password" type="password" required error="Too short" />
  */
 export function FormField({ label, error, hint, required, id, className, ...inputProps }: FormFieldProps) {
-  const fieldId = id || label.toLowerCase().replace(/\s+/g, '-');
+  const fieldId = id || (typeof label === 'string' ? label.toLowerCase().replace(/\s+/g, '-') : 'field');
   const errorId = error ? `${fieldId}-error` : undefined;
   const hintId = hint ? `${fieldId}-hint` : undefined;
   const describedBy = [errorId, hintId].filter(Boolean).join(' ') || undefined;
@@ -35,7 +35,7 @@ export function FormField({ label, error, hint, required, id, className, ...inpu
   return (
     <div className={cn('space-y-1.5', className)}>
       <Label htmlFor={fieldId} required={required}>{label}</Label>
-      <Input id={fieldId} error={error} aria-describedby={describedBy} {...inputProps} />
+      <Input id={fieldId} error={typeof error === 'string' ? error : error ? ' ' : undefined} aria-describedby={describedBy} {...inputProps} />
       {error && <p id={errorId} className="text-xs text-destructive">{error}</p>}
       {hint && !error && <p id={hintId} className="text-xs text-muted-foreground">{hint}</p>}
     </div>

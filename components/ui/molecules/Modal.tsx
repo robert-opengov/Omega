@@ -14,8 +14,8 @@ export interface ModalAction {
 export interface ModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  title?: string;
-  description?: string;
+  title?: ReactNode;
+  description?: ReactNode;
   'aria-label'?: string;
   children: ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | 'fullscreen';
@@ -104,7 +104,7 @@ export function Modal({
 
           {!hideCloseButton && (
             <Dialog.Close
-              className="absolute top-4 right-4 p-1 rounded hover:bg-muted text-muted-foreground z-10 transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="absolute top-4 right-4 p-1 rounded hover:bg-muted text-muted-foreground z-[var(--z-content)] transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               aria-label="Close dialog"
             >
               <X className="h-4 w-4" />

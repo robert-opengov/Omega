@@ -192,7 +192,7 @@ function MobileSidebar() {
     <>
       <div
         className={cn(
-          'fixed inset-0 z-[var(--z-sticky)] lg:hidden transition-opacity duration-300',
+          'fixed inset-0 z-[var(--z-overlay)] lg:hidden transition-opacity duration-300',
           isMobileOpen ? 'opacity-100 bg-overlay backdrop-blur-sm' : 'opacity-0 pointer-events-none'
         )}
         onClick={closeMobileSidebar}

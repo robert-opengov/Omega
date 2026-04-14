@@ -61,7 +61,7 @@
   --primary: hsl(var(--primary-h) var(--primary-s) var(--primary-l));
   --primary-foreground: #ffffff;
 
-  --secondary: #F5F5F5;
+  --secondary: hsl(var(--secondary-h) var(--secondary-s) 96%);
   --secondary-foreground: #212121;
 
   --muted: #F8F8F8;
@@ -141,8 +141,12 @@
   --z-ground: 1;
   --z-content: 100;
   --z-editable: 200;
+  --z-sticky: 250;
   --z-header: 300;
   --z-panel: 400;
+  --z-dropdown: 450;
+  --z-popover: 450;
+  --z-tooltip: 475;
   --z-form: 500;
   --z-nav: 600;
   --z-flash: 700;

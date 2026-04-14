@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, Search, Bold, Italic, Underline, Plus, Trash2, Settings, ChevronRight, Tag, ClipboardEdit, BarChart3, FileSearch, Shield } from 'lucide-react';
+import { Mail, Search, Bold, Italic, Underline, Plus, Trash2, Settings, ChevronRight, Tag, Users, PenLine, Eye, Shield } from 'lucide-react';
 import { ShowcaseLayout } from '../_components/ShowcaseLayout';
 import {
   Button,
@@ -30,9 +30,12 @@ import {
   ButtonGroup,
   UILink,
   NumberInput,
-  AccountNumberInput,
+  MaskedInput,
   SelectionCard,
-  ProcessingStep,
+  StatusStep,
+  StatBadge,
+  ThresholdProgress,
+  StatusDot,
 } from '@/components/ui/atoms';
 import { ComponentDemo, Section } from '../_components/ComponentDemo';
 
@@ -71,12 +74,18 @@ export default function AtomsPage() {
       </Section>
 
       <Section title="Specialized Inputs" count={1}>
-        <AccountNumberInputDemo />
+        <MaskedInputDemo />
       </Section>
 
       <Section title="Wizard Primitives" count={2}>
         <SelectionCardDemo />
-        <ProcessingStepDemo />
+        <StatusStepDemo />
+      </Section>
+
+      <Section title="Data Display" count={3}>
+        <StatBadgeDemo />
+        <ThresholdProgressDemo />
+        <StatusDotDemo />
       </Section>
 
       <Section title="Layout & Misc" count={6}>
@@ -607,12 +616,12 @@ function AvatarDemo() {
       <div className="flex items-end gap-4">
         {(['sm', 'md', 'lg', 'xl'] as const).map((s) => (
           <div key={s} className="flex flex-col items-center gap-2">
-            <Avatar size={s} fallback="GA" alt="User" />
+            <Avatar size={s} fallback="JS" alt="John Smith" />
             <Text size="xs" color="muted">{s}</Text>
           </div>
         ))}
         <div className="flex flex-col items-center gap-2">
-          <Avatar src="/brand/icon.svg" fallback="U" alt="App icon" />
+          <Avatar size="xl" src="/demo-avatar.jpg" fallback="TT" alt="Team logo" />
           <Text size="xs" color="muted">with image</Text>
         </div>
       </div>
@@ -799,7 +808,7 @@ function LinkDemo() {
           ))}
         </div>
         <div>
-          <UILink href="https://opengov.com" external>External link</UILink>
+          <UILink href="https://example.com" external>External link</UILink>
         </div>
       </div>
     </ComponentDemo>
@@ -835,13 +844,13 @@ function NumberInputDemo() {
   );
 }
 
-function AccountNumberInputDemo() {
+function MaskedInputDemo() {
   const [value, setValue] = useState('');
   return (
     <ComponentDemo
-      name="AccountNumberInput"
+      name="MaskedInput"
       description="Masked numeric input for account numbers, fund codes, or structured IDs."
-      props={`interface AccountNumberInputProps {
+      props={`interface MaskedInputProps extends Omit<ComponentPropsWithoutRef<'input'>, 'onChange' | 'value' | 'type'> {
   mask: string;
   value?: string;
   onChange?: (value: string) => void;
@@ -852,17 +861,21 @@ function AccountNumberInputDemo() {
     >
       <div className="space-y-4 max-w-sm">
         <div>
-          <Text size="sm" weight="medium" color="muted" className="mb-2">Fund Code (###-####-###.##)</Text>
-          <AccountNumberInput mask="###-####-###.##" value={value} onChange={setValue} />
+          <Text size="sm" weight="medium" color="muted" className="mb-2">Phone Number (###-###-####)</Text>
+          <MaskedInput mask="###-###-####" value={value} onChange={setValue} />
           <Text size="xs" color="muted" className="mt-1">Raw value: &quot;{value}&quot;</Text>
         </div>
         <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-2">ID Code (##-####-##)</Text>
+          <MaskedInput mask="##-####-##" placeholder="ID code" />
+        </div>
+        <div>
           <Text size="sm" weight="medium" color="muted" className="mb-2">Error State</Text>
-          <AccountNumberInput mask="###-###" error />
+          <MaskedInput mask="###-###" error />
         </div>
         <div>
           <Text size="sm" weight="medium" color="muted" className="mb-2">Disabled</Text>
-          <AccountNumberInput mask="##-####-##" disabled />
+          <MaskedInput mask="##-####-##" disabled />
         </div>
       </div>
     </ComponentDemo>
@@ -872,13 +885,13 @@ function AccountNumberInputDemo() {
 /* ---------- Wizard Primitives ---------- */
 
 function SelectionCardDemo() {
-  const [role, setRole] = useState<string | null>('admin');
+  const [selected, setSelected] = useState<string | null>('admin');
 
-  const roles = [
-    { id: 'admin', icon: ClipboardEdit, title: 'Grant Administrator', description: 'I manage day-to-day compliance and reporting.' },
-    { id: 'finance', icon: BarChart3, title: 'Finance Director', description: 'I oversee budgets and financial compliance.' },
-    { id: 'auditor', icon: FileSearch, title: 'Auditor', description: 'I review grant activity and verify transactions.' },
-    { id: 'readonly', icon: Shield, title: 'View-only', description: 'I just need read access to monitor progress.' },
+  const options = [
+    { id: 'admin', icon: Users, title: 'Administrator', description: 'Full access to manage settings and users.' },
+    { id: 'editor', icon: PenLine, title: 'Editor', description: 'Can create, edit, and publish content.' },
+    { id: 'viewer', icon: Eye, title: 'Viewer', description: 'Read-only access to view all content.' },
+    { id: 'security', icon: Shield, title: 'Security', description: 'Manages permissions and audit logs.' },
   ];
 
   return (
@@ -895,14 +908,14 @@ function SelectionCardDemo() {
 }`}
     >
       <div role="radiogroup" aria-label="Select your role" className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
-        {roles.map((r) => (
+        {options.map((o) => (
           <SelectionCard
-            key={r.id}
-            icon={r.icon}
-            title={r.title}
-            description={r.description}
-            selected={role === r.id}
-            onSelect={() => setRole(r.id)}
+            key={o.id}
+            icon={o.icon}
+            title={o.title}
+            description={o.description}
+            selected={selected === o.id}
+            onSelect={() => setSelected(o.id)}
           />
         ))}
       </div>
@@ -910,21 +923,164 @@ function SelectionCardDemo() {
   );
 }
 
-function ProcessingStepDemo() {
+function StatusStepDemo() {
   return (
     <ComponentDemo
-      name="ProcessingStep"
+      name="StatusStep"
       description="A single line item in an async processing checklist showing completed, in-progress, or pending status."
-      props={`interface ProcessingStepProps {
+      props={`interface StatusStepProps {
   status: 'completed' | 'in-progress' | 'pending';
-  label: string;
+  label: ReactNode;
+  completedIcon?: ReactNode;
+  pendingIcon?: ReactNode;
+  inProgressIcon?: ReactNode;
+  className?: string;
 }`}
     >
       <div className="flex flex-col gap-4 max-w-sm">
-        <ProcessingStep status="completed" label="Confirm award details" />
-        <ProcessingStep status="in-progress" label="Map budget categories" />
-        <ProcessingStep status="pending" label="Check compliance conditions" />
-        <ProcessingStep status="pending" label="Set reporting deadlines" />
+        <StatusStep status="completed" label="Verify account details" />
+        <StatusStep status="completed" label="Upload required documents" />
+        <StatusStep status="in-progress" label="Review submission data" />
+        <StatusStep status="pending" label="Generate final report" />
+        <StatusStep status="pending" label="Send confirmation" />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+/* ---------- Data Display ---------- */
+
+function StatBadgeDemo() {
+  return (
+    <ComponentDemo
+      name="StatBadge"
+      description="Compact stat badge with top label, value, and optional bottom label."
+      props={`interface StatBadgeProps extends VariantProps<typeof statBadgeVariants> {
+  top: ReactNode;
+  value: ReactNode;
+  label?: ReactNode;
+  className?: string;
+}
+// variant: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'muted'
+// size: 'sm' | 'md' | 'lg'`}
+    >
+      <div className="space-y-4">
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-3">Variants</Text>
+          <div className="flex flex-wrap items-center gap-3">
+            {(['primary', 'secondary', 'success', 'warning', 'danger', 'info', 'muted'] as const).map((v) => (
+              <StatBadge key={v} top="APR" value={12} variant={v} />
+            ))}
+          </div>
+        </div>
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-3">Sizes</Text>
+          <div className="flex items-end gap-4">
+            {(['sm', 'md', 'lg'] as const).map((s) => (
+              <div key={s} className="flex flex-col items-center gap-2">
+                <StatBadge top="DUE" value={6} variant="danger" size={s} />
+                <Text size="xs" color="muted">{s}</Text>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-3">With Bottom Label</Text>
+          <div className="flex flex-wrap items-center gap-3">
+            <StatBadge top="Q1" value="$4.2m" label="revenue" variant="success" />
+            <StatBadge top="OPEN" value={18} label="tasks" variant="info" />
+            <StatBadge top="AVG" value="3.5" label="rating" variant="warning" />
+          </div>
+        </div>
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function ThresholdProgressDemo() {
+  return (
+    <ComponentDemo
+      name="ThresholdProgress"
+      description="Horizontal fill bar with threshold-based or explicit color."
+      props={`interface ThresholdProgressProps extends VariantProps<typeof thresholdProgressVariants> {
+  value: number;
+  thresholds?: { warning: number; danger: number };
+  showLabel?: boolean;
+  formatLabel?: (value: number) => string;
+  ariaLabel?: string;
+  className?: string;
+}
+// size: 'sm' | 'md' | 'lg'
+// color: 'primary' | 'success' | 'warning' | 'danger' | 'info'`}
+    >
+      <div className="space-y-6 max-w-md">
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-3">Colors</Text>
+          <div className="space-y-3">
+            {(['primary', 'success', 'warning', 'danger', 'info'] as const).map((c) => (
+              <div key={c} className="space-y-1">
+                <Text size="xs" color="muted">{c}</Text>
+                <ThresholdProgress value={60} color={c} showLabel />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-3">Sizes</Text>
+          <div className="space-y-3">
+            {(['sm', 'md', 'lg'] as const).map((s) => (
+              <div key={s} className="space-y-1">
+                <Text size="xs" color="muted">size=&quot;{s}&quot;</Text>
+                <ThresholdProgress value={50} size={s} showLabel />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-3">With Thresholds (overrides color)</Text>
+          <div className="space-y-3">
+            <ThresholdProgress value={45} showLabel thresholds={{ warning: 75, danger: 90 }} />
+            <ThresholdProgress value={82} showLabel thresholds={{ warning: 75, danger: 90 }} />
+            <ThresholdProgress value={95} showLabel thresholds={{ warning: 75, danger: 90 }} />
+          </div>
+        </div>
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-3">Custom Label Format</Text>
+          <ThresholdProgress value={72} showLabel formatLabel={(v) => `${v}/100 pts`} color="info" />
+        </div>
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function StatusDotDemo() {
+  return (
+    <ComponentDemo
+      name="StatusDot"
+      description="Small colored dot with optional text label for inline status indication."
+      props={`interface StatusDotProps {
+  color?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'muted' | 'inProgress';
+  label?: string;
+  size?: 'sm' | 'md' | 'lg';
+}`}
+    >
+      <div className="space-y-4">
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-3">Colors</Text>
+          <div className="flex flex-wrap items-center gap-6">
+            {(['primary', 'success', 'warning', 'danger', 'info', 'muted', 'inProgress'] as const).map((c) => (
+              <StatusDot key={c} color={c} label={c} />
+            ))}
+          </div>
+        </div>
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-3">Sizes</Text>
+          <div className="flex items-center gap-6">
+            {(['sm', 'md', 'lg'] as const).map((s) => (
+              <StatusDot key={s} color="primary" size={s} label={s} />
+            ))}
+          </div>
+        </div>
       </div>
     </ComponentDemo>
   );

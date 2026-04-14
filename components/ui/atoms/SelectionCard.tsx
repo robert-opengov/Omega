@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, type ElementType, type ButtonHTMLAttributes } from 'react';
+import { forwardRef, type ElementType, type ReactNode, type ButtonHTMLAttributes } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
@@ -22,14 +22,16 @@ const selectionCardVariants = cva(
 );
 
 export interface SelectionCardProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'disabled'>,
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'disabled' | 'title'>,
     VariantProps<typeof selectionCardVariants> {
   /** Icon component rendered above the title. */
   icon?: ElementType;
+  /** Custom leading content rendered instead of the icon. */
+  leading?: ReactNode;
   /** Card title. */
-  title: string;
+  title: ReactNode;
   /** Short description below the title. */
-  description?: string;
+  description?: ReactNode;
   /** Controlled selected state. */
   selected?: boolean;
   /** Called when the card is clicked. */
@@ -57,7 +59,7 @@ export interface SelectionCardProps
  * </div>
  */
 const SelectionCard = forwardRef<HTMLButtonElement, SelectionCardProps>(
-  ({ icon: Icon, title, description, selected = false, onSelect, disabled = false, className, ...props }, ref) => {
+  ({ icon: Icon, leading, title, description, selected = false, onSelect, disabled = false, className, ...props }, ref) => {
     return (
       <button
         ref={ref}
@@ -69,7 +71,7 @@ const SelectionCard = forwardRef<HTMLButtonElement, SelectionCardProps>(
         className={cn(selectionCardVariants({ selected, disabled: !!disabled }), className)}
         {...props}
       >
-        {Icon && <Icon className="h-4 w-4 text-foreground shrink-0" />}
+        {leading ?? (Icon && <Icon className="h-4 w-4 text-foreground shrink-0" />)}
         <div className="flex flex-col gap-2">
           <span className="text-base font-semibold leading-5 tracking-[-0.2px] text-foreground">
             {title}

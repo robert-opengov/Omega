@@ -6,6 +6,8 @@ export interface SkeletonProps {
   /** The shape of the skeleton placeholder. @default 'text' */
   variant?: 'text' | 'circular' | 'rectangular';
   className?: string;
+  /** Accessible label for the loading placeholder. @default 'Loading' */
+  ariaLabel?: string;
   width?: string | number;
   height?: string | number;
 }
@@ -19,11 +21,11 @@ export interface SkeletonProps {
  * @example
  * <Skeleton variant="circular" width={40} height={40} />
  */
-export function Skeleton({ variant = 'text', className, width, height }: SkeletonProps) {
+export function Skeleton({ variant = 'text', className, ariaLabel = 'Loading', width, height }: SkeletonProps) {
   return (
     <div
       role="status"
-      aria-label="Loading"
+      aria-label={ariaLabel}
       className={cn(
         'animate-pulse bg-secondary',
         variant === 'text' && 'h-4 rounded',

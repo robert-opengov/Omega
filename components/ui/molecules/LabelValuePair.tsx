@@ -1,6 +1,6 @@
 'use client';
 
-import { type HTMLAttributes, type ElementType } from 'react';
+import { type HTMLAttributes, type ElementType, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { Text, Chip, type ChipProps } from '@/components/ui/atoms';
 
@@ -8,7 +8,7 @@ export interface LabelValuePairProps extends Omit<HTMLAttributes<HTMLDivElement>
   /** Descriptive label. */
   label: string;
   /** Display value — rendered as text or inside a Chip when `asChip` is true. */
-  value: string;
+  value: ReactNode;
   /** When true, renders the value inside a Chip component. */
   asChip?: boolean;
   /** Props forwarded to the Chip when `asChip` is true. */
@@ -59,7 +59,7 @@ export function LabelValuePair({
       </Text>
 
       {asChip ? (
-        <Chip label={value} size="sm" {...chipProps} />
+        <Chip label={typeof value === 'string' ? value : String(value)} size="sm" {...chipProps} />
       ) : (
         <Text size="sm" weight="semibold" color="foreground">
           {value}

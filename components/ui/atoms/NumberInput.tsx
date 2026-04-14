@@ -19,6 +19,10 @@ export interface NumberInputProps extends Omit<InputHTMLAttributes<HTMLInputElem
   error?: string;
   /** Visual size of the input. */
   size?: 'sm' | 'md';
+  /** Accessible label for the decrease button. @default 'Decrease' */
+  decreaseLabel?: string;
+  /** Accessible label for the increase button. @default 'Increase' */
+  increaseLabel?: string;
 }
 
 /**
@@ -34,7 +38,7 @@ export interface NumberInputProps extends Omit<InputHTMLAttributes<HTMLInputElem
  * <NumberInput value={qty} onChange={setQty} step={5} error="Too many" />
  */
 const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
-  ({ value = 0, onChange, min, max, step = 1, error, disabled, size = 'md', className, id, ...props }, ref) => {
+  ({ value = 0, onChange, min, max, step = 1, error, disabled, size = 'md', decreaseLabel = 'Decrease', increaseLabel = 'Increase', className, id, ...props }, ref) => {
     const clamp = useCallback(
       (v: number) => {
         let clamped = v;
@@ -77,7 +81,7 @@ const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
             type="button"
             onClick={handleDecrement}
             disabled={disabled || atMin}
-            aria-label="Decrease"
+            aria-label={decreaseLabel}
             className={cn(stepperClass, 'rounded-l border-r')}
           >
             <Minus className={isSm ? 'h-3 w-3' : 'h-4 w-4'} />
@@ -103,7 +107,7 @@ const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
             type="button"
             onClick={handleIncrement}
             disabled={disabled || atMax}
-            aria-label="Increase"
+            aria-label={increaseLabel}
             className={cn(stepperClass, 'rounded-r border-l')}
           >
             <Plus className={isSm ? 'h-3 w-3' : 'h-4 w-4'} />

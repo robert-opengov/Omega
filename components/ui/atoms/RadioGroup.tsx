@@ -1,12 +1,12 @@
 'use client';
 
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
-import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+import { forwardRef, type ComponentPropsWithoutRef, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface RadioGroupProps extends ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root> {
   /** The radio options to render. */
-  items: { value: string; label: string; disabled?: boolean }[];
+  items: { value: string; label: ReactNode; disabled?: boolean }[];
 }
 
 /**

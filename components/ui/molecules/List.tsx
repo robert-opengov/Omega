@@ -21,7 +21,7 @@ export interface ListProps extends HTMLAttributes<HTMLUListElement> {}
  */
 export const List = forwardRef<HTMLUListElement, ListProps>(
   ({ className, ...props }, ref) => (
-    <ul ref={ref} role="listbox" className={cn('w-full', className)} {...props} />
+    <ul ref={ref} role="list" className={cn('w-full', className)} {...props} />
   )
 );
 List.displayName = 'List';
@@ -108,9 +108,9 @@ export function ListItemAvatar({ size = 'sm', ...props }: ListItemAvatarProps) {
 
 export interface ListItemTextProps extends HTMLAttributes<HTMLDivElement> {
   /** Primary text label. */
-  primary: string;
+  primary: ReactNode;
   /** Optional secondary/description text. */
-  secondary?: string;
+  secondary?: ReactNode;
 }
 
 /**

@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, type ButtonHTMLAttributes, type ElementType } from 'react';
+import { forwardRef, type ButtonHTMLAttributes, type ElementType, type ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -60,10 +60,10 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, Va
    */
   fullWidth?: boolean;
   /**
-   * If true, merges its props onto its immediate child.
-   * @default false
+   * Custom label shown next to the spinner while loading.
+   * @default 'Loading...'
    */
-  asChild?: boolean;
+  loadingLabel?: ReactNode;
 }
 
 /**
@@ -79,7 +79,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, Va
  * <Button variant="danger" loading={isDeleting}>Delete</Button>
  */
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, loading, disabled, icon: Icon, iconRight: IconRight, fullWidth, children, ...props }, ref) => {
+  ({ className, variant, size, loading, disabled, icon: Icon, iconRight: IconRight, fullWidth, loadingLabel = 'Loading...', children, ...props }, ref) => {
     return (
       <button
         ref={ref}
@@ -91,7 +91,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {loading ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            {size !== 'icon' && children && <span>Loading...</span>}
+            {size !== 'icon' && children && <span>{loadingLabel}</span>}
           </>
         ) : (
           <>
@@ -105,6 +105,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 Button.displayName = 'Button';
+
+export type ButtonVariant = NonNullable<VariantProps<typeof buttonVariants>['variant']>;
 
 export { Button, buttonVariants };
 export default Button;

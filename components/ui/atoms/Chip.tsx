@@ -116,5 +116,7 @@ const Chip = forwardRef<HTMLSpanElement, ChipProps>(
 );
 Chip.displayName = 'Chip';
 
+export type ChipColor = NonNullable<VariantProps<typeof chipVariants>['color']>;
+
 export { Chip, chipVariants };
 export default Chip;

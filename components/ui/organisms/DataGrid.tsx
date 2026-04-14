@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ReactNode } from 'react';
 import { DataTable, type Column } from '@/components/ui/molecules/DataTable';
 import { SearchInput } from '@/components/ui/molecules/SearchInput';
 import { Pagination } from '@/components/ui/molecules/Pagination';
@@ -17,7 +17,7 @@ export interface DataGridProps<T extends Record<string, unknown>> {
   /** @default 10 */
   pageSize?: number;
   className?: string;
-  title?: string;
+  title?: ReactNode;
 }
 
 /**

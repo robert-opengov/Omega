@@ -10,6 +10,8 @@ export interface AvatarGroupProps {
   max?: number;
   /** @default 'md' */
   size?: AvatarProps['size'];
+  /** Label used for the entity type in aria-label (e.g. "users", "members"). @default 'items' */
+  entityLabel?: string;
   className?: string;
 }
 
@@ -19,7 +21,7 @@ export interface AvatarGroupProps {
  * @example
  * <AvatarGroup avatars={users} max={3} />
  */
-export function AvatarGroup({ avatars, max = 4, size = 'md', className }: AvatarGroupProps) {
+export function AvatarGroup({ avatars, max = 4, size = 'md', entityLabel = 'items', className }: AvatarGroupProps) {
   const visible = avatars.slice(0, max);
   const overflow = avatars.length - max;
 
@@ -27,7 +29,7 @@ export function AvatarGroup({ avatars, max = 4, size = 'md', className }: Avatar
     <div
       className={cn('flex -space-x-2', className)}
       role="group"
-      aria-label={`${avatars.length} users`}
+      aria-label={`${avatars.length} ${entityLabel}`}
     >
       {visible.map((avatar, i) => (
         <div key={i} className="ring-2 ring-background rounded-full">
@@ -40,7 +42,7 @@ export function AvatarGroup({ avatars, max = 4, size = 'md', className }: Avatar
             'ring-2 ring-background rounded-full flex items-center justify-center bg-muted text-muted-foreground font-medium',
             size === 'sm' ? 'h-8 w-8 text-xs' : size === 'lg' ? 'h-12 w-12 text-sm' : 'h-10 w-10 text-xs'
           )}
-          aria-label={`${overflow} more users`}
+          aria-label={`${overflow} more ${entityLabel}`}
         >
           +{overflow}
         </div>

@@ -59,7 +59,7 @@ function NavbarOnlyLayout({ children }: { children: React.ReactNode }) {
 function MobileMenuBar() {
   const { toggleMobileOpen } = useSidebar();
   return (
-    <div className="sticky top-0 z-20 flex items-center h-12 px-4 bg-background border-b border-border lg:hidden">
+    <div className="sticky top-0 z-[var(--z-header)] flex items-center h-12 px-4 bg-background border-b border-border lg:hidden">
       <button
         onClick={toggleMobileOpen}
         className="p-2 -ml-2 rounded text-muted-foreground hover:bg-muted transition-all duration-300 ease-in-out"

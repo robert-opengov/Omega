@@ -5,8 +5,8 @@ import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
-export interface BreadcrumbEntry {
-  title: string;
+export interface BreadcrumbItem {
+  label: string;
   href?: string;
 }
 
@@ -25,7 +25,7 @@ export interface PageHeaderProps {
   title: string;
   description?: string;
   actions?: ReactNode;
-  breadcrumbs?: BreadcrumbEntry[];
+  breadcrumbs?: BreadcrumbItem[];
   stats?: PageHeaderStat[];
   status?: PageHeaderStatus[];
   titleSize?: 'large' | 'small';
@@ -68,10 +68,10 @@ export function PageHeader({
                 {i > 0 && <span aria-hidden="true" className="text-border">/</span>}
                 {crumb.href ? (
                   <Link href={crumb.href} className="hover:text-foreground transition-colors duration-200">
-                    {crumb.title}
+                    {crumb.label}
                   </Link>
                 ) : (
-                  <span className="text-foreground">{crumb.title}</span>
+                  <span className="text-foreground">{crumb.label}</span>
                 )}
               </li>
             ))}

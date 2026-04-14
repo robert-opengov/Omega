@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { FileText, Upload, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/atoms/Button';
 import { IconButton } from '@/components/ui/atoms/IconButton';
@@ -23,6 +24,8 @@ export interface UploadSlotProps {
   onUpload?: () => void;
   /** Called when the user clicks the delete icon (filled state). */
   onDelete?: () => void;
+  /** Label for the upload button. @default 'Upload' */
+  uploadLabel?: ReactNode;
   className?: string;
 }
 
@@ -45,7 +48,7 @@ export interface UploadSlotProps {
  *   onDelete={() => removeFile(0)}
  * />
  */
-export function UploadSlot({ label, file, onUpload, onDelete, className }: UploadSlotProps) {
+export function UploadSlot({ label, file, onUpload, onDelete, uploadLabel = 'Upload', className }: UploadSlotProps) {
   if (file) {
     return (
       <div className={cn('flex flex-col gap-2', className)}>
@@ -97,7 +100,7 @@ export function UploadSlot({ label, file, onUpload, onDelete, className }: Uploa
         icon={Upload}
         onClick={onUpload}
       >
-        Upload
+        {uploadLabel}
       </Button>
     </div>
   );

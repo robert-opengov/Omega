@@ -1,12 +1,12 @@
 'use client';
 
 import * as SwitchPrimitive from '@radix-ui/react-switch';
-import { forwardRef } from 'react';
+import { forwardRef, type ReactNode } from 'react';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface SwitchProps extends SwitchPrimitive.SwitchProps {
-  label?: string;
+  label?: ReactNode;
 }
 
 const Switch = forwardRef<HTMLButtonElement, SwitchProps>(

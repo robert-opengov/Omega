@@ -11,8 +11,8 @@ export interface HeroAction {
 }
 
 export interface HeroProps {
-  title: string;
-  subtitle?: string;
+  title: ReactNode;
+  subtitle?: ReactNode;
   primaryAction?: HeroAction;
   secondaryAction?: HeroAction;
   illustration?: ReactNode;

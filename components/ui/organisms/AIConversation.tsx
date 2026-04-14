@@ -119,8 +119,8 @@ export interface AIConversationProps extends HTMLAttributes<HTMLDivElement> {
   emptyPlaceholder?: ReactNode;
   /** Custom renderer for message content (applied to all messages). */
   renderContent?: (content: string) => ReactNode;
-  /** Maximum content width. @default '3xl' */
-  maxWidth?: string;
+  /** Maximum content width class. @default 'max-w-3xl' */
+  maxWidthClassName?: string;
 }
 
 /**
@@ -135,14 +135,15 @@ export function AIConversation({
   loading,
   emptyPlaceholder,
   renderContent,
-  maxWidth,
+  maxWidthClassName = 'max-w-3xl',
   className,
   ...props
 }: AIConversationProps) {
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = containerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages.length, loading]);
 
   if (messages.length === 0 && !loading) {
@@ -158,8 +159,8 @@ export function AIConversation({
   }
 
   return (
-    <div className={cn('flex-1 overflow-y-auto p-4', className)} {...props}>
-      <div className={cn('mx-auto space-y-4', maxWidth ? `max-w-${maxWidth}` : 'max-w-3xl')}>
+    <div ref={containerRef} className={cn('flex-1 overflow-y-auto p-4', className)} {...props}>
+      <div className={cn('mx-auto space-y-4', maxWidthClassName)}>
         {messages.map((msg) => (
           <AIMessage key={msg.id} message={msg} renderContent={renderContent} />
         ))}
@@ -175,8 +176,6 @@ export function AIConversation({
             </div>
           </div>
         )}
-
-        <div ref={bottomRef} />
       </div>
     </div>
   );

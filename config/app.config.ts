@@ -25,8 +25,6 @@
 export interface AppTheme {
   /** Main brand color — buttons, links, rings, active states */
   primary: string;
-  /** Foreground color on primary backgrounds */
-  primaryForeground: string;
   /** Secondary accent — muted UI, secondary buttons */
   secondary: string;
   /** Positive / success states — badges, alerts, toasts */
@@ -106,7 +104,6 @@ export const appConfig: AppConfig = {
   description: process.env.NEXT_PUBLIC_APP_DESCRIPTION || 'Powered by GAB',
   theme: {
     primary: process.env.NEXT_PUBLIC_THEME_PRIMARY || '#4B3FFF',
-    primaryForeground: '#ffffff',
     secondary: process.env.NEXT_PUBLIC_THEME_SECONDARY || '#757575',
     success: process.env.NEXT_PUBLIC_THEME_SUCCESS || '#2E7D32',
     warning: process.env.NEXT_PUBLIC_THEME_WARNING || '#ED6C02',
