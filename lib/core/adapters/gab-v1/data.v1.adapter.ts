@@ -27,7 +27,7 @@ export class GabDataV1Adapter implements IGabDataRepository {
     // V1 uses POST /api/report/getdatatabledata
     const payload = {
       TableKey: params.tableKey,
-      ReportKey: params.reportKey,
+      ReportKey: params.reportKey || '',
       Start: params.offset || 0,
       Length: params.limit || 10,
       Search: { value: params.search || '', regex: false },
@@ -85,7 +85,7 @@ export class GabDataV1Adapter implements IGabDataRepository {
     });
   }
 
-  async deleteRows(tableKey: string, rowIds: number[]): Promise<any> {
+  async deleteRows(tableKey: string, _applicationKey: string, rowIds: number[]): Promise<any> {
     // V1 uses DELETE /api/formaction/deleteobject
     const isBulk = rowIds.length > 1;
     const payload = {

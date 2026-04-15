@@ -2,7 +2,8 @@ export type GabRow = Record<string, any>;
 
 export interface FetchRowsParams {
   tableKey: string;
-  reportKey: string;
+  applicationKey: string;
+  reportKey?: string;
   limit?: number;
   offset?: number;
   search?: string;
@@ -34,7 +35,7 @@ export interface IGabDataRepository {
   /**
    * Delete one or more rows from a table.
    */
-  deleteRows(tableKey: string, rowIds: number[]): Promise<any>;
+  deleteRows(tableKey: string, applicationKey: string, rowIds: number[]): Promise<any>;
 
   /**
    * Perform bulk operations (insert, update, delete) in a single transaction.

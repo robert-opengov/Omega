@@ -1,6 +1,8 @@
 import { gabConfig } from '@/config/gab.config';
 import { NextAuthAdapter } from './adapters/gab-v1/auth.adapter';
+import { GabAuthV2Adapter } from './adapters/gab-v2/auth.adapter';
 import { GabDataV1Adapter } from './adapters/gab-v1/data.v1.adapter';
+import { GabDataV2Adapter } from './adapters/gab-v2/data.v2.adapter';
 import { GabSchemaV1Adapter } from './adapters/gab-v1/schema.v1.adapter';
 import { GabChildTableV1Adapter } from './adapters/gab-v1/child-table.v1.adapter';
 import { GrantsMockAdapter } from './adapters/mock/grants.mock.adapter';
@@ -22,15 +24,17 @@ import { GrantsMockAdapter } from './adapters/mock/grants.mock.adapter';
 const apiVersion = process.env.GAB_API_VERSION || 'v1';
 
 function buildAuthPort() {
-  // if (apiVersion === 'v2') {
-  //   return new GabAuthV2Adapter(gabConfig.apiUrl);
-  // }
+  if (apiVersion === 'v2') {
+    return new GabAuthV2Adapter(gabConfig.apiUrl, gabConfig.clientId);
+  }
   return new NextAuthAdapter(gabConfig.apiUrl, gabConfig.clientId);
 }
 
 export const authPort = buildAuthPort();
 
-export const gabDataRepo = new GabDataV1Adapter(authPort, gabConfig.apiUrl);
+export const gabDataRepo = apiVersion === 'v2'
+  ? new GabDataV2Adapter(authPort, gabConfig.apiUrl)
+  : new GabDataV1Adapter(authPort, gabConfig.apiUrl);
 
 export const gabSchemaRepo = new GabSchemaV1Adapter(authPort, gabConfig.apiUrl);
 
