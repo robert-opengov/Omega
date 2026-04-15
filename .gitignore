@@ -47,3 +47,5 @@ coverage/
 releases/*
 docs/*
 gab-aws-deploy-kit/*
+gab-aws-deploy-kit/deploy-secrets
+gab-aws-deploy-kit/deploy-secrets.example

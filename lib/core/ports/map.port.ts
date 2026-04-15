@@ -38,6 +38,7 @@ export interface IMapAdapter {
   fitBounds(bounds: MapBounds): void;
   onMapClick(handler: (lat: number, lng: number) => void): void;
   onMarkerClick(handler: (markerId: string) => void): void;
+  highlightMarker?(id: string | null): void;
   geolocate(): Promise<{ lat: number; lng: number }>;
   destroy(): void;
 }

@@ -18,6 +18,12 @@ export interface LocationMapProps {
   showGeolocation?: boolean;
   boundaryGeoJson?: string;
   height?: string;
+  /** Overlay content rendered inside the map container (e.g. MapLegend). */
+  children?: ReactNode;
+  /** Content rendered below the map (e.g. address caption). */
+  footer?: ReactNode;
+  /** Compact preset: 200px height, no geolocation, tighter rounding. */
+  compact?: boolean;
   className?: string;
   ariaLabel?: string;
 }
@@ -40,12 +46,17 @@ export function LocationMap({
   onMarkerClick,
   onMapClick,
   interactive = true,
-  showGeolocation = true,
+  showGeolocation,
   boundaryGeoJson,
-  height = '400px',
+  height,
+  children,
+  footer,
+  compact = false,
   className,
   ariaLabel = 'Interactive map',
-}: LocationMapProps) {
+}: Readonly<LocationMapProps>) {
+  const resolvedHeight = height ?? (compact ? '200px' : '400px');
+  const resolvedShowGeo = showGeolocation ?? !compact;
   const containerRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
   const [geoError, setGeoError] = useState<string | null>(null);
@@ -101,6 +112,11 @@ export function LocationMap({
     }
   }, [adapter, boundaryGeoJson]);
 
+  useEffect(() => {
+    if (!initializedRef.current) return;
+    adapter.highlightMarker?.(selectedMarker ?? null);
+  }, [adapter, selectedMarker]);
+
   const handleGeolocate = useCallback(async () => {
     try {
       setGeoError(null);
@@ -113,29 +129,35 @@ export function LocationMap({
   }, [adapter]);
 
   return (
-    <div className={cn('relative rounded border border-border overflow-hidden', className)} style={{ height }}>
-      <div ref={containerRef} className="w-full h-full" role="application" aria-label={ariaLabel} />
+    <div className={cn('rounded border border-border overflow-hidden', className)}>
+      <div className="relative" style={{ height: resolvedHeight }}>
+        <div ref={containerRef} className="w-full h-full" role="application" aria-label={ariaLabel} />
 
-      {showGeolocation && interactive && (
-        <div className="absolute bottom-3 right-3 z-content">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleGeolocate}
-            aria-label="Find my location"
-            className="bg-card shadow-sm"
-          >
-            <Locate className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
+        {resolvedShowGeo && interactive && (
+          <div className="absolute bottom-3 right-3 z-content">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleGeolocate}
+              aria-label="Find my location"
+              className="bg-card shadow-sm"
+            >
+              <Locate className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
 
-      {geoError && (
-        <div className="absolute bottom-14 right-3 z-content flex items-center gap-1.5 bg-card border border-destructive rounded px-2 py-1 text-xs text-destructive shadow-sm">
-          <AlertCircle className="h-3 w-3 shrink-0" />
-          {geoError}
-        </div>
-      )}
+        {geoError && (
+          <div className="absolute bottom-14 right-3 z-content flex items-center gap-1.5 bg-card border border-destructive rounded px-2 py-1 text-xs text-destructive shadow-sm">
+            <AlertCircle className="h-3 w-3 shrink-0" />
+            {geoError}
+          </div>
+        )}
+
+        {children}
+      </div>
+
+      {footer}
     </div>
   );
 }

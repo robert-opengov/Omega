@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import { ClipboardEdit, BarChart3, FileSearch, Shield, Download, Send, AlertTriangle, CheckCircle, Users, Plus, Bell, Circle, Trash2, Archive } from 'lucide-react';
+import { ClipboardEdit, BarChart3, FileSearch, Shield, Download, Send, AlertTriangle, CheckCircle, Users, Plus, Bell, Circle, Trash2, Archive, MapPin } from 'lucide-react';
 import { Badge, Button, Text, SelectionCard } from '@/components/ui/atoms';
 import { ShowcaseLayout } from '../_components/ShowcaseLayout';
-import { type Column, StatusChecklist, MetricCard } from '@/components/ui/molecules';
+import { type Column, StatusChecklist, MetricCard, MapLegend, type MapLegendItem } from '@/components/ui/molecules';
 import {
   AuthForm,
   DataGrid,
@@ -30,17 +30,25 @@ import {
   GanttChart,
   type GanttRow,
   DynamicForm,
+  LocationMap,
   KanbanBoard,
   type KanbanColumn,
   WidgetGrid,
 } from '@/components/ui/organisms';
 import type { FormSchema } from '@/lib/core/ports/form-schema';
+import type { IMapAdapter, MapMarker, MapOptions } from '@/lib/core/ports/map.port';
 import { ComponentDemo, Section } from '../_components/ComponentDemo';
 
 export default function OrganismsPage() {
   return (
     <ShowcaseLayout>
       <div className="space-y-12">
+
+      <Section title="Map Components" count={3} description="Provider-agnostic map compositions using the hexagonal IMapAdapter port.">
+        <LocationMapDemo />
+        <LocationMapCompactDemo />
+        <MapLegendDemo />
+      </Section>
 
       <Section title="Detail Page Organisms" count={3}>
         <DetailPageHeaderDemo />
@@ -1147,6 +1155,175 @@ interface TimelineItem {
             Scrollable horizontal mode with <code className="text-primary">orientation=&quot;horizontal&quot;</code>. Cards alternate above/below the line.
           </Text>
           <Timeline items={horizontalTimelineItems} orientation="horizontal" />
+        </div>
+      </div>
+    </ComponentDemo>
+  );
+}
+
+/* ---------- Map Components ---------- */
+
+const noop = () => {};
+
+function createDemoMapAdapter(): IMapAdapter {
+  let container: HTMLDivElement | null = null;
+  return {
+    initialize(el: HTMLDivElement, options: MapOptions) {
+      container = el;
+      el.style.background = 'linear-gradient(135deg, #e8eaf6 0%, #c5cae9 50%, #b2dfdb 100%)';
+      el.style.display = 'flex';
+      el.style.alignItems = 'center';
+      el.style.justifyContent = 'center';
+      el.style.color = '#666';
+      el.style.fontSize = '13px';
+      el.style.fontFamily = 'inherit';
+      el.innerHTML = `<div style="text-align:center;opacity:0.7">
+        <div style="font-size:32px;margin-bottom:8px">\u{1F5FA}\u{FE0F}</div>
+        <div>Map placeholder &middot; center [${options.center[0].toFixed(2)}, ${options.center[1].toFixed(2)}] &middot; zoom ${options.zoom}</div>
+        <div style="margin-top:4px;font-size:11px">Swap in a real adapter (Leaflet, Esri, Google, Mapbox) at the page level</div>
+      </div>`;
+    },
+    setCenter: noop,
+    setZoom: noop,
+    addMarker: noop,
+    removeMarker: noop,
+    updateMarker: noop,
+    clearMarkers: noop,
+    setBoundary: noop,
+    clearBoundary: noop,
+    fitBounds: noop,
+    onMapClick: noop,
+    onMarkerClick: noop,
+    highlightMarker: noop,
+    geolocate: () => Promise.resolve({ lat: 42.3601, lng: -71.0589 }),
+    destroy() { if (container) container.innerHTML = ''; },
+  };
+}
+
+const demoLegendItems: MapLegendItem[] = [
+  { color: 'warning', label: 'Submitted', count: 14 },
+  { color: 'info', label: 'Under Review', count: 8 },
+  { color: 'success', label: 'Resolved', count: 23 },
+];
+
+const demoMarkers: MapMarker[] = [
+  { id: '1', lat: 33.749, lng: -84.388, label: 'Pothole on Peachtree', variant: 'warning' },
+  { id: '2', lat: 33.755, lng: -84.39, label: 'Streetlight out', variant: 'success' },
+  { id: '3', lat: 33.752, lng: -84.385, label: 'Graffiti removal', variant: 'primary' },
+];
+
+function LocationMapDemo() {
+  const adapter = useMemo(() => createDemoMapAdapter(), []);
+
+  return (
+    <ComponentDemo
+      name="LocationMap + MapLegend"
+      description="Interactive map with a legend overlay. The map delegates rendering to an IMapAdapter — swap providers without changing any component code."
+      props={`interface LocationMapProps {
+  adapter: IMapAdapter;
+  center?: [number, number];
+  zoom?: number;
+  markers?: MapMarker[];
+  selectedMarker?: string;
+  onMarkerClick?: (marker: MapMarker) => void;
+  onMapClick?: (lat: number, lng: number) => void;
+  interactive?: boolean;
+  showGeolocation?: boolean;
+  boundaryGeoJson?: string;
+  height?: string;
+  children?: ReactNode;   // overlay slot (MapLegend, custom controls)
+  footer?: ReactNode;     // content below the map
+  compact?: boolean;      // 200px, no geolocation
+  className?: string;
+  ariaLabel?: string;
+}`}
+    >
+      <LocationMap
+        adapter={adapter}
+        center={[33.749, -84.388]}
+        zoom={13}
+        markers={demoMarkers}
+        height="360px"
+      >
+        <MapLegend items={demoLegendItems} title="Legend" position="bottom-left" />
+      </LocationMap>
+    </ComponentDemo>
+  );
+}
+
+function LocationMapCompactDemo() {
+  const adapter = useMemo(() => createDemoMapAdapter(), []);
+
+  return (
+    <ComponentDemo
+      name="LocationMap (compact)"
+      description="Compact mode for detail pages — 200px height, no geolocation. The footer slot shows an address caption below the map."
+    >
+      <div className="max-w-sm">
+        <LocationMap
+          adapter={adapter}
+          center={[42.3601, -71.0589]}
+          zoom={15}
+          markers={[{ id: 'loc', lat: 42.3601, lng: -71.0589, label: '101 Arch St', variant: 'primary' }]}
+          compact
+          footer={
+            <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground border-t border-border">
+              <MapPin className="h-4 w-4 shrink-0" />
+              101 Arch St, Boston, MA 02110
+            </div>
+          }
+        />
+      </div>
+    </ComponentDemo>
+  );
+}
+
+function MapLegendDemo() {
+  return (
+    <ComponentDemo
+      name="MapLegend"
+      description="Standalone legend molecule with themed color dots. Uses StatusDot theme colors by default, accepts custom hex for non-standard categories."
+      props={`interface MapLegendItem {
+  color: ThemeColor | string;  // 'warning', 'success', '#FF9800', etc.
+  label: string;
+  count?: number;
+}
+
+interface MapLegendProps {
+  items: MapLegendItem[];
+  title?: string;
+  position?: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right' | 'inline';
+  className?: string;
+}`}
+    >
+      <div className="flex flex-wrap gap-6">
+        <div>
+          <Text size="sm" weight="semibold" className="mb-2">With title &amp; counts</Text>
+          <MapLegend
+            items={demoLegendItems}
+            title="Legend"
+            position="inline"
+          />
+        </div>
+        <div>
+          <Text size="sm" weight="semibold" className="mb-2">Custom hex colors</Text>
+          <MapLegend
+            items={[
+              { color: '#FF9800', label: 'Category A' },
+              { color: '#2196F3', label: 'Category B' },
+              { color: '#4CAF50', label: 'Category C' },
+            ]}
+            position="inline"
+          />
+        </div>
+        <div>
+          <Text size="sm" weight="semibold" className="mb-2">All positions</Text>
+          <div className="relative bg-muted/30 border border-border rounded h-48 w-64">
+            <MapLegend items={[{ color: 'primary', label: 'Top-left' }]} position="top-left" />
+            <MapLegend items={[{ color: 'success', label: 'Top-right' }]} position="top-right" />
+            <MapLegend items={[{ color: 'warning', label: 'Bottom-left' }]} position="bottom-left" />
+            <MapLegend items={[{ color: 'danger', label: 'Bottom-right' }]} position="bottom-right" />
+          </div>
         </div>
       </div>
     </ComponentDemo>

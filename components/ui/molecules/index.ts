@@ -55,3 +55,4 @@ export { MentionInput, type MentionInputProps, type Mentionable } from './Mentio
 export { CategoryGrid, type CategoryGridProps, type CategoryItem } from './CategoryGrid';
 export { ActivityFeed, type ActivityFeedProps, type ActivityItem, type ActivityVariant } from './ActivityFeed';
 export { DashboardWidget, type DashboardWidgetProps } from './DashboardWidget';
+export { MapLegend, mapLegendVariants, type MapLegendProps, type MapLegendItem } from './MapLegend';
