@@ -4,6 +4,7 @@ import { GabAuthV2Adapter } from './adapters/gab-v2/auth.adapter';
 import { GabDataV1Adapter } from './adapters/gab-v1/data.v1.adapter';
 import { GabDataV2Adapter } from './adapters/gab-v2/data.v2.adapter';
 import { GabSchemaV1Adapter } from './adapters/gab-v1/schema.v1.adapter';
+import { GabSchemaV2Adapter } from './adapters/gab-v2/schema.v2.adapter';
 import { GabChildTableV1Adapter } from './adapters/gab-v1/child-table.v1.adapter';
 import { GrantsMockAdapter } from './adapters/mock/grants.mock.adapter';
 
@@ -36,7 +37,9 @@ export const gabDataRepo = apiVersion === 'v2'
   ? new GabDataV2Adapter(authPort, gabConfig.apiUrl)
   : new GabDataV1Adapter(authPort, gabConfig.apiUrl);
 
-export const gabSchemaRepo = new GabSchemaV1Adapter(authPort, gabConfig.apiUrl);
+export const gabSchemaRepo = apiVersion === 'v2'
+  ? new GabSchemaV2Adapter(authPort, gabConfig.apiUrl)
+  : new GabSchemaV1Adapter(authPort, gabConfig.apiUrl);
 
 export const gabChildTableRepo = new GabChildTableV1Adapter(authPort, gabConfig.apiUrl);
 

@@ -14,6 +14,7 @@ export interface CreateTableParams {
 }
 
 export interface CreateFieldParams {
+  applicationKey: string;
   applicationTableKey: string;
   name: string;
   fieldType: string;
@@ -22,6 +23,7 @@ export interface CreateFieldParams {
 }
 
 export interface CreateRelationParams {
+  applicationKey: string;
   /** The source table key */
   applicationTableKey: string;
   /** The target table key */
@@ -32,6 +34,7 @@ export interface CreateRelationParams {
 }
 
 export interface CreateFormParams {
+  applicationKey: string;
   name: string;
   applicationTableKey: string;
   /** e.g., "web", "mobile", "pdf", "word" */
@@ -40,6 +43,7 @@ export interface CreateFormParams {
 }
 
 export interface CreateReportParams {
+  applicationKey: string;
   name: string;
   applicationTableKey: string;
   /** Must be an array, max length 25. If omitted, adapter should pass an empty array. */

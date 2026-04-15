@@ -31,6 +31,7 @@ export async function buildAppAction(prompt: string) {
 
     // 3. Simulate creating fields
     const fieldResult1 = await gabSchemaRepo.createField({
+      applicationKey: appKey,
       name: 'Title',
       fieldType: 'text',
       applicationTableKey: tableKey,
@@ -39,6 +40,7 @@ export async function buildAppAction(prompt: string) {
     console.log('[AI Builder] Field 1 created:', fieldResult1);
 
     const fieldResult2 = await gabSchemaRepo.createField({
+      applicationKey: appKey,
       name: 'Description',
       fieldType: 'textarea',
       applicationTableKey: tableKey,
