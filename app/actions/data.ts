@@ -7,8 +7,8 @@
  * rows from a GAB table without domain-specific logic.
  *
  * For mature verticals with dashboards, aggregations, or complex domain
- * rules, create a dedicated port + adapter instead (see the Grants vertical:
- * lib/core/ports/grants.repository.ts → lib/core/adapters/mock/grants.mock.adapter.ts).
+ * rules, create a dedicated port + adapter instead
+ * (see lib/core/ports/ and lib/core/adapters/mock/ for the pattern).
  */
 
 import { revalidatePath as nextRevalidatePath } from 'next/cache';

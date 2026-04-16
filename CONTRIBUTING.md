@@ -11,7 +11,7 @@ This guide helps you contribute to a fork of the GAB Verticals Boilerplate. Read
 | What you can and cannot modify in a fork | [README — Fork Rules](README.md#fork-rules) |
 | Step-by-step vertical creation | [README — Building a Vertical](README.md#building-a-vertical) |
 | Browse every UI component | Run `npm run dev` and visit `/ui` |
-| Canonical vertical example | `app/(dashboard)/grants/` (16 files) |
+| Step-by-step vertical creation | `.cursor/skills/create-vertical/SKILL.md` |
 
 ## Five Rules
 

@@ -1,6 +1,6 @@
 # GAB Verticals Boilerplate
 
-A forkable Next.js application that provides the frontend foundation for GAB verticals — 311 apps, grants portals, permitting dashboards, and other government applications. It includes pre-built accessible UI components, authentication, theming, routing, and a data layer wired to GAB backend services through a hexagonal architecture that survives backend migrations without UI changes.
+A forkable Next.js application that provides the frontend foundation for GAB verticals — permitting dashboards, service request portals, and other government applications. It includes pre-built accessible UI components, authentication, theming, routing, and a data layer wired to GAB backend services through a hexagonal architecture that survives backend migrations without UI changes.
 
 | Layer | Technology |
 |-------|-----------|
@@ -98,11 +98,11 @@ The Next.js server has three jobs:
 
 **Ports & Adapters** (`lib/core/`) are the most important architectural decision:
 
-- **Ports** (`lib/core/ports/`) are TypeScript interfaces that define what the frontend needs: `IAuthPort` (login, profile), `IGabDataRepository` (CRUD rows), `IGabSchemaRepository` (create apps/tables/fields), `IChildTableRepository` (datatable operations), `IGrantsRepository` (grants domain).
-- **Adapters** (`lib/core/adapters/`) are implementations against specific APIs. Today: GAB V1 adapters, GAB V2 adapters, Auth0 SSO adapter, and a Grants mock adapter.
+- **Ports** (`lib/core/ports/`) are TypeScript interfaces that define what the frontend needs: `IAuthPort` (login, profile), `IGabDataRepository` (CRUD rows), `IGabSchemaRepository` (create apps/tables/fields), `IChildTableRepository` (datatable operations).
+- **Adapters** (`lib/core/adapters/`) are implementations against specific APIs. Today: GAB V1 adapters, GAB V2 adapters, and Auth0 SSO adapter.
 - **Composition root** (`lib/core/index.ts`) is the single file that wires ports to adapters. Controlled by `GAB_API_VERSION` env var. This is the only file that changes when the backend changes.
 
-Every page calls port methods (`fetchRows()`, `login()`, `getDashboardSummary()`). No component knows or cares whether the backend is GAB V1 or V2. Migration is a new adapter and a one-line wiring change. Zero UI changes.
+Every page calls port methods (`fetchRows()`, `login()`). No component knows or cares whether the backend is GAB V1 or V2. Migration is a new adapter and a one-line wiring change. Zero UI changes.
 
 ### Layer 3 — Backend
 
@@ -117,34 +117,30 @@ There are two patterns for getting data to components. Use the right one dependi
 The page is an `async` Server Component. It imports the repo from `lib/core`, awaits the data, and passes it as props to a `'use client'` component that handles rendering and interactivity.
 
 ```tsx
-// app/(dashboard)/grants/home/page.tsx  (Server Component — no 'use client')
-import { grantsRepo } from '@/lib/core';
-import { GrantsDashboard } from './_components/GrantsDashboard';
+// app/(dashboard)/permitting/home/page.tsx  (Server Component — no 'use client')
+import { permittingRepo } from '@/lib/core';
+import { PermittingDashboard } from './_components/PermittingDashboard';
 
-export default async function GrantsHomePage() {
-  const [summary, flags] = await Promise.all([
-    grantsRepo.getDashboardSummary(),
-    grantsRepo.getComplianceFlags(),
-  ]);
-  return <GrantsDashboard summary={summary} flags={flags} />;
+export default async function PermittingHomePage() {
+  const summary = await permittingRepo.getDashboardSummary();
+  return <PermittingDashboard summary={summary} />;
 }
 ```
 
 ```tsx
-// app/(dashboard)/grants/home/_components/GrantsDashboard.tsx
+// app/(dashboard)/permitting/home/_components/PermittingDashboard.tsx
 'use client';
-import { MetricCard, Alert } from '@/components/ui/molecules';
+import { MetricCard } from '@/components/ui/molecules';
+import type { DashboardSummary } from '@/lib/core/ports/permitting.repository';
 
-interface GrantsDashboardProps {
+interface PermittingDashboardProps {
   summary: DashboardSummary;
-  flags: ComplianceFlag[];
 }
 
-export function GrantsDashboard({ summary, flags }: GrantsDashboardProps) {
-  // Render using atoms + molecules. No API calls here.
+export function PermittingDashboard({ summary }: PermittingDashboardProps) {
   return (
     <div className="space-y-6 p-6">
-      <MetricCard title="Funds" value={summary.fundsUnderManagement} />
+      <MetricCard title="Pending Applications" value={String(summary.pendingCount)} />
       {/* ... */}
     </div>
   );
@@ -194,7 +190,7 @@ Most changes to a vertical don't require touching component code. Four config fi
 | `config/routes.config.ts` | Public routes, auth-only routes, redirect targets |
 | `config/auth.config.ts` | Login mode (password/SSO/both), silent login behavior |
 
-Every value in `app.config.ts` can be overridden via environment variables. A single codebase can be deployed as multiple branded verticals — Boston 311 and Tampa 311 are the same Docker image with different env vars.
+Every value in `app.config.ts` can be overridden via environment variables. A single codebase can be deployed as multiple branded verticals — Boston Permitting and Tampa Permitting are the same Docker image with different env vars.
 
 ## Theming
 
@@ -269,26 +265,24 @@ Feature flags live in `config/app.config.ts` and are overridable via env vars:
 | `NEXT_PUBLIC_ENABLE_SIGNUP` | on | opt-out | `/signup` route and sign-up links |
 | `NEXT_PUBLIC_ENABLE_I18N` | off | opt-in | Multi-language support (next-intl) |
 | `NEXT_PUBLIC_ENABLE_NOTIFICATIONS` | off | opt-in | Notification badge in navbar |
-| `NEXT_PUBLIC_ENABLE_GRANTS` | off | opt-in | Grants vertical (nav + routes) |
-| `NEXT_PUBLIC_ENABLE_311` | off | opt-in | 311 vertical (nav + routes) |
 | `NEXT_PUBLIC_ENABLE_SITE_BANNER` | off | opt-in | Full-width site identifier banner above navbar |
 
 ## Building a Vertical
 
-A vertical is a domain-specific set of pages (Grants, 311, Permitting) backed by a port/adapter pair. The Grants vertical is the canonical example — follow its structure exactly.
+A vertical is a domain-specific set of pages backed by a port/adapter pair. Follow the structure below, or use the `create-vertical` skill (`.cursor/skills/create-vertical/SKILL.md`) for a detailed walkthrough.
 
 ### Step 1 — Define the port
 
 Create `lib/core/ports/[vertical].repository.ts`. Define TypeScript interfaces for your domain types and a repository interface with the methods your pages need:
 
 ```typescript
-export interface ServiceRequest { id: string; title: string; status: string; /* ... */ }
+export interface PermitApplication { id: string; title: string; status: string; /* ... */ }
 
-export interface I311Repository {
+export interface IPermittingRepository {
   getDashboardSummary(): Promise<DashboardSummary>;
-  listRequests(params: PaginatedParams): Promise<PaginatedResult<ServiceRequest>>;
-  getRequest(id: string): Promise<ServiceRequest>;
-  createRequest(data: CreateRequestParams): Promise<ServiceRequest>;
+  listApplications(params: PaginatedParams): Promise<PaginatedResult<PermitApplication>>;
+  getApplication(id: string): Promise<PermitApplication>;
+  createApplication(data: CreateApplicationParams): Promise<PermitApplication>;
 }
 ```
 
@@ -297,11 +291,11 @@ export interface I311Repository {
 Create `lib/core/adapters/mock/[vertical].mock.adapter.ts`. Return static data so you can build all pages without a real backend:
 
 ```typescript
-import type { I311Repository } from '../../ports/311.repository';
+import type { IPermittingRepository } from '../../ports/permitting.repository';
 
-export class Mock311Adapter implements I311Repository {
+export class MockPermittingAdapter implements IPermittingRepository {
   async getDashboardSummary() {
-    return { openRequests: 142, avgResolutionDays: 3.2 /* ... */ };
+    return { pendingCount: 42, approvedThisMonth: 18 /* ... */ };
   }
   // Implement all methods with static data
 }
@@ -312,15 +306,15 @@ export class Mock311Adapter implements I311Repository {
 In `lib/core/index.ts`, instantiate and export:
 
 ```typescript
-import { Mock311Adapter } from './adapters/mock/311.mock.adapter';
-export const repo311 = new Mock311Adapter();
+import { MockPermittingAdapter } from './adapters/mock/permitting.mock.adapter';
+export const permittingRepo = new MockPermittingAdapter();
 ```
 
 Later, swap to the real adapter:
 
 ```typescript
-import { Gab311V2Adapter } from './adapters/gab-v2/311.v2.adapter';
-export const repo311 = new Gab311V2Adapter(authPort, gabConfig.apiUrl);
+import { PermittingV2Adapter } from './adapters/gab-v2/permitting.v2.adapter';
+export const permittingRepo = new PermittingV2Adapter(authPort, gabConfig.apiUrl);
 ```
 
 ### Step 4 — Add feature flag and navigation
@@ -328,13 +322,13 @@ export const repo311 = new Gab311V2Adapter(authPort, gabConfig.apiUrl);
 In `config/app.config.ts`, add to `AppFeatures`:
 
 ```typescript
-enable311: process.env.NEXT_PUBLIC_ENABLE_311 === 'true',
+enablePermitting: process.env.NEXT_PUBLIC_ENABLE_PERMITTING === 'true',
 ```
 
 In `config/navigation.config.ts`, add the nav entry:
 
 ```typescript
-{ href: '/311', label: '311 Requests', icon: FileText, featureFlag: 'enable311' },
+{ href: '/permitting', label: 'Permitting', icon: FileText, featureFlag: 'enablePermitting' },
 ```
 
 ### Step 5 — Create pages
@@ -342,21 +336,21 @@ In `config/navigation.config.ts`, add the nav entry:
 Follow this structure:
 
 ```
-app/(dashboard)/311/
-├── layout.tsx                  # Pass-through or vertical-specific layout
-├── page.tsx                    # Redirect to /311/home
+app/(dashboard)/permitting/
+├── layout.tsx                       # Pass-through or vertical-specific layout
+├── page.tsx                         # Redirect to /permitting/home
 ├── home/
-│   ├── page.tsx                # Server Component: fetch from repo311
+│   ├── page.tsx                     # Server Component: fetch from permittingRepo
 │   └── _components/
-│       └── Dashboard311.tsx    # 'use client': renders with atoms/molecules
-├── requests/
-│   ├── page.tsx                # List page
+│       └── PermittingDashboard.tsx   # 'use client': renders with atoms/molecules
+├── applications/
+│   ├── page.tsx                     # List page
 │   ├── _components/
-│   │   └── RequestsListPage.tsx
+│   │   └── ApplicationsListPage.tsx
 │   └── [id]/
-│       ├── page.tsx            # Detail page
+│       ├── page.tsx                 # Detail page
 │       └── _components/
-│           └── RequestDetailView.tsx
+│           └── ApplicationDetailView.tsx
 ```
 
 Every `page.tsx` is a Server Component that fetches data and passes props. Every `_components/*.tsx` is a `'use client'` component that renders using the component library. This separation is critical — it keeps data fetching on the server and interactivity on the client.
@@ -463,10 +457,10 @@ Interactive docs: [Swagger UI](https://gab-core-api.gab.ogintegration.us/docs)
 One codebase, many deploys. Differentiate via environment variables:
 
 ```
-gab-311/ (single repo)
-├── deploy: boston  → APP_NAME="Boston 311", THEME_PRIMARY="#0A2240"
-├── deploy: tampa  → APP_NAME="Tampa 311", THEME_PRIMARY="#00573F"
-└── deploy: denver → APP_NAME="Denver 311", THEME_PRIMARY="#8B2332"
+gab-permitting/ (single repo)
+├── deploy: boston  → APP_NAME="Boston Permitting", THEME_PRIMARY="#0A2240"
+├── deploy: tampa  → APP_NAME="Tampa Permitting", THEME_PRIMARY="#00573F"
+└── deploy: denver → APP_NAME="Denver Permitting", THEME_PRIMARY="#8B2332"
 ```
 
 Same code, same CI, same tests. Bug fixes ship to every customer on the next deploy.

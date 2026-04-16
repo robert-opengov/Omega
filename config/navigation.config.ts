@@ -7,7 +7,7 @@
  *   - Sidebar uses `children`, `badge`, `group`; ignores `navbarLabel`.
  *   - CommandPalette uses `flattenNavItems()` to get a searchable flat list.
  */
-import { LayoutDashboard, Settings, Blocks, Bot, FileText, UserCircle, LogOut } from 'lucide-react';
+import { LayoutDashboard, Settings, Blocks, Bot, UserCircle, LogOut } from 'lucide-react';
 import type { ComponentType } from 'react';
 import type { AppFeatures } from '@/config/app.config';
 
@@ -88,14 +88,14 @@ export interface UserMenuItem {
  *
  * @example Sidebar nesting with compact navbar label
  * {
- *   href: '/grants',
- *   label: 'Grant Management',
- *   navbarLabel: 'Grants',
+ *   href: '/permitting',
+ *   label: 'Permitting',
+ *   navbarLabel: 'Permits',
  *   icon: FileText,
  *   group: 'Verticals',
  *   children: [
- *     { href: '/grants/awards', label: 'Awards', icon: Award, badge: 3 },
- *     { href: '/grants/reports', label: 'Reports', icon: BarChart, showIn: 'sidebar' },
+ *     { href: '/permitting/applications', label: 'Applications', icon: List, badge: 3 },
+ *     { href: '/permitting/inspections', label: 'Inspections', icon: BarChart, showIn: 'sidebar' },
  *   ],
  * }
  *
@@ -116,12 +116,6 @@ export const navigationItems: NavItem[] = [
     href: '/ai-builder',
     label: 'AI Builder',
     icon: Bot,
-  },
-  {
-    href: '/grants',
-    label: 'Grants',
-    icon: FileText,
-    featureFlag: 'enableGrants',
   },
   {
     href: '/settings',

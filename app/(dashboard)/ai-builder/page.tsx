@@ -36,7 +36,7 @@ export default function AIBuilderPage() {
 
         <div className="space-y-4">
           <Input
-            placeholder="e.g., Create a 311 app with a potholes table..."
+            placeholder="e.g., Create a permitting app with an applications table..."
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             disabled={loading}

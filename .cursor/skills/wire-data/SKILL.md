@@ -21,44 +21,39 @@ The page file is an `async` Server Component (no `'use client'`). It imports the
 ### The page (Server Component)
 
 ```typescript
-// app/(dashboard)/grants/awards/page.tsx
-import { grantsRepo } from '@/lib/core';
-import { AwardsListPage } from './_components/AwardsListPage';
+// app/(dashboard)/permitting/applications/page.tsx
+import { permittingRepo } from '@/lib/core';
+import { ApplicationsListPage } from './_components/ApplicationsListPage';
 
-export default async function GrantsAwardsPage() {
-  const [awards, lastViewed] = await Promise.all([
-    grantsRepo.listAwards(),
-    grantsRepo.getLastViewedAwards(),
-  ]);
-
-  return <AwardsListPage awards={awards} lastViewed={lastViewed} />;
+export default async function PermittingApplicationsPage() {
+  const applications = await permittingRepo.listApplications();
+  return <ApplicationsListPage applications={applications} />;
 }
 ```
 
 Key points:
-- `import { grantsRepo } from '@/lib/core'` — only works in Server Components
+- `import { permittingRepo } from '@/lib/core'` — only works in Server Components
 - `Promise.all()` for parallel fetches — faster than sequential `await`
 - Props must be **serializable** (plain objects, arrays, strings, numbers — no functions, classes, or Dates)
 
 ### The component (Client Component)
 
 ```typescript
-// app/(dashboard)/grants/awards/_components/AwardsListPage.tsx
+// app/(dashboard)/permitting/applications/_components/ApplicationsListPage.tsx
 'use client';
 
-import { Badge, Chip } from '@/components/ui/atoms';
-import { SectionHeader, SummaryCard } from '@/components/ui/molecules';
-import type { Award, PaginatedResult } from '@/lib/core/ports/grants.repository';
+import { Badge } from '@/components/ui/atoms';
+import { SectionHeader, DataTable } from '@/components/ui/molecules';
+import type { PermitApplication, PaginatedResult } from '@/lib/core/ports/permitting.repository';
 
-interface AwardsListPageProps {
-  awards: PaginatedResult<Award>;
-  lastViewed: Award[];
+interface ApplicationsListPageProps {
+  applications: PaginatedResult<PermitApplication>;
 }
 
-export function AwardsListPage({ awards, lastViewed }: AwardsListPageProps) {
+export function ApplicationsListPage({ applications }: ApplicationsListPageProps) {
   return (
     <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-semibold text-foreground">Active Awards</h1>
+      <h1 className="text-2xl font-semibold text-foreground">Permit Applications</h1>
       {/* Render using only @/components/ui/* imports */}
     </div>
   );
@@ -147,31 +142,31 @@ function LoginForm() {
 ### Creating a data mutation action
 
 ```typescript
-// app/actions/requests.ts
+// app/actions/permitting.ts
 'use server';
 
-import { repo311 } from '@/lib/core';
+import { permittingRepo } from '@/lib/core';
 import { revalidatePath } from 'next/cache';
 
-export async function createRequestAction(data: {
+export async function createApplicationAction(data: {
   title: string;
   description: string;
-  category: string;
-  location: string;
+  type: string;
+  address: string;
 }) {
   try {
-    const request = await repo311.createRequest({
+    const application = await permittingRepo.createApplication({
       ...data,
-      status: 'open',
-      priority: 'medium',
+      status: 'draft',
+      applicant: 'Current User',
     });
 
-    revalidatePath('/311/requests');
-    return { success: true, data: request };
+    revalidatePath('/permitting/applications');
+    return { success: true, data: application };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to create request',
+      error: error instanceof Error ? error.message : 'Failed to create application',
     };
   }
 }
@@ -191,7 +186,7 @@ export async function createRequestAction(data: {
 ```typescript
 // BAD — will break the build
 'use client';
-import { grantsRepo } from '@/lib/core';  // Server-only module in client code
+import { permittingRepo } from '@/lib/core';  // Server-only module in client code
 ```
 
 ### Fetching in useEffect
@@ -200,7 +195,7 @@ import { grantsRepo } from '@/lib/core';  // Server-only module in client code
 // BAD — bypasses the data layer, duplicates auth logic
 'use client';
 useEffect(() => {
-  fetch('/api/grants').then(r => r.json()).then(setData);
+  fetch('/api/permitting/applications').then(r => r.json()).then(setData);
 }, []);
 ```
 
@@ -215,7 +210,7 @@ const res = await fetch('https://api.gab.dev/v2/apps/xyz/tables/abc/records');
 
 ```typescript
 // BAD — functions, Dates, class instances can't cross the server/client boundary
-<ClientComponent onFetch={grantsRepo.listAwards} />
+<ClientComponent onFetch={permittingRepo.listApplications} />
 ```
 
 ## Decision Tree
@@ -236,7 +231,5 @@ Is this a read or a write?
 
 | Pattern | File | What it does |
 |---------|------|-------------|
-| A | `app/(dashboard)/grants/home/page.tsx` | Fetches dashboard summary, passes to `GrantsDashboard` |
-| A | `app/(dashboard)/grants/awards/[id]/page.tsx` | Fetches 14 datasets in parallel, passes to `AwardDetailView` |
 | B | `app/actions/auth.ts` → `loginAction` | Authenticates user, sets cookies |
 | B | `app/(dashboard)/ai-builder/actions.ts` → `buildAppAction` | Creates GAB app schema from AI prompt |

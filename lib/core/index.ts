@@ -6,8 +6,6 @@ import { GabDataV2Adapter } from './adapters/gab-v2/data.v2.adapter';
 import { GabSchemaV1Adapter } from './adapters/gab-v1/schema.v1.adapter';
 import { GabSchemaV2Adapter } from './adapters/gab-v2/schema.v2.adapter';
 import { GabChildTableV1Adapter } from './adapters/gab-v1/child-table.v1.adapter';
-import { GrantsMockAdapter } from './adapters/mock/grants.mock.adapter';
-
 // ---------------------------------------------------------------------------
 // Composition Root — the single place where ports are wired to adapters.
 //
@@ -43,4 +41,3 @@ export const gabSchemaRepo = apiVersion === 'v2'
 
 export const gabChildTableRepo = new GabChildTableV1Adapter(authPort, gabConfig.apiUrl);
 
-export const grantsRepo = new GrantsMockAdapter();

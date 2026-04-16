@@ -15,7 +15,7 @@ Ports are TypeScript interfaces. They define the contract between the frontend a
 
 - A port file contains only: interfaces, type definitions, and pure helper functions (no side effects).
 - Never put implementation logic, API calls, or imports of external libraries in a port file.
-- Name the interface with an `I` prefix: `IAuthPort`, `IGabDataRepository`, `I311Repository`.
+- Name the interface with an `I` prefix: `IAuthPort`, `IGabDataRepository`, `IPermittingRepository`.
 - Domain types (the data shapes pages need) live in the same port file as the interface that returns them.
 
 ## Adapters (`lib/core/adapters/`)

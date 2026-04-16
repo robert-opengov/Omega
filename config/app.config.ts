@@ -64,10 +64,6 @@ export interface AppFeatures {
   enableNotifications: boolean;
   /** Show /signup route and "Sign up" links in the login form */
   enableSignup: boolean;
-  /** Show Grants vertical in navigation and routes */
-  enableGrants: boolean;
-  /** Show 311 vertical in navigation and routes */
-  enable311: boolean;
   /** Render a full-width site identifier banner above the navbar */
   enableSiteBanner: boolean;
 }
@@ -135,8 +131,6 @@ export const appConfig: AppConfig = {
     enableI18n:          process.env.NEXT_PUBLIC_ENABLE_I18N === 'true',
     enableNotifications: process.env.NEXT_PUBLIC_ENABLE_NOTIFICATIONS === 'true',
     enableSignup:        process.env.NEXT_PUBLIC_ENABLE_SIGNUP !== 'false',
-    enableGrants:        process.env.NEXT_PUBLIC_ENABLE_GRANTS === 'true',
-    enable311:           process.env.NEXT_PUBLIC_ENABLE_311 === 'true',
     enableSiteBanner:    process.env.NEXT_PUBLIC_ENABLE_SITE_BANNER === 'true',
   },
   siteBanner: {

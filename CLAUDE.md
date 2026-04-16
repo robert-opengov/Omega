@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-GAB Verticals Boilerplate — a forkable Next.js application for building government apps (311, Grants, Permitting) on top of GAB backend services. Pre-built accessible components, hexagonal data layer, config-driven theming and auth.
+GAB Verticals Boilerplate — a forkable Next.js application for building government apps on top of GAB backend services. Pre-built accessible components, hexagonal data layer, config-driven theming and auth.
 
 ## Commands
 
@@ -36,7 +36,7 @@ GAB V1, GAB V2, Auth0. Accessed only through adapters. Never expose raw API resp
 
 ### Hexagonal Data Layer
 
-- **Ports** (`lib/core/ports/`) — interfaces: `IAuthPort`, `IGabDataRepository`, `IGabSchemaRepository`, `IChildTableRepository`, `IGrantsRepository`
+- **Ports** (`lib/core/ports/`) — interfaces: `IAuthPort`, `IGabDataRepository`, `IGabSchemaRepository`, `IChildTableRepository`
 - **Adapters** (`lib/core/adapters/`) — V1 adapters (`gab-v1/`), V2 adapters (`gab-v2/`), mock adapters (`mock/`)
 - **Composition root** (`lib/core/index.ts`) — wires ports to adapters, controlled by `GAB_API_VERSION` env var
 - Swapping backends means writing a new adapter and changing one line in the composition root. Zero component changes.
@@ -66,7 +66,7 @@ Server Action in `app/actions/` imports from `@/lib/core`, client component call
 5. Create pages in `app/(dashboard)/[vertical]/` — Server Component pages with `_components/` for client rendering
 6. Later: swap mock adapter for real V2 adapter
 
-Reference implementation: the Grants vertical (`app/(dashboard)/grants/`, `lib/core/ports/grants.repository.ts`, `lib/core/adapters/mock/grants.mock.adapter.ts`).
+Use the `create-vertical` skill (`.cursor/skills/create-vertical/SKILL.md`) for a step-by-step walkthrough with code examples.
 
 ## Fork Conventions
 
