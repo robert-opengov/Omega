@@ -1,0 +1,67 @@
+---
+description: Enforces the hexagonal architecture (ports & adapters) and data flow patterns in the GAB Boilerplate.
+globs:
+  - "lib/core/**/*"
+  - "app/actions/**/*"
+  - "app/(dashboard)/**/page.tsx"
+alwaysApply: false
+---
+
+# Data Layer Rules
+
+## Ports (`lib/core/ports/`)
+
+Ports are TypeScript interfaces. They define the contract between the frontend and the backend.
+
+- A port file contains only: interfaces, type definitions, and pure helper functions (no side effects).
+- Never put implementation logic, API calls, or imports of external libraries in a port file.
+- Name the interface with an `I` prefix: `IAuthPort`, `IGabDataRepository`, `I311Repository`.
+- Domain types (the data shapes pages need) live in the same port file as the interface that returns them.
+
+## Adapters (`lib/core/adapters/`)
+
+Adapters implement exactly one port interface against a specific backend.
+
+- Every adapter class must `implements` its port interface. TypeScript enforces the contract.
+- Use `this.auth.getToken()` for authentication. Never read cookies directly in an adapter.
+- Adapters transform raw API responses into the shapes defined by the port. The rest of the app never sees API-specific payloads.
+- Organize by backend version: `gab-v1/`, `gab-v2/`, `mock/`.
+- Mock adapters return static data and are used for development and testing. Every port should have a mock adapter.
+
+## Composition Root (`lib/core/index.ts`)
+
+This is the only file that decides which adapter backs which port. It reads `GAB_API_VERSION` and instantiates the appropriate adapters.
+
+- All exports from this file are server-only. They use `cookies()`, environment variables, and other Node.js APIs.
+- When switching from mock to real adapter, change the import and constructor call here. Nothing else changes.
+
+## Server Actions (`app/actions/`)
+
+Server Actions are the bridge between client components and the data layer.
+
+- Every file starts with `'use server'`.
+- Import ports/repos from `@/lib/core`.
+- Return plain serializable objects (no classes, no functions, no Promises in the return shape).
+- Handle errors and return structured results: `{ success: boolean; data?: T; error?: string }`.
+- Manage cookies and sessions here when needed (e.g., auth actions set HTTP-only cookies).
+
+## Page Files (`app/(dashboard)/**/page.tsx`)
+
+Page files are Server Components by default (no `'use client'` directive).
+
+- Import repos directly from `@/lib/core` and `await` the data.
+- Pass fetched data as props to a `'use client'` component in `_components/`.
+- Use `Promise.all()` for parallel data fetching when a page needs multiple datasets.
+- Never put interactive UI logic in page files — that belongs in the `_components/` client component.
+
+## The Critical Boundary
+
+**Client components (`'use client'` files) must never import from `@/lib/core`.**
+
+Ports and adapters use server-only APIs (`cookies()`, `process.env` for secrets, Node.js `fetch` with auth headers). Importing them in a client component will fail at build time or leak server logic to the browser.
+
+Client components get data in exactly two ways:
+1. **Props** — passed from a parent Server Component (Pattern A)
+2. **Server Actions** — called as async functions from event handlers (Pattern B)
+
+There is no third option. No `useEffect` + `fetch()`. No API route wrappers. No client-side HTTP calls to the GAB backend.

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-GAB Verticals Boilerplate — the "Lego Bucket" foundation for AI-generated government applications (Government App Builder). Fork it, configure branding/data sources, and compose verticals (311 apps, Grants portals, Permitting dashboards) from pre-built accessible components.
+GAB Verticals Boilerplate — a forkable Next.js application for building government apps (311, Grants, Permitting) on top of GAB backend services. Pre-built accessible components, hexagonal data layer, config-driven theming and auth.
 
 ## Commands
 
@@ -21,41 +21,83 @@ Run a single test file: `npx vitest run components/ui/organisms/ChildTable/__tes
 
 CI runs lint → typecheck → build (Node 22). See `.github/workflows/ci.yml`.
 
-## Architecture
+## Architecture (3 Layers)
 
-### Hexagonal (Ports & Adapters) Data Layer
+### Layer 1 — Client
+Components in `components/ui/` organized as `atoms/` (33), `molecules/` (57), `organisms/` (21), `layouts/` (3). Components receive data via props — they never call APIs directly.
 
-- **Ports** (`lib/core/ports/`) — interfaces: `IAuthPort`, `IGabDataRepository`, schema repo, child-table repo
-- **Adapters** (`lib/core/adapters/gab-v1/`) — implementations against the GAB v1 API
-- Swapping backends means writing new adapters; no component changes needed
+### Layer 2 — BFF (Next.js Server)
+- **Middleware** (`proxy.ts`): auth guards on every request, reads `access_token` cookie, enforces `config/routes.config.ts`
+- **Server Actions** (`app/actions/`): server-side functions callable from client components (auth, data mutations)
+- **Ports & Adapters** (`lib/core/`): hexagonal data layer
 
-### HSL Dynamic Theme System
+### Layer 3 — Backend (External)
+GAB V1, GAB V2, Auth0. Accessed only through adapters. Never expose raw API responses to the client.
 
-All colors defined as hex in `config/app.config.ts` → decomposed into HSL CSS variables (`--primary-h`, `--primary-s`, `--primary-l`) at runtime by `ThemeProvider` and root layout's `buildThemeStyle()`. Derived shades use CSS `hsl()` + `calc()`. Override via `NEXT_PUBLIC_THEME_*` env vars. Defaults aligned with OpenGov Capital Design System v5.5.0.
+### Hexagonal Data Layer
 
-Dark mode uses the `@variant dark (&:is(.dark *))` Tailwind v4 pattern in `globals.css`.
+- **Ports** (`lib/core/ports/`) — interfaces: `IAuthPort`, `IGabDataRepository`, `IGabSchemaRepository`, `IChildTableRepository`, `IGrantsRepository`
+- **Adapters** (`lib/core/adapters/`) — V1 adapters (`gab-v1/`), V2 adapters (`gab-v2/`), mock adapters (`mock/`)
+- **Composition root** (`lib/core/index.ts`) — wires ports to adapters, controlled by `GAB_API_VERSION` env var
+- Swapping backends means writing a new adapter and changing one line in the composition root. Zero component changes.
 
-### Provider Stack
+## Data Flow Patterns
 
-`Providers` component (`providers/index.tsx`) wraps the app: `ThemeProvider` → `AuthProvider` → `SidebarProvider` → `ToastProvider`. Context hooks exported from `providers/index.tsx`.
+### Pattern A — Server Component (page loads)
+Server Component imports repo from `@/lib/core`, awaits data, passes props to `'use client'` component.
+```
+page.tsx (async Server Component) → repo.fetchData() → <ClientComponent data={data} />
+```
 
-### Auth & Middleware
+### Pattern B — Server Action (mutations, client-triggered)
+Server Action in `app/actions/` imports from `@/lib/core`, client component calls the action.
+```
+'use server' action → authPort.login() → return result to client
+```
 
-`proxy.ts` is the Next.js middleware — reads `access_token` cookie and enforces route rules from `config/routes.config.ts`. Auth-only routes (login/register) redirect authenticated users to `/home`; protected routes redirect unauthenticated users to `/login`.
+**Critical rule:** Never import `@/lib/core` in `'use client'` files. Ports use server-only APIs.
 
-### i18n
+## Building a Vertical
 
-`next-intl` wired via `i18n/request.ts` plugin in `next.config.ts`. Currently only `en` locale in `messages/en.json`. Feature-flagged off by default (`config/app.config.ts` → `features.enableI18n`).
+1. Define port interface in `lib/core/ports/[vertical].repository.ts`
+2. Create mock adapter in `lib/core/adapters/mock/[vertical].mock.adapter.ts`
+3. Register in `lib/core/index.ts`
+4. Add feature flag in `config/app.config.ts` + nav entry in `config/navigation.config.ts`
+5. Create pages in `app/(dashboard)/[vertical]/` — Server Component pages with `_components/` for client rendering
+6. Later: swap mock adapter for real V2 adapter
+
+Reference implementation: the Grants vertical (`app/(dashboard)/grants/`, `lib/core/ports/grants.repository.ts`, `lib/core/adapters/mock/grants.mock.adapter.ts`).
+
+## Fork Conventions
+
+- **Never modify** `components/ui/` — open an issue upstream instead
+- **Page compositions** go in `app/(dashboard)/[feature]/_components/`
+- **Fork-level shared components** go in `components/_custom/` (must compose from `@/components/ui/`)
+- **Never install** alternative UI libs (MUI, Chakra, Ant)
+- **Never use** inline `style={{}}` — Tailwind only via `cn()`
+- **Never copy-paste** a boilerplate component to customize it — use its existing props
 
 ## Key Conventions
 
-- **Atomic design**: components in `components/ui/` organized as `atoms/`, `molecules/`, `organisms/`, `layouts/`. Barrel exports via index files.
+- **Atomic design**: components in `components/ui/` as `atoms/`, `molecules/`, `organisms/`, `layouts/`. Barrel exports via index files.
 - **Path alias**: `@/*` maps to project root (e.g., `@/components/ui/atoms`)
-- **Styling**: Tailwind CSS v4 with `cn()` helper (`lib/utils.ts`) using `clsx` + `tailwind-merge`. Components use CVA (class-variance-authority) for variants.
+- **Styling**: Tailwind CSS v4 with `cn()` helper (`lib/utils.ts`) using `clsx` + `tailwind-merge`. Components use CVA for variants.
 - **UI primitives**: Radix UI for accessibility, wrapped with Tailwind styling (shadcn/ui pattern)
 - **Forms**: React Hook Form + Zod schemas, composed via `ZodForm` molecule
-- **Config-driven customization**: branding in `config/app.config.ts`, nav items in `config/navigation.config.ts`, route rules in `config/routes.config.ts`, GAB API keys in `config/gab.config.ts` (server-only — never import from client components)
+- **Config-driven**: branding in `config/app.config.ts`, nav in `config/navigation.config.ts`, routes in `config/routes.config.ts`, GAB API in `config/gab.config.ts` (server-only)
 - **Icons**: `lucide-react`
 - **Fonts**: Barlow (primary) + Geist Mono (code), loaded via `next/font/google`
-- **Tests**: Co-located in `__tests__/` directories next to source. Vitest + Testing Library + jsdom. Setup extends jest-dom matchers.
-- **ESLint**: Flat config (`eslint.config.mjs`) with Next.js core-web-vitals + React Compiler lint rules (`react-hooks/set-state-in-effect`, `refs`, `preserve-manual-memoization`, `immutability`)
+- **Tests**: Co-located in `__tests__/` directories. Vitest + Testing Library + jsdom.
+- **ESLint**: Flat config with Next.js core-web-vitals + React Compiler rules
+
+### HSL Dynamic Theme System
+
+Colors defined as hex in `config/app.config.ts` → decomposed into HSL CSS variables at runtime by `ThemeProvider`. Override via `NEXT_PUBLIC_THEME_*` env vars. Dark mode uses `@variant dark (&:is(.dark *))` Tailwind v4 pattern.
+
+### Provider Stack
+
+`Providers` (`providers/index.tsx`): `ThemeProvider` → `AuthProvider` → `SidebarProvider` → `ToastProvider`.
+
+### GAB V2 API
+
+Three tiers: Config (public), Platform (auth/apps/users/templates), Workspace (per-app schema/records/pages). All path IDs accept base36 key or UUID. Records support 14 filter operators via `POST .../records/query`. Swagger docs at the deployed API URL under `/docs`.

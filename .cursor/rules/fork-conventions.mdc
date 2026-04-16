@@ -1,0 +1,58 @@
+---
+description: Enforces component library boundaries and fork conventions to prevent divergence across GAB verticals.
+globs:
+  - "components/**/*"
+  - "app/(dashboard)/**/*"
+alwaysApply: false
+---
+
+# Fork Conventions
+
+## Component Library is Read-Only
+
+Files in `components/ui/` are the shared foundation across all GAB verticals. Never create, modify, or delete files in this directory. If a component is missing or needs changes, open an issue on the boilerplate repository.
+
+## Where to Put New Code
+
+### Page-specific compositions → `_components/`
+
+Components that are specific to a single page live next to that page:
+
+```
+app/(dashboard)/my-feature/
+├── page.tsx                  # Server Component: fetch data, pass props
+└── _components/
+    └── MyDashboard.tsx       # 'use client': render using atoms/molecules/organisms
+```
+
+### Fork-level shared components → `components/_custom/`
+
+If a fork needs a reusable component not in the boilerplate:
+
+```
+components/
+├── ui/          # NEVER MODIFY
+└── _custom/     # Fork-specific shared components
+```
+
+`_custom/` components must compose from `@/components/ui/` imports — never recreate what already exists.
+
+## Banned Patterns
+
+- **No alternative UI libraries.** Never install MUI, Chakra, Ant Design, or any other component library. Everything is built on Radix UI + Tailwind.
+- **No inline styles.** Never use `style={{}}`. Use Tailwind utility classes via `cn()` from `@/lib/utils`.
+- **No custom CSS files.** No `.css` or `.scss` files outside of `app/globals.css`. All styling is Tailwind.
+- **No copy-paste customization.** Never copy a component from `components/ui/` to modify it. Use the component's existing props and variants. If the props don't cover your case, that's a signal to request an upstream enhancement.
+
+## Import Rules
+
+Always import from barrel exports:
+
+```typescript
+import { Button, Badge } from '@/components/ui/atoms';
+import { Card, DataTable } from '@/components/ui/molecules';
+import { DataGrid, Navbar } from '@/components/ui/organisms';
+import { DashboardLayout } from '@/components/ui/layouts';
+```
+
+Never import from internal component files directly (e.g., `@/components/ui/atoms/Button`).
