@@ -68,6 +68,15 @@ export interface AppFeatures {
   enableGrants: boolean;
   /** Show 311 vertical in navigation and routes */
   enable311: boolean;
+  /** Render a full-width site identifier banner above the navbar */
+  enableSiteBanner: boolean;
+}
+
+export interface SiteBannerConfig {
+  orgName: string;
+  logoUrl?: string;
+  statement?: string;
+  variant: 'dark' | 'light';
 }
 
 export interface AppConfig {
@@ -80,6 +89,7 @@ export interface AppConfig {
     alt?: string;
   };
   features: AppFeatures;
+  siteBanner: SiteBannerConfig;
 }
 
 function deriveLayoutMode(navbar: boolean, sidebar: boolean): LayoutMode {
@@ -127,5 +137,12 @@ export const appConfig: AppConfig = {
     enableSignup:        process.env.NEXT_PUBLIC_ENABLE_SIGNUP !== 'false',
     enableGrants:        process.env.NEXT_PUBLIC_ENABLE_GRANTS === 'true',
     enable311:           process.env.NEXT_PUBLIC_ENABLE_311 === 'true',
+    enableSiteBanner:    process.env.NEXT_PUBLIC_ENABLE_SITE_BANNER === 'true',
+  },
+  siteBanner: {
+    orgName:   process.env.NEXT_PUBLIC_SITE_BANNER_ORG || '',
+    logoUrl:   process.env.NEXT_PUBLIC_SITE_BANNER_LOGO_URL || undefined,
+    statement: process.env.NEXT_PUBLIC_SITE_BANNER_STATEMENT || undefined,
+    variant:   (process.env.NEXT_PUBLIC_SITE_BANNER_VARIANT as 'dark' | 'light') || 'dark',
   },
 };

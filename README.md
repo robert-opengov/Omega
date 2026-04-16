@@ -56,7 +56,7 @@ The application is organized into three layers. The browser never talks to the b
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  Layer 1: Client                                            │
-│  React components (33 atoms, 57 molecules, 21 organisms)    │
+│  React components (33 atoms, 58 molecules, 21 organisms)    │
 │  Radix UI + Tailwind CSS, file-based routing in app/        │
 │  Components receive data via props — never call APIs        │
 └──────────────────────────┬──────────────────────────────────┘
@@ -80,7 +80,7 @@ The application is organized into three layers. The browser never talks to the b
 The browser receives server-rendered HTML and interactive React components organized by complexity:
 
 - **Atoms** (33): smallest building blocks — Button, Input, Badge, Select, Switch, Checkbox
-- **Molecules** (57): composed elements — Card, Modal, DataTable, FormField, DatePicker, Toast
+- **Molecules** (58): composed elements — Card, Modal, DataTable, FormField, DatePicker, SiteBanner
 - **Organisms** (21): complex components — Navbar, Sidebar, AuthForm, ChildTable, DataGrid, ChartCard
 - **Layouts** (3): page shells — DashboardLayout, AuthLayout, WizardLayout
 
@@ -271,6 +271,7 @@ Feature flags live in `config/app.config.ts` and are overridable via env vars:
 | `NEXT_PUBLIC_ENABLE_NOTIFICATIONS` | off | opt-in | Notification badge in navbar |
 | `NEXT_PUBLIC_ENABLE_GRANTS` | off | opt-in | Grants vertical (nav + routes) |
 | `NEXT_PUBLIC_ENABLE_311` | off | opt-in | 311 vertical (nav + routes) |
+| `NEXT_PUBLIC_ENABLE_SITE_BANNER` | off | opt-in | Full-width site identifier banner above navbar |
 
 ## Building a Vertical
 
@@ -411,9 +412,9 @@ All components live in `components/ui/` with Radix UI accessibility, CVA variant
 
 Avatar, Badge, Button, ButtonGroup, Checkbox, Chip, Code, Heading, IconButton, Input, Kbd, Label, Link, MaskedInput, NavigationProgress, NumberInput, Progress, RadioGroup, Select, SelectionCard, Separator, Skeleton, Slider, Spinner, StatBadge, StatusDot, StatusStep, Switch, Text, Textarea, ThresholdProgress, Toggle, Tooltip
 
-### Molecules (57)
+### Molecules (58)
 
-Accordion, ActivityFeed, AddressInput, Alert, AvatarGroup, Banner, Breadcrumbs, BreakdownCard, Card, CategoryGrid, CheckboxTree, CollapsibleTable, Combobox, CommandPalette, ComposeInput, ConfirmDialog, ContentHeader, DashboardWidget, DataTable, DatePicker, DeadlineItem, DropdownMenu, EmptyState, ExpandableListItem, FilePreviewCard, FileUpload, FormField, Hero, InfoCard, LabelValuePair, LabeledProgressRow, List, MapLegend, MentionInput, MetricCard, Modal, OnboardingWizard, PageContent, PageHeader, Pagination, Popover, ProgressSteps, ResponsiveGrid, SearchInput, SectionHeader, Sheet, SsoLoginButton, StatusChecklist, SummaryCard, Tabs, TagInput, Toast, Toolbar, UploadSlot, ValueItem, WizardCard, ZodForm
+Accordion, ActivityFeed, AddressInput, Alert, AvatarGroup, Banner, Breadcrumbs, BreakdownCard, Card, CategoryGrid, CheckboxTree, CollapsibleTable, Combobox, CommandPalette, ComposeInput, ConfirmDialog, ContentHeader, DashboardWidget, DataTable, DatePicker, DeadlineItem, DropdownMenu, EmptyState, ExpandableListItem, FilePreviewCard, FileUpload, FormField, Hero, InfoCard, LabelValuePair, LabeledProgressRow, List, MapLegend, MentionInput, MetricCard, Modal, OnboardingWizard, PageContent, PageHeader, Pagination, Popover, ProgressSteps, ResponsiveGrid, SearchInput, SectionHeader, Sheet, SiteBanner, SsoLoginButton, StatusChecklist, SummaryCard, Tabs, TagInput, Toast, Toolbar, UploadSlot, ValueItem, WizardCard, ZodForm
 
 ### Organisms (21)
 
@@ -502,6 +503,17 @@ Copy `.env.example` to `.env.local`. The example file is fully commented.
 | `NEXT_PUBLIC_APP_DESCRIPTION` | `Powered by GAB` | App description (meta tags) |
 | `NEXT_PUBLIC_LOGO_URL` | — | Custom logo URL (navbar + sidebar) |
 | `NEXT_PUBLIC_LOGIN_HERO_IMAGE` | `/brand/login.png` | Login page hero image |
+
+### Site Banner
+
+When `NEXT_PUBLIC_ENABLE_SITE_BANNER=true`, a full-width identifier bar renders above the navbar.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NEXT_PUBLIC_SITE_BANNER_ORG` | — | Organization name (required when enabled) |
+| `NEXT_PUBLIC_SITE_BANNER_LOGO_URL` | — | Logo URL displayed before the org name |
+| `NEXT_PUBLIC_SITE_BANNER_STATEMENT` | `An official website of the {org}.` | Custom statement text |
+| `NEXT_PUBLIC_SITE_BANNER_VARIANT` | `dark` | Visual variant: `dark` or `light` |
 
 ### Layout
 

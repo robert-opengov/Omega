@@ -7,9 +7,34 @@ import { Sidebar } from '@/components/ui/organisms/Sidebar';
 import { Navbar } from '@/components/ui/organisms/Navbar';
 import { CommandPalette, type CommandItem } from '@/components/ui/molecules/CommandPalette';
 import { ToastContainer } from '@/components/ui/molecules/Toast';
+import { SiteBanner } from '@/components/ui/molecules/SiteBanner';
 import { useSidebar, useAuth } from '@/providers';
 import { appConfig } from '@/config/app.config';
+import { cn } from '@/lib/utils';
 import { navigationItems, flattenNavItems } from '@/config/navigation.config';
+
+const { features, siteBanner } = appConfig;
+
+const siteBannerEnabled = features.enableSiteBanner && siteBanner.orgName;
+
+const sidebarTopClass = siteBannerEnabled ? 'top-8' : undefined;
+
+function FixedSiteBanner() {
+  if (!siteBannerEnabled) return null;
+  return (
+    <>
+      <div className="fixed top-0 left-0 w-full z-flash">
+        <SiteBanner
+          orgName={siteBanner.orgName}
+          logo={siteBanner.logoUrl}
+          statement={siteBanner.statement}
+          variant={siteBanner.variant}
+        />
+      </div>
+      <div className="h-8" />
+    </>
+  );
+}
 
 const SKIP_LINK = (
   <a
@@ -40,9 +65,10 @@ function NavbarSidebarLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       {SKIP_LINK}
-      <Sidebar />
+      <FixedSiteBanner />
+      <Sidebar topClass={sidebarTopClass} />
       <div className={`min-h-screen transition-all duration-300 ${mounted ? (isDesktopCollapsed ? 'lg:ml-0' : 'lg:ml-64') : ''}`}>
-        <Navbar />
+        <Navbar topClass={sidebarTopClass} />
         <MainArea navbarHeight={52}>{children}</MainArea>
       </div>
     </>
@@ -53,7 +79,8 @@ function NavbarOnlyLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       {SKIP_LINK}
-      <Navbar standalone />
+      <FixedSiteBanner />
+      <Navbar standalone topClass={sidebarTopClass} />
       <MainArea navbarHeight={52}>{children}</MainArea>
     </>
   );
@@ -62,7 +89,7 @@ function NavbarOnlyLayout({ children }: { children: React.ReactNode }) {
 function MobileMenuBar() {
   const { toggleMobileOpen } = useSidebar();
   return (
-    <div className="sticky top-0 z-header flex items-center h-12 px-4 bg-background border-b border-border lg:hidden">
+    <div className={cn("sticky z-header flex items-center h-12 px-4 bg-background border-b border-border lg:hidden", sidebarTopClass || "top-0")}>
       <button
         onClick={toggleMobileOpen}
         className="p-2 -ml-2 rounded text-muted-foreground hover:bg-muted transition-all duration-300 ease-in-out"
@@ -83,7 +110,8 @@ function SidebarOnlyLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       {SKIP_LINK}
-      <Sidebar />
+      <FixedSiteBanner />
+      <Sidebar topClass={sidebarTopClass} />
       <div className={`min-h-screen transition-all duration-300 ${mounted ? (isDesktopCollapsed ? 'lg:ml-0' : 'lg:ml-64') : ''}`}>
         <MobileMenuBar />
         <MainArea navbarHeight={0}>{children}</MainArea>

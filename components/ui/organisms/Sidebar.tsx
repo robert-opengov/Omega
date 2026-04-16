@@ -214,7 +214,7 @@ function NavigationContent({ isMobile = false }: { isMobile?: boolean }) {
  * Mobile slide-out sidebar with backdrop overlay and focus trapping.
  * @internal
  */
-function MobileSidebar() {
+function MobileSidebar({ topClass }: { topClass?: string }) {
   const { isMobileOpen, closeMobileSidebar } = useSidebar();
   const pathname = usePathname();
   const sidebarRef = useRef<HTMLElement>(null);
@@ -270,7 +270,10 @@ function MobileSidebar() {
         role={isMobileOpen ? 'dialog' : undefined}
         aria-modal={isMobileOpen ? true : undefined}
         aria-label={isMobileOpen ? 'Navigation menu' : undefined}
-        className="fixed top-0 left-0 h-screen w-64 z-overlay flex flex-col bg-background border-r border-border transition-transform duration-300 ease-in-out lg:hidden"
+        className={cn(
+          'fixed left-0 h-screen w-64 z-overlay flex flex-col bg-background border-r border-border transition-transform duration-300 ease-in-out lg:hidden',
+          topClass || 'top-0',
+        )}
         style={{ transform: isMobileOpen ? 'translateX(0)' : 'translateX(-100%)' }}
       >
         <NavigationContent isMobile />
@@ -284,13 +287,14 @@ function MobileSidebar() {
  * Slides fully off-screen when collapsed (no icon-only strip).
  * @internal
  */
-function DesktopSidebar() {
+function DesktopSidebar({ topClass }: { topClass?: string }) {
   const { isDesktopCollapsed } = useSidebar();
 
   return (
     <aside
       className={cn(
-        'fixed top-0 left-0 bottom-0 bg-background border-r border-border z-ground hidden lg:flex flex-col w-64 transition-transform duration-300 ease-in-out',
+        'fixed left-0 bottom-0 bg-background border-r border-border z-ground hidden lg:flex flex-col w-64 transition-transform duration-300 ease-in-out',
+        topClass || 'top-0',
         isDesktopCollapsed ? '-translate-x-full' : 'translate-x-0',
       )}
     >
@@ -308,11 +312,11 @@ function DesktopSidebar() {
  * @example
  * <Sidebar />
  */
-export function Sidebar() {
+export function Sidebar({ topClass }: { topClass?: string } = {}) {
   return (
     <>
-      <MobileSidebar />
-      <DesktopSidebar />
+      <MobileSidebar topClass={topClass} />
+      <DesktopSidebar topClass={topClass} />
     </>
   );
 }

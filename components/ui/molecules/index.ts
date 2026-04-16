@@ -56,3 +56,4 @@ export { CategoryGrid, type CategoryGridProps, type CategoryItem } from './Categ
 export { ActivityFeed, type ActivityFeedProps, type ActivityItem, type ActivityVariant } from './ActivityFeed';
 export { DashboardWidget, type DashboardWidgetProps } from './DashboardWidget';
 export { MapLegend, mapLegendVariants, type MapLegendProps, type MapLegendItem } from './MapLegend';
+export { SiteBanner, siteBannerVariants, type SiteBannerProps } from './SiteBanner';

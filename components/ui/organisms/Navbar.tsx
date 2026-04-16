@@ -12,6 +12,7 @@ import { Logo, LogoMark } from './Logo';
 
 export interface NavbarProps {
   standalone?: boolean;
+  topClass?: string;
 }
 
 const NAVBAR_HEIGHT = 52;
@@ -138,7 +139,7 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
  *
  * Height is always 52 px. Active tab shows a 3 px primary-colored bottom indicator.
  */
-export function Navbar({ standalone = false }: NavbarProps) {
+export function Navbar({ standalone = false, topClass }: NavbarProps) {
   const { user } = useAuth();
   const { isMobileOpen, isDesktopCollapsed, toggleMobileOpen, toggleDesktopCollapsed } = useSidebar();
   const { theme, setTheme } = useTheme();
@@ -171,7 +172,7 @@ export function Navbar({ standalone = false }: NavbarProps) {
     <>
       {standalone && <NavDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />}
 
-      <header className="sticky top-0 z-header bg-background border-b border-border">
+      <header className={cn("sticky z-header bg-background border-b border-border", topClass || "top-0")}>
         <div
           className="w-full px-4 flex items-center justify-between overflow-hidden"
           style={{ height: NAVBAR_HEIGHT }}

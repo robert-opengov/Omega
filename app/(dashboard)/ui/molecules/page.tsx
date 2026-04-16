@@ -76,6 +76,7 @@ import {
   CategoryGrid,
   ActivityFeed,
   DashboardWidget,
+  SiteBanner,
 } from '@/components/ui/molecules';
 import { useToast } from '@/providers/toast-provider';
 import { ComponentDemo, Section } from '../_components/ComponentDemo';
@@ -144,7 +145,8 @@ export default function MoleculesPage() {
         <StatusChecklistDemo />
       </Section>
 
-      <Section title="Content Components" count={5} description="Heroes, banners, file previews, and hierarchical selection.">
+      <Section title="Content Components" count={6} description="Heroes, banners, file previews, and hierarchical selection.">
+        <SiteBannerDemo />
         <BannerDemo />
         <HeroDemo />
         <SummaryCardDemo />
@@ -1369,6 +1371,71 @@ function ResultDemo() {
 }
 
 /* ---------- New Components (v2) ---------- */
+
+function SiteBannerDemo() {
+  return (
+    <ComponentDemo
+      name="SiteBanner"
+      description="Full-width site identifier bar above the navbar. Dark by default, with optional logo and expandable section. Activated via NEXT_PUBLIC_ENABLE_SITE_BANNER env var."
+      props={`interface SiteBannerProps {
+  orgName: string;
+  logo?: string | ReactNode;
+  orgNameElement?: ReactNode;
+  statement?: string;
+  learnMoreLabel?: string;
+  learnMoreContent?: ReactNode;
+  variant?: 'dark' | 'light';
+  className?: string;
+}`}
+    >
+      <div className="space-y-6 -mx-6">
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-3 px-6">Dark with logo (default)</Text>
+          <SiteBanner
+            orgName="CITY of BOSTON"
+            logo="/demo-logo-boston.png"
+            learnMoreContent={
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex gap-2">
+                  <span className="opacity-70">A .gov website belongs to an official government organization.</span>
+                </div>
+                <div className="flex gap-2">
+                  <span className="opacity-70">A lock icon means you&apos;ve safely connected to the .gov website.</span>
+                </div>
+              </div>
+            }
+          />
+        </div>
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-3 px-6">Light variant</Text>
+          <SiteBanner
+            orgName="STATE of CALIFORNIA"
+            variant="light"
+            learnMoreContent={
+              <p>This is an official website of the State of California.</p>
+            }
+          />
+        </div>
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-3 px-6">Minimal (no logo, no expandable)</Text>
+          <SiteBanner orgName="COUNTY of MIAMI-DADE" />
+        </div>
+        <div>
+          <Text size="sm" weight="medium" color="muted" className="mb-3 px-6">Custom orgNameElement override</Text>
+          <SiteBanner
+            orgName="Acme Corp"
+            orgNameElement={
+              <span className="inline-flex items-center gap-1.5 font-bold tracking-wide">
+                <span className="text-yellow-300">★</span> ACME CORP
+              </span>
+            }
+            statement="Your trusted partner in innovation."
+          />
+        </div>
+      </div>
+    </ComponentDemo>
+  );
+}
 
 function BannerDemo() {
   return (
