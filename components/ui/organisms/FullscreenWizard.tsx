@@ -65,6 +65,8 @@ export interface FullscreenWizardProps {
   steps: WizardStepConfig[];
   /** Called when the user completes the last step. */
   onComplete?: () => void;
+  /** Called when the user clicks the dismiss button. When omitted the button is hidden. */
+  onClose?: () => void;
   /** Zero-based starting step. @default 0 */
   initialStep?: number;
   /** Product name passed to WizardLayout (shown below the logo). */
@@ -101,6 +103,7 @@ export interface FullscreenWizardProps {
 export function FullscreenWizard({
   steps,
   onComplete,
+  onClose,
   initialStep = 0,
   productName,
   layoutFooter,
@@ -142,7 +145,7 @@ export function FullscreenWizard({
 
   return (
     <WizardContext.Provider value={ctxValue}>
-      <WizardLayout productName={productName} footer={layoutFooter} className={className}>
+      <WizardLayout productName={productName} onClose={onClose} footer={layoutFooter} className={className}>
         <WizardCard {...cardProps}>
           {content}
         </WizardCard>

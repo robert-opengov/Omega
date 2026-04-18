@@ -159,6 +159,7 @@ function FullscreenWizardDemo() {
       props={`interface FullscreenWizardProps {
   steps: WizardStepConfig[];
   onComplete?: () => void;
+  onClose?: () => void;
   initialStep?: number;
   productName?: string;
 }`}
@@ -166,19 +167,12 @@ function FullscreenWizardDemo() {
       <div className="space-y-4">
         <Button onClick={() => setOpen(true)}>Launch Wizard Demo</Button>
         {open && (
-          <div className="fixed inset-0 z-overlay">
-            <FullscreenWizard
-              productName="Grants Management"
-              steps={steps}
-              onComplete={() => setOpen(false)}
-            />
-            <button
-              onClick={() => setOpen(false)}
-              className="fixed top-4 right-4 z-[60] text-xs text-text-secondary hover:text-foreground bg-card/80 backdrop-blur-sm px-3 py-1.5 rounded border border-border shadow-soft"
-            >
-              Close Demo ×
-            </button>
-          </div>
+          <FullscreenWizard
+            productName="Grants Management"
+            steps={steps}
+            onComplete={() => setOpen(false)}
+            onClose={() => setOpen(false)}
+          />
         )}
       </div>
     </ComponentDemo>

@@ -1,8 +1,11 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { type ReactNode, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/ui/organisms/Logo';
+import { IconButton } from '@/components/ui/atoms/IconButton';
 import { UILink } from '@/components/ui/atoms/Link';
 import { appConfig } from '@/config/app.config';
 
@@ -11,6 +14,11 @@ export interface WizardLayoutProps {
   className?: string;
   /** Product name shown below the logo (e.g. "Grants Management"). */
   productName?: string;
+  /**
+   * Called when the user clicks the dismiss button (top-right ×).
+   * When omitted the dismiss button is hidden.
+   */
+  onClose?: () => void;
   /**
    * Footer content at the bottom of the viewport.
    * - `undefined` — renders the default legal footer (copyright + links)
@@ -41,16 +49,27 @@ function DefaultFooter() {
  * Renders a light-gray viewport with the logo + product name top-left,
  * content centered vertically, and a composable footer pinned bottom-left.
  * Used by FullscreenWizard to wrap each step's WizardCard.
+ *
+ * Portals to `document.body` so the overlay escapes any ancestor stacking
+ * context (DashboardLayout chrome, sidebar transforms, etc.).
  */
-export function WizardLayout({ children, className, productName, footer }: WizardLayoutProps) {
-  return (
-    <div className={cn('flex flex-col min-h-screen bg-muted', className)}>
-      <div className="px-8 pt-6 pb-2 shrink-0">
-        <Logo className="h-6" />
-        {productName && (
-          <span className="block text-sm font-semibold text-foreground mt-1">
-            {productName}
-          </span>
+export function WizardLayout({ children, className, productName, onClose, footer }: WizardLayoutProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  const content = (
+    <div className={cn('fixed inset-0 z-dialog flex flex-col overflow-y-auto bg-muted', className)}>
+      <div className="px-8 pt-6 pb-2 shrink-0 flex items-start justify-between">
+        <div>
+          <Logo className="h-6" />
+          {productName && (
+            <span className="block text-sm font-semibold text-foreground mt-1">
+              {productName}
+            </span>
+          )}
+        </div>
+        {onClose && (
+          <IconButton icon={X} label="Close wizard" size="sm" variant="ghost" onClick={onClose} />
         )}
       </div>
 
@@ -63,6 +82,9 @@ export function WizardLayout({ children, className, productName, footer }: Wizar
       )}
     </div>
   );
+
+  if (!mounted) return null;
+  return createPortal(content, document.body);
 }
 
 export default WizardLayout;
