@@ -37,7 +37,12 @@ export interface AuthFormProps {
  * - sso-only: SSO button only
  * - both: form fields + "or" separator + SSO button
  */
-export function AuthForm({ onSubmit, showPasswordLogin = true, showSsoLogin, showSignupLink = true, className }: AuthFormProps) {
+export function AuthForm({ onSubmit, showPasswordLogin: showPwProp = true, showSsoLogin, showSignupLink = true, className }: AuthFormProps) {
+  const showPasswordLogin = (showPwProp || showSsoLogin) ? showPwProp : true;
+  if (!showPwProp && !showSsoLogin && process.env.NODE_ENV !== 'production') {
+    console.warn('AuthForm rendered with no login methods enabled. Falling back to password.');
+  }
+
   const [serverError, setServerError] = useState('');
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
