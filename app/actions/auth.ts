@@ -11,7 +11,7 @@ export interface SessionUser {
   email: string;
   userName: string;
   fullName: string;
-  clientId: string;
+  clientId?: string;
   role: 'participant' | 'admin' | 'superadmin';
 }
 
@@ -185,7 +185,7 @@ export async function ssoCallbackAction(
       email,
       userName: email,
       fullName,
-      clientId: gabConfig.clientId,
+      clientId: gabConfig.clientId || undefined,
       role,
     };
 

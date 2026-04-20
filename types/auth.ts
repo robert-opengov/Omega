@@ -3,7 +3,7 @@ export type GabRole = 'participant' | 'admin' | 'superadmin';
 export interface User {
   userName: string;
   fullName: string;
-  clientId: string;
+  clientId?: string;
   role: GabRole;
 }
 

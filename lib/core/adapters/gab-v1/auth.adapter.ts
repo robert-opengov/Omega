@@ -29,6 +29,13 @@ export class NextAuthAdapter implements IAuthPort {
   }
 
   async login(params: LoginParams): Promise<LoginResult> {
+    if (!this.clientId) {
+      throw new Error(
+        'GAB_CLIENT_ID is required when using V1 adapters. ' +
+        'Set it in your .env.local or switch to GAB_API_VERSION=v2.',
+      );
+    }
+
     const { username, password, otpCode } = params;
 
     // --- Step 1: POST /api/User/login (x-www-form-urlencoded) ---

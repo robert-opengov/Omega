@@ -10,13 +10,11 @@ import type {
 /**
  * GAB V2 authentication adapter.
  *
- * Implements the IAuthPort interface using the new JSON-based /v2/auth/* endpoints.
+ * Implements the IAuthPort interface using the JSON-based /v2/auth/* endpoints.
+ * V2 does not use client_id — only email + password.
  */
 export class GabAuthV2Adapter implements IAuthPort {
-  constructor(
-    private readonly apiUrl: string,
-    private readonly clientId: string,
-  ) {}
+  constructor(private readonly apiUrl: string) {}
 
   async getToken(): Promise<string | null> {
     const cookieStore = await cookies();
@@ -33,7 +31,7 @@ export class GabAuthV2Adapter implements IAuthPort {
       },
       body: JSON.stringify({
         email: username,
-        password: password,
+        password,
       }),
       cache: 'no-store',
     });
@@ -45,15 +43,16 @@ export class GabAuthV2Adapter implements IAuthPort {
 
     const data = await loginRes.json();
 
+    const expiresIn = data.exp
+      ? Math.max(Math.floor(data.exp - Date.now() / 1000), 60)
+      : 3600;
+
     return {
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
-      // v2 does not currently return an expiresIn field
-      expiresIn: data.expiresIn || 3600,
-      userName: data.user?.email || username,
-      fullName: data.user?.name || username,
-      // v2 does not currently return a clientId field
-      clientId: this.clientId,
+      expiresIn,
+      userName: data.email || username,
+      fullName: data.name || username,
     };
   }
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import { ClipboardEdit, BarChart3, FileSearch, Shield, Download, Send, AlertTriangle, CheckCircle, Users, Plus, Bell, Circle, Trash2, Archive, MapPin } from 'lucide-react';
+import { ClipboardEdit, BarChart3, FileSearch, Shield, Download, Send, AlertTriangle, CheckCircle, Users, Plus, Circle, MapPin } from 'lucide-react';
 import { Badge, Button, Text, SelectionCard } from '@/components/ui/atoms';
 import { ShowcaseLayout } from '../_components/ShowcaseLayout';
 import { type Column, StatusChecklist, MetricCard, MapLegend, type MapLegendItem } from '@/components/ui/molecules';
@@ -15,8 +15,6 @@ import {
   type AIMessageData,
   AIDisclaimer,
   AIPromptInput,
-  ChildTable,
-  type ChildTableConfig,
   FilterBuilder,
   type FilterBuilderField,
   type FilterCondition,
@@ -62,10 +60,9 @@ export default function OrganismsPage() {
         <WidgetGridDemo />
       </Section>
 
-      <Section title="Organisms" count={8}>
+      <Section title="Organisms" count={7}>
         <FullscreenWizardDemo />
         <AuthFormDemo />
-        <ChildTableDemo />
         <DataGridDemo />
         <ChartCardDemo />
         <FilterBuilderDemo />
@@ -201,134 +198,6 @@ function AuthFormDemo() {
         <Text size="xs" color="muted" className="mt-3 text-center">
           Demo credentials: demo@gov.com / password
         </Text>
-      </div>
-    </ComponentDemo>
-  );
-}
-
-/* ---------- ChildTable ---------- */
-
-interface BudgetItem extends Record<string, unknown> {
-  id: string;
-  lineItem: string;
-  department: string;
-  category: string;
-  budgeted: number;
-  actual: number;
-  variance: number;
-  status: string;
-  approver: string;
-  dueDate: string;
-  notes: string;
-  priority: string;
-}
-
-const budgetData: BudgetItem[] = [
-  { id: '1', lineItem: 'Office Supplies', department: 'Administration', category: 'Operations', budgeted: 15000, actual: 12450, variance: 2550, status: 'Under Budget', approver: 'Jane Smith', dueDate: '2025-03-31', notes: 'Q1 supplies purchased early', priority: 'Low' },
-  { id: '2', lineItem: 'Software Licenses', department: 'IT', category: 'Technology', budgeted: 85000, actual: 87200, variance: -2200, status: 'Over Budget', approver: 'Mike Chen', dueDate: '2025-04-15', notes: 'Additional seats needed for new hires', priority: 'High' },
-  { id: '3', lineItem: 'Training Programs', department: 'HR', category: 'Personnel', budgeted: 42000, actual: 38900, variance: 3100, status: 'Under Budget', approver: 'Sarah Lee', dueDate: '2025-06-30', notes: 'Virtual sessions saved travel costs', priority: 'Medium' },
-  { id: '4', lineItem: 'Fleet Maintenance', department: 'Public Works', category: 'Operations', budgeted: 120000, actual: 115600, variance: 4400, status: 'Under Budget', approver: 'Tom Baker', dueDate: '2025-05-01', notes: 'Preventive maintenance on schedule', priority: 'High' },
-  { id: '5', lineItem: 'Consulting Fees', department: 'Finance', category: 'Professional Services', budgeted: 60000, actual: 62500, variance: -2500, status: 'Over Budget', approver: 'Jane Smith', dueDate: '2025-03-15', notes: 'Audit required additional scope', priority: 'Medium' },
-  { id: '6', lineItem: 'Utility Payments', department: 'Facilities', category: 'Operations', budgeted: 95000, actual: 91200, variance: 3800, status: 'Under Budget', approver: 'Lisa Wong', dueDate: '2025-04-30', notes: 'Energy efficiency improvements', priority: 'Low' },
-  { id: '7', lineItem: 'Community Events', department: 'Parks & Rec', category: 'Programs', budgeted: 30000, actual: 28750, variance: 1250, status: 'Under Budget', approver: 'David Park', dueDate: '2025-07-15', notes: 'Summer program planning underway', priority: 'Medium' },
-  { id: '8', lineItem: 'Emergency Reserves', department: 'City Manager', category: 'Contingency', budgeted: 200000, actual: 0, variance: 200000, status: 'Unspent', approver: 'Jane Smith', dueDate: '2025-12-31', notes: 'Available for unforeseen needs', priority: 'High' },
-];
-
-const childTableConfig: ChildTableConfig<BudgetItem> = {
-  columns: [
-    { key: 'lineItem', label: 'Line Item', type: 'text', width: 180, sortable: true, validation: [{ type: 'required', message: 'Line item is required' }] },
-    { key: 'department', label: 'Department', type: 'select', width: 160, sortable: true, selectOptions: [
-      { label: 'Administration', value: 'Administration' },
-      { label: 'IT', value: 'IT' },
-      { label: 'HR', value: 'HR' },
-      { label: 'Public Works', value: 'Public Works' },
-      { label: 'Finance', value: 'Finance' },
-      { label: 'Facilities', value: 'Facilities' },
-      { label: 'Parks & Rec', value: 'Parks & Rec' },
-      { label: 'City Manager', value: 'City Manager' },
-    ]},
-    { key: 'category', label: 'Category', type: 'text', width: 160, sortable: true },
-    { key: 'budgeted', label: 'Budgeted', type: 'currency', width: 130, sortable: true },
-    { key: 'actual', label: 'Actual', type: 'currency', width: 130, sortable: true },
-    { key: 'variance', label: 'Variance', type: 'currency', width: 130, sortable: true },
-    { key: 'status', label: 'Status', type: 'select', width: 140, sortable: true, selectOptions: [
-      { label: 'Under Budget', value: 'Under Budget' },
-      { label: 'Over Budget', value: 'Over Budget' },
-      { label: 'On Target', value: 'On Target' },
-      { label: 'Unspent', value: 'Unspent' },
-    ]},
-    { key: 'approver', label: 'Approver', type: 'text', width: 140 },
-    { key: 'dueDate', label: 'Due Date', type: 'date', width: 130, sortable: true },
-    { key: 'priority', label: 'Priority', type: 'select', width: 120, selectOptions: [
-      { label: 'Low', value: 'Low' },
-      { label: 'Medium', value: 'Medium' },
-      { label: 'High', value: 'High' },
-    ]},
-    { key: 'notes', label: 'Notes', type: 'textarea', width: 220 },
-  ],
-  idField: 'id',
-  editable: true,
-  selectable: true,
-  rowReorderable: true,
-  showRowActions: true,
-};
-
-const readOnlyConfig: ChildTableConfig<BudgetItem> = {
-  ...childTableConfig,
-  editable: false,
-  selectable: false,
-  rowReorderable: false,
-  showRowActions: true,
-};
-
-function ChildTableDemo() {
-  return (
-    <ComponentDemo
-      name="ChildTable"
-      description="Full spreadsheet-like table with inline editing, CRUD, CSV import, keyboard navigation, clipboard, drag-and-drop row reorder, and form-rules engine. Supports 10+ cell editor types."
-      props={`interface ChildTableProps<T> {
-  config: ChildTableConfig<T>;
-  data?: T[];
-  title?: string;
-  pageSizeOptions?: number[];
-  className?: string;
-  onCellChange?: (rowId, colKey, val, oldVal) => void;
-  onRowAdd?: (row) => void;
-  onRowDelete?: (rowIds) => void;
-  onSave?: (rows) => Promise<void>;
-  onImportComplete?: (data) => void;
-  // + sort, filter, pagination, search, selection events
-}`}
-    >
-      <div className="space-y-8">
-        <div>
-          <Text weight="semibold" className="mb-3">Editable Mode</Text>
-          <Text size="sm" color="muted" className="mb-4">
-            Click any cell to edit. Use Tab/Enter to advance. Arrow keys to navigate. Ctrl+C / Ctrl+V for clipboard. Drag rows to reorder.
-          </Text>
-          <ChildTable
-            config={childTableConfig}
-            data={budgetData}
-            title="FY2025 Budget Line Items"
-            pageSizeOptions={[5, 10, 25]}
-            onSave={async () => {
-              await new Promise((r) => setTimeout(r, 800));
-            }}
-          />
-        </div>
-
-        <div>
-          <Text weight="semibold" className="mb-3">Read-Only Mode</Text>
-          <Text size="sm" color="muted" className="mb-4">
-            Same component with <code className="text-primary">editable: false</code> — acts as a display-only data grid replacement.
-          </Text>
-          <ChildTable
-            config={readOnlyConfig}
-            data={budgetData.slice(0, 5)}
-            title="Approved Items (Read-Only)"
-            pageSizeOptions={[5, 10]}
-          />
-        </div>
       </div>
     </ComponentDemo>
   );

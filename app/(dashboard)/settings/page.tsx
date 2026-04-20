@@ -134,7 +134,7 @@ export default function SettingsPage() {
                     <InfoRow icon={Mail} label="Email" value={user.email} />
                     <InfoRow icon={UserCircle} label="Username" value={user.userName} />
                     <InfoRow icon={Hash} label="User ID" value={user.userId} />
-                    <InfoRow icon={Building2} label="Client ID" value={user.clientId} />
+                    {user.clientId && <InfoRow icon={Building2} label="Client ID" value={user.clientId} />}
                   </div>
                 </CardContent>
               </Card>

@@ -24,10 +24,16 @@ npm install
 cp .env.example .env.local
 ```
 
-Set the two required values in `.env.local`:
+The default env already targets the V2 API — no URL needed:
 
 ```env
-NEXT_PUBLIC_API_URL=https://devapi.ignatius.io
+GAB_API_VERSION=v2
+```
+
+To use V1 (legacy), set the version and the OAuth client ID:
+
+```env
+GAB_API_VERSION=v1
 GAB_CLIENT_ID=IAFConsulting
 ```
 
@@ -56,7 +62,7 @@ The application is organized into three layers. The browser never talks to the b
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  Layer 1: Client                                            │
-│  React components (33 atoms, 58 molecules, 21 organisms)    │
+│  React components (33 atoms, 58 molecules, 20 organisms)    │
 │  Radix UI + Tailwind CSS, file-based routing in app/        │
 │  Components receive data via props — never call APIs        │
 └──────────────────────────┬──────────────────────────────────┘
@@ -70,7 +76,7 @@ The application is organized into three layers. The browser never talks to the b
                            │ fetch via adapters
 ┌──────────────────────────▼──────────────────────────────────┐
 │  Layer 3: Backend (external services)                       │
-│  GAB V1 API, GAB V2 API, Auth0 SSO                         │
+│  GAB V1 API, GAB V2 API, Auth0 SSO, GAB AI Gateway          │
 │  Accessed exclusively through the adapter layer             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -81,7 +87,7 @@ The browser receives server-rendered HTML and interactive React components organ
 
 - **Atoms** (33): smallest building blocks — Button, Input, Badge, Select, Switch, Checkbox
 - **Molecules** (58): composed elements — Card, Modal, DataTable, FormField, DatePicker, SiteBanner
-- **Organisms** (21): complex components — Navbar, Sidebar, AuthForm, ChildTable, DataGrid, ChartCard
+- **Organisms** (20): complex components — Navbar, Sidebar, AuthForm, DataGrid, ChartCard, KanbanBoard
 - **Layouts** (3): page shells — DashboardLayout, AuthLayout, WizardLayout
 
 Every component uses Radix UI for accessibility and Tailwind CSS for styling. There is one way to style things — utility classes in `className` via the `cn()` helper — which keeps code predictable for both humans and AI agents.
@@ -98,15 +104,15 @@ The Next.js server has three jobs:
 
 **Ports & Adapters** (`lib/core/`) are the most important architectural decision:
 
-- **Ports** (`lib/core/ports/`) are TypeScript interfaces that define what the frontend needs: `IAuthPort` (login, profile), `IGabDataRepository` (CRUD rows), `IGabSchemaRepository` (create apps/tables/fields), `IChildTableRepository` (datatable operations).
-- **Adapters** (`lib/core/adapters/`) are implementations against specific APIs. Today: GAB V1 adapters, GAB V2 adapters, and Auth0 SSO adapter.
+- **Ports** (`lib/core/ports/`) are TypeScript interfaces that define what the frontend needs: `IAuthPort` (login, profile), `IGabDataRepository` (CRUD rows), `IGabSchemaRepository` (create apps/tables/fields), `IAIGatewayPort` (AI converse/stream/invoke).
+- **Adapters** (`lib/core/adapters/`) are implementations against specific APIs. Today: GAB V1 adapters (backward compat), GAB V2 adapters, Auth0 SSO adapter, and GAB AI Gateway adapter (`gab-ai/`).
 - **Composition root** (`lib/core/index.ts`) is the single file that wires ports to adapters. Controlled by `GAB_API_VERSION` env var. This is the only file that changes when the backend changes.
 
 Every page calls port methods (`fetchRows()`, `login()`). No component knows or cares whether the backend is GAB V1 or V2. Migration is a new adapter and a one-line wiring change. Zero UI changes.
 
 ### Layer 3 — Backend
 
-GAB V1 today, GAB V2 on Bedrock, plus Auth0 for SSO. The Boilerplate treats these as external services accessed exclusively through the adapter layer. Adapters transform raw API responses into the shapes defined by port interfaces. The BFF never passes raw API payloads to the browser.
+GAB V1 (legacy), GAB V2 (current), Auth0 for SSO, and the GAB Bedrock AI Gateway. The Boilerplate treats these as external services accessed exclusively through the adapter layer. Adapters transform raw API responses into the shapes defined by port interfaces. The BFF never passes raw API payloads to the browser.
 
 ## Data Flow
 
@@ -286,31 +292,24 @@ export interface IPermittingRepository {
 }
 ```
 
-### Step 2 — Create a mock adapter
+### Step 2 — Create the adapter
 
-Create `lib/core/adapters/mock/[vertical].mock.adapter.ts`. Return static data so you can build all pages without a real backend:
+Create `lib/core/adapters/gab-v2/[vertical].v2.adapter.ts` (or a mock during early prototyping). For example:
 
 ```typescript
 import type { IPermittingRepository } from '../../ports/permitting.repository';
 
-export class MockPermittingAdapter implements IPermittingRepository {
+export class PermittingV2Adapter implements IPermittingRepository {
+  constructor(private readonly authPort: IAuthPort, private readonly apiUrl: string) {}
   async getDashboardSummary() {
-    return { pendingCount: 42, approvedThisMonth: 18 /* ... */ };
+    // Call GAB V2 API and map to the port shape
   }
-  // Implement all methods with static data
 }
 ```
 
 ### Step 3 — Register in the composition root
 
 In `lib/core/index.ts`, instantiate and export:
-
-```typescript
-import { MockPermittingAdapter } from './adapters/mock/permitting.mock.adapter';
-export const permittingRepo = new MockPermittingAdapter();
-```
-
-Later, swap to the real adapter:
 
 ```typescript
 import { PermittingV2Adapter } from './adapters/gab-v2/permitting.v2.adapter';
@@ -410,9 +409,9 @@ Avatar, Badge, Button, ButtonGroup, Checkbox, Chip, Code, Heading, IconButton, I
 
 Accordion, ActivityFeed, AddressInput, Alert, AvatarGroup, Banner, Breadcrumbs, BreakdownCard, Card, CategoryGrid, CheckboxTree, CollapsibleTable, Combobox, CommandPalette, ComposeInput, ConfirmDialog, ContentHeader, DashboardWidget, DataTable, DatePicker, DeadlineItem, DropdownMenu, EmptyState, ExpandableListItem, FilePreviewCard, FileUpload, FormField, Hero, InfoCard, LabelValuePair, LabeledProgressRow, List, MapLegend, MentionInput, MetricCard, Modal, OnboardingWizard, PageContent, PageHeader, Pagination, Popover, ProgressSteps, ResponsiveGrid, SearchInput, SectionHeader, Sheet, SiteBanner, SsoLoginButton, StatusChecklist, SummaryCard, Tabs, TagInput, Toast, Toolbar, UploadSlot, ValueItem, WizardCard, ZodForm
 
-### Organisms (21)
+### Organisms (20)
 
-AIConversation, AIDisclaimer, AIPromptInput, AuthForm, ChartCard, ChildTable, DataGrid, DetailPageHeader, DynamicForm, FilterBuilder, Footer, FullscreenWizard, GanttChart, KanbanBoard, LocationMap, Logo, Navbar, Sidebar, SignupForm, Timeline, WidgetGrid
+AIConversation, AIDisclaimer, AIPromptInput, AuthForm, ChartCard, DataGrid, DetailPageHeader, DynamicForm, FilterBuilder, Footer, FullscreenWizard, GanttChart, KanbanBoard, LocationMap, Logo, Navbar, Sidebar, SignupForm, Timeline, WidgetGrid
 
 ### Layouts (3)
 
@@ -480,14 +479,16 @@ Copy `.env.example` to `.env.local`. The example file is fully commented.
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `NEXT_PUBLIC_API_URL` | Yes | — | GAB API base URL |
-| `GAB_CLIENT_ID` | Yes | `IAFConsulting` | OAuth client_id for `/token` |
-| `GAB_API_VERSION` | No | `v1` | API version for adapters (`v1` or `v2`) |
+| `GAB_API_VERSION` | No | `v2` | `v1` (legacy) or `v2`. Auto-resolves the API URL. |
+| `GAB_API_URL` | No | auto | Override the auto-resolved URL for custom deployments |
+| `GAB_CLIENT_ID` | V1 only | — | OAuth client_id for V1 `/token` request |
 | `GAB_SERVICE_USERNAME` | No | — | Service account username (M2M flows) |
 | `GAB_SERVICE_PASSWORD` | No | — | Service account password |
 | `GAB_APP_KEY` | No | — | App-specific GAB key |
 | `GAB_TABLE_SERVICE_REQUESTS` | No | — | Table key for service requests |
 | `GAB_TABLE_ACTIVITIES` | No | — | Table key for activities |
+
+> **Switching versions:** Set `GAB_API_VERSION=v1` or `v2`. The API URL resolves automatically (`v1` → `devapi.ignatius.io`, `v2` → `gab-core-api.gab.ogintegration.us`). V1 also requires `GAB_CLIENT_ID`.
 
 ### App Customization
 
@@ -545,11 +546,18 @@ When `NEXT_PUBLIC_ENABLE_SITE_BANNER=true`, a full-width identifier bar renders 
 | `NEXT_PUBLIC_THEME_INFO` | `#0288D1` | Informational states |
 | `NEXT_PUBLIC_THEME_IN_PROGRESS` | `#7B1FA2` | In-progress/pending states |
 
-### AI and Runtime
+### GAB Bedrock AI Gateway (server-only)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `AI_GATEWAY_BASE_URL` | `https://gab-bedrock-ai-gateway.gab-test.com` | AI gateway URL |
+| `AI_GATEWAY_TOKEN` | — | Bearer token (`gab_…`). Stored in SSM. |
+| `AI_GATEWAY_DEFAULT_MODEL` | `global.anthropic.claude-sonnet-4-5-20250929-v1:0` | Default model id |
+
+### Runtime
 
 | Variable | Description |
 |----------|-------------|
-| `OPENAI_API_KEY` | AI Builder chat (optional) |
 | `NODE_ENV` | Runtime environment |
 
 ## Scripts

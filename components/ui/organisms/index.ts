@@ -7,8 +7,6 @@ export { AuthForm, type AuthFormProps } from './AuthForm';
 export { AIConversation, AIMessage, type AIConversationProps, type AIMessageProps, type AIMessageData } from './AIConversation';
 export { AIDisclaimer, type AIDisclaimerProps } from './AIDisclaimer';
 export { AIPromptInput, type AIPromptInputProps } from './AIPromptInput';
-export { ChildTable, type ChildTableProps, ChildTableEmbedded, type ChildTableEmbeddedProps } from './ChildTable';
-export type { ChildTableConfig, ChildTableColumn, ChildTableRow, ColumnType } from './ChildTable';
 export { FilterBuilder, type FilterBuilderProps, type FilterBuilderField, type FilterCondition, type FilterBuilderLabels } from './FilterBuilder';
 export { Footer, type FooterProps, type FooterSection, type FooterLink } from './Footer';
 export { FullscreenWizard, useWizard, type FullscreenWizardProps, type WizardStepConfig } from './FullscreenWizard';

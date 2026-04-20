@@ -41,7 +41,7 @@ const categories = [
     description: 'Complex, self-contained sections that compose full page areas.',
     highlights: [
       'DynamicForm, KanbanBoard, WidgetGrid',
-      'LocationMap, GanttChart, ChildTable',
+      'LocationMap, GanttChart, Timeline',
       'FullscreenWizard, DataGrid (selectable)',
       'AIConversation, AIPromptInput, Footer',
     ],

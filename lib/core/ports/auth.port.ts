@@ -11,7 +11,7 @@ export interface LoginResult {
   expiresIn: number;
   userName: string;
   fullName: string;
-  clientId: string;
+  clientId?: string;
 }
 
 export interface UserProfile {
