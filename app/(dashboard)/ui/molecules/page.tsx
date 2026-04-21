@@ -1464,7 +1464,7 @@ function HeroDemo() {
   return (
     <ComponentDemo
       name="Hero"
-      description="Page hero with title, subtitle, CTAs, and optional illustration."
+      description="Page hero with title, subtitle, CTAs, optional illustration, and background image with overlay."
       props={`interface HeroProps {
   title: string; subtitle?: string;
   primaryAction?: { label: string; href: string };
@@ -1472,6 +1472,10 @@ function HeroDemo() {
   illustration?: ReactNode;
   align?: 'left' | 'center';
   variant?: 'default' | 'gradient' | 'image';
+  backgroundImage?: string;
+  backgroundFit?: 'cover' | 'contain';
+  backgroundPosition?: 'top' | 'center' | 'bottom';
+  overlay?: boolean | 'gradient' | 'brand' | string;
 }`}
     >
       <div className="space-y-6">
@@ -1487,6 +1491,36 @@ function HeroDemo() {
           subtitle="Centered alignment without illustration."
           primaryAction={{ label: 'Action', href: '#' }}
           align="center"
+        />
+        <Hero
+          title="Image + Brand Overlay"
+          subtitle="Diagonal primary-color gradient — theme-aware, adapts to light/dark mode."
+          primaryAction={{ label: 'Get Started', href: '#' }}
+          secondaryAction={{ label: 'Learn More', href: '#' }}
+          variant="image"
+          backgroundImage="/brand/demo-bg-boston.jpg"
+          backgroundPosition="top"
+          overlay="brand"
+        />
+        <Hero
+          title="Image + Gradient Overlay"
+          subtitle="Left-to-right dark fade — dark where text is, transparent on the right."
+          primaryAction={{ label: 'Get Started', href: '#' }}
+          secondaryAction={{ label: 'Learn More', href: '#' }}
+          variant="image"
+          backgroundImage="/brand/demo-bg-boston.jpg"
+          backgroundPosition="top"
+          overlay="gradient"
+        />
+        <Hero
+          title="Image + Solid Overlay"
+          subtitle="Uniform dark overlay for maximum text contrast."
+          primaryAction={{ label: 'Get Started', href: '#' }}
+          secondaryAction={{ label: 'Learn More', href: '#' }}
+          variant="image"
+          backgroundImage="/brand/demo-bg-boston.jpg"
+          backgroundPosition="top"
+          overlay
         />
       </div>
     </ComponentDemo>

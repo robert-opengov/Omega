@@ -91,7 +91,10 @@ export default function HomePage() {
           subtitle="The atomic foundation for AI-generated government applications. Built with Next.js, Tailwind CSS, and Clean Architecture."
           primaryAction={{ label: 'Explore Components', href: '/ui' }}
           secondaryAction={{ label: 'AI Builder', href: '/ai-builder' }}
-          variant="gradient"
+          variant="image"
+          backgroundImage="/brand/demo-bg-boston.jpg"
+          backgroundPosition="center"
+          overlay="brand"
         />
 
         <section>
