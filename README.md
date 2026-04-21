@@ -185,6 +185,16 @@ function LoginForm() {
 
 **Never do this:** Import `@/lib/core` in a `'use client'` file. The ports use server-only APIs (cookies, env vars). Client components get data via props or server actions — never directly from the data layer.
 
+**File uploads via server actions:** Server actions accept `FormData` natively, which is the correct way to send files. Next.js defaults to a 1MB body size limit for server actions. If your fork handles file uploads (PDFs, images, documents), increase the limit in `next.config.ts` to match your use case:
+
+```typescript
+experimental: {
+  serverActions: {
+    bodySizeLimit: '10mb', // adjust based on expected file sizes
+  },
+},
+```
+
 ## Config-Driven Customization
 
 Most changes to a vertical don't require touching component code. Four config files control identity and behavior:
@@ -553,6 +563,12 @@ When `NEXT_PUBLIC_ENABLE_SITE_BANNER=true`, a full-width identifier bar renders 
 | `AI_GATEWAY_BASE_URL` | `https://gab-bedrock-ai-gateway.gab-test.com` | AI gateway URL |
 | `AI_GATEWAY_TOKEN` | — | Bearer token (`gab_…`). Stored in SSM. |
 | `AI_GATEWAY_DEFAULT_MODEL` | `global.anthropic.claude-sonnet-4-5-20250929-v1:0` | Default model id |
+
+### OCR Service (server-only)
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `OCR_SERVICE_URL` | Yes | — | Base URL for the OCR microservice (no trailing slash) |
 
 ### Runtime
 
