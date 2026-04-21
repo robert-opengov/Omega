@@ -53,10 +53,32 @@ export interface CreateReportParams {
   defaultReport?: boolean;
 }
 
+export interface GabField {
+  id: string;
+  tableId: string;
+  key: string;
+  name: string;
+  type: string;
+  required: boolean;
+  sortOrder: number;
+  isSystem: boolean;
+  createdAt: string;
+  formula?: string | null;
+  formulaReturnType?: string | null;
+  config?: Record<string, unknown> | null;
+  lookupConfig?: Record<string, unknown> | null;
+  summaryConfig?: Record<string, unknown> | null;
+  defaultValue?: unknown;
+}
+
 export interface IGabSchemaRepository {
   createApp(params: CreateAppParams): Promise<any>;
   createTable(params: CreateTableParams): Promise<any>;
   createField(params: CreateFieldParams): Promise<any>;
+  listFields(
+    applicationKey: string,
+    applicationTableKey: string,
+  ): Promise<{ items: GabField[]; total: number }>;
   createRelation(params: CreateRelationParams): Promise<any>;
   createForm(params: CreateFormParams): Promise<any>;
   createReport(params: CreateReportParams): Promise<any>;

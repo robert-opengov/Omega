@@ -7,6 +7,12 @@ import { GabDataV1Adapter } from './adapters/gab-v1/data.v1.adapter';
 import { GabDataV2Adapter } from './adapters/gab-v2/data.v2.adapter';
 import { GabSchemaV1Adapter } from './adapters/gab-v1/schema.v1.adapter';
 import { GabSchemaV2Adapter } from './adapters/gab-v2/schema.v2.adapter';
+import { GabUserV1Adapter } from './adapters/gab-v1/user.adapter';
+import { GabUserV2Adapter } from './adapters/gab-v2/user.adapter';
+import { GabNotificationsV1Adapter } from './adapters/gab-v1/notifications.adapter';
+import { GabNotificationsV2Adapter } from './adapters/gab-v2/notifications.adapter';
+import { GabAppRoleV1Adapter } from './adapters/gab-v1/app-role.adapter';
+import { GabAppRoleV2Adapter } from './adapters/gab-v2/app-role.adapter';
 import { BedrockGatewayAdapter } from './adapters/gab-ai/bedrock-gateway.adapter';
 import { OCRTesseractAdapter } from './adapters/ocr-tesseract/ocr.tesseract.adapter';
 // ---------------------------------------------------------------------------
@@ -34,6 +40,18 @@ export const gabDataRepo = apiVersion === 'v2'
 export const gabSchemaRepo = apiVersion === 'v2'
   ? new GabSchemaV2Adapter(authPort, apiUrl)
   : new GabSchemaV1Adapter(authPort, apiUrl);
+
+export const gabUserRepo = apiVersion === 'v2'
+  ? new GabUserV2Adapter(authPort, apiUrl)
+  : new GabUserV1Adapter(authPort, apiUrl);
+
+export const gabNotificationRepo = apiVersion === 'v2'
+  ? new GabNotificationsV2Adapter(authPort, apiUrl)
+  : new GabNotificationsV1Adapter(authPort, apiUrl);
+
+export const gabAppRoleRepo = apiVersion === 'v2'
+  ? new GabAppRoleV2Adapter(authPort, apiUrl)
+  : new GabAppRoleV1Adapter(authPort, apiUrl);
 
 // ---------------------------------------------------------------------------
 // AI Gateway — Bedrock proxy via GAB AI Gateway

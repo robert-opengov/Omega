@@ -6,6 +6,7 @@ import {
   CreateRelationParams,
   CreateFormParams,
   CreateReportParams,
+  GabField,
 } from '../../ports/schema.repository';
 import { IAuthPort } from '../../ports/auth.port';
 
@@ -62,6 +63,37 @@ export class GabSchemaV2Adapter implements IGabSchemaRepository {
         // V2 does not explicitly take isUnique in the basic payload right now
       }),
     });
+  }
+
+  async listFields(
+    applicationKey: string,
+    applicationTableKey: string,
+  ): Promise<{ items: GabField[]; total: number }> {
+    const response = await this.fetchWithAuth(
+      `/v2/apps/${applicationKey}/tables/${applicationTableKey}/fields`,
+      { method: 'GET' },
+    );
+
+    return {
+      items: (response.items || []).map((field: any) => ({
+        id: String(field.id ?? ''),
+        tableId: String(field.tableId ?? ''),
+        key: field.key || '',
+        name: field.name || '',
+        type: field.type || '',
+        required: Boolean(field.required),
+        sortOrder: Number(field.sortOrder ?? 0),
+        isSystem: Boolean(field.isSystem),
+        createdAt: field.createdAt || '',
+        formula: field.formula ?? null,
+        formulaReturnType: field.formulaReturnType ?? null,
+        ...(field.config !== undefined ? { config: field.config } : {}),
+        ...(field.lookupConfig !== undefined ? { lookupConfig: field.lookupConfig } : {}),
+        ...(field.summaryConfig !== undefined ? { summaryConfig: field.summaryConfig } : {}),
+        ...(field.defaultValue !== undefined ? { defaultValue: field.defaultValue } : {}),
+      })),
+      total: Number(response.total ?? 0),
+    };
   }
 
   async createRelation(params: CreateRelationParams): Promise<any> {

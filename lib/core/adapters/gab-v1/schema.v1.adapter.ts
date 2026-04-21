@@ -6,6 +6,7 @@ import {
   CreateRelationParams,
   CreateFormParams,
   CreateReportParams,
+  GabField,
 } from '../../ports/schema.repository';
 import { IAuthPort } from '../../ports/auth.port';
 
@@ -66,6 +67,17 @@ export class GabSchemaV1Adapter implements IGabSchemaRepository {
         IsNullable: params.isNullable ?? true,
       }),
     });
+  }
+
+  /**
+   * Intentional rollout policy: schema field listing is being added only for
+   * v2-backed flows in this phase, even though legacy v1 equivalents existed.
+   */
+  async listFields(
+    _applicationKey: string,
+    _applicationTableKey: string,
+  ): Promise<{ items: GabField[]; total: number }> {
+    throw new Error('Not supported when GAB_API_VERSION=v1');
   }
 
   async createRelation(params: CreateRelationParams): Promise<any> {

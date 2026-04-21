@@ -4,6 +4,8 @@ import type {
   IAuthPort,
   LoginParams,
   LoginResult,
+  RegisterParams,
+  RegisteredUser,
   UserProfile,
 } from '../../ports/auth.port';
 
@@ -104,6 +106,14 @@ export class NextAuthAdapter implements IAuthPort {
       fullName: tokenData.fullName || username,
       clientId: tokenData['as:client_id'] || this.clientId,
     };
+  }
+
+  /**
+   * Intentional rollout policy: new register flows are v2-only for now,
+   * even though legacy v1 endpoints existed historically.
+   */
+  async register(_params: RegisterParams): Promise<RegisteredUser> {
+    throw new Error('Not supported when GAB_API_VERSION=v1');
   }
 
   async checkUserExists(

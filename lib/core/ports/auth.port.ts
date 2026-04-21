@@ -5,6 +5,13 @@ export interface LoginParams {
   otpCode?: string;
 }
 
+export interface RegisterParams {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
 export interface LoginResult {
   accessToken: string;
   refreshToken?: string;
@@ -12,6 +19,14 @@ export interface LoginResult {
   userName: string;
   fullName: string;
   clientId?: string;
+}
+
+export interface RegisteredUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: 'participant' | 'admin' | 'superadmin';
 }
 
 export interface UserProfile {
@@ -36,6 +51,12 @@ export interface IAuthPort {
    * (endpoints, encoding, multi-step flows, etc.).
    */
   login(params: LoginParams): Promise<LoginResult>;
+
+  /**
+   * Registers a user against the backend's self-service signup flow.
+   * Implementations normalize request and response shapes per backend version.
+   */
+  register(params: RegisterParams): Promise<RegisteredUser>;
 
   /**
    * Fetches the authenticated user's profile from the backend.

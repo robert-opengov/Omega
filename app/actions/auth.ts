@@ -2,9 +2,11 @@
 
 import { cookies } from 'next/headers';
 import { AUTH_COOKIE_NAMES } from '@/lib/constants';
-import { authPort } from '@/lib/core';
+import { authPort, gabUserRepo } from '@/lib/core';
 import { gabConfig } from '@/config/gab.config';
 import { authConfig } from '@/config/auth.config';
+import type { RegisterParams, RegisteredUser } from '@/lib/core/ports/auth.port';
+import type { GabUser, UpdateUserParams } from '@/lib/core/ports/user.repository';
 
 export interface SessionUser {
   userId: string;
@@ -13,6 +15,89 @@ export interface SessionUser {
   fullName: string;
   clientId?: string;
   role: 'participant' | 'admin' | 'superadmin';
+}
+
+function getUserFullName(firstName: string, lastName: string, fallback: string): string {
+  const fullName = `${firstName} ${lastName}`.trim();
+  return fullName || fallback;
+}
+
+function getTokenMaxAge(token: string | undefined): number | undefined {
+  if (!token) return undefined;
+
+  try {
+    const [, payload] = token.split('.');
+    if (!payload) return undefined;
+
+    const parsed = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as {
+      exp?: number;
+    };
+
+    if (typeof parsed.exp !== 'number') return undefined;
+    return Math.max(Math.floor(parsed.exp - Date.now() / 1000), 1);
+  } catch {
+    return undefined;
+  }
+}
+
+async function writeUserInfoCookie(
+  cookieStore: Awaited<ReturnType<typeof cookies>>,
+  user: SessionUser,
+  maxAge?: number,
+) {
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  cookieStore.set(AUTH_COOKIE_NAMES.userInfo, JSON.stringify(user), {
+    httpOnly: false,
+    secure: isProduction,
+    sameSite: 'lax',
+    ...(maxAge ? { maxAge } : {}),
+    path: '/',
+  });
+}
+
+async function hydrateSessionUser(
+  accessToken: string,
+  fallback: {
+    userName: string;
+    fullName: string;
+    clientId?: string;
+  },
+): Promise<SessionUser> {
+  let userId = '';
+  let email = '';
+  let fullName = fallback.fullName;
+  let role: SessionUser['role'] = 'participant';
+
+  try {
+    const profile = await authPort.getProfile(accessToken);
+    userId = profile.id;
+    email = profile.email;
+    role = profile.role;
+    fullName = getUserFullName(profile.firstName, profile.lastName, fallback.fullName);
+  } catch {
+    // Profile hydration failed — continue with token-level data
+  }
+
+  return {
+    userId,
+    email,
+    userName: fallback.userName || email,
+    fullName,
+    clientId: fallback.clientId,
+    role,
+  };
+}
+
+function sessionUserFromGabUser(currentUser: SessionUser, updatedUser: GabUser): SessionUser {
+  return {
+    userId: updatedUser.id || currentUser.userId,
+    email: updatedUser.email || currentUser.email,
+    userName: currentUser.userName,
+    fullName: getUserFullName(updatedUser.firstName, updatedUser.lastName, currentUser.fullName),
+    clientId: currentUser.clientId,
+    role: currentUser.role,
+  };
 }
 
 /**
@@ -73,39 +158,13 @@ export async function loginAction(
       });
     }
 
-    let userId = '';
-    let email = '';
-    let fullName = loginResult.fullName;
-    let role: SessionUser['role'] = 'participant';
-
-    try {
-      const profile = await authPort.getProfile(loginResult.accessToken);
-      userId = profile.id;
-      email = profile.email;
-      role = profile.role;
-      if (profile.firstName && profile.lastName) {
-        fullName = `${profile.firstName} ${profile.lastName}`;
-      }
-    } catch {
-      // Profile hydration failed — continue with token-level data
-    }
-
-    const user: SessionUser = {
-      userId,
-      email,
+    const user = await hydrateSessionUser(loginResult.accessToken, {
       userName: loginResult.userName,
-      fullName,
+      fullName: loginResult.fullName,
       clientId: loginResult.clientId,
-      role,
-    };
-
-    cookieStore.set(AUTH_COOKIE_NAMES.userInfo, JSON.stringify(user), {
-      httpOnly: false,
-      secure: isProduction,
-      sameSite: 'lax',
-      maxAge: loginResult.expiresIn,
-      path: '/',
     });
+
+    await writeUserInfoCookie(cookieStore, user, loginResult.expiresIn);
 
     return { success: true, user };
   } catch (error) {
@@ -125,6 +184,67 @@ export async function logoutAction(): Promise<void> {
   cookieStore.delete(AUTH_COOKIE_NAMES.refreshToken);
   cookieStore.delete(AUTH_COOKIE_NAMES.userInfo);
   cookieStore.delete(AUTH_COOKIE_NAMES.authProvider);
+}
+
+export async function registerAction(
+  params: RegisterParams,
+): Promise<{ success: boolean; user?: RegisteredUser; error?: string }> {
+  try {
+    const user = await authPort.register(params);
+    return { success: true, user };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Registration failed.';
+    console.error('Register action error:', message);
+    return { success: false, error: message };
+  }
+}
+
+export async function updateProfileAction(
+  params: Pick<UpdateUserParams, 'firstName' | 'lastName'>,
+): Promise<{ success: boolean; user?: GabUser; error?: string }> {
+  const currentUser = await getCurrentUser();
+  if (!currentUser?.userId) {
+    return { success: false, error: 'No user session found.' };
+  }
+
+  try {
+    const updatedUser = await gabUserRepo.updateUser(currentUser.userId, params);
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get(AUTH_COOKIE_NAMES.accessToken)?.value;
+    await writeUserInfoCookie(
+      cookieStore,
+      sessionUserFromGabUser(currentUser, updatedUser),
+      getTokenMaxAge(accessToken),
+    );
+    return { success: true, user: updatedUser };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Failed to update profile.';
+    console.error('Update profile action error:', message);
+    return { success: false, error: message };
+  }
+}
+
+export async function setTwoFactorEnabledAction(
+  enabled: boolean,
+): Promise<{ success: boolean; user?: GabUser; error?: string }> {
+  const currentUser = await getCurrentUser();
+  if (!currentUser?.userId) {
+    return { success: false, error: 'No user session found.' };
+  }
+
+  try {
+    const updatedUser = await gabUserRepo.updateUser(currentUser.userId, {
+      twoFactorEnabled: enabled,
+    });
+    return { success: true, user: updatedUser };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Failed to update two-factor settings.';
+    console.error('Two-factor action error:', message);
+    return { success: false, error: message };
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -163,39 +283,13 @@ export async function ssoCallbackAction(
       path: '/',
     });
 
-    let userId = '';
-    let email = '';
-    let fullName = '';
-    let role: SessionUser['role'] = 'participant';
-
-    try {
-      const profile = await authPort.getProfile(accessToken);
-      userId = profile.id;
-      email = profile.email;
-      role = profile.role;
-      if (profile.firstName && profile.lastName) {
-        fullName = `${profile.firstName} ${profile.lastName}`;
-      }
-    } catch {
-      // Profile hydration failed — continue with minimal data
-    }
-
-    const user: SessionUser = {
-      userId,
-      email,
-      userName: email,
-      fullName,
+    const user = await hydrateSessionUser(accessToken, {
+      userName: '',
+      fullName: '',
       clientId: gabConfig.clientId || undefined,
-      role,
-    };
-
-    cookieStore.set(AUTH_COOKIE_NAMES.userInfo, JSON.stringify(user), {
-      httpOnly: false,
-      secure: isProduction,
-      sameSite: 'lax',
-      maxAge: expiresIn,
-      path: '/',
     });
+
+    await writeUserInfoCookie(cookieStore, user, expiresIn);
 
     return { success: true, user };
   } catch (error) {
