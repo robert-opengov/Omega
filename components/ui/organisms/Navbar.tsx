@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { useSidebar, useTheme, useAuth } from '@/providers';
-import { Menu, Moon, Sun, X, HelpCircle, Bell, Settings, ChevronDown } from 'lucide-react';
+import { Menu, Moon, Sun, X, HelpCircle, Bell, Settings, ChevronDown, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { appConfig } from '@/config/app.config';
@@ -140,7 +140,7 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
  * Height is always 52 px. Active tab shows a 3 px primary-colored bottom indicator.
  */
 export function Navbar({ standalone = false, topClass }: NavbarProps) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { isMobileOpen, isDesktopCollapsed, toggleMobileOpen, toggleDesktopCollapsed } = useSidebar();
   const { theme, setTheme } = useTheme();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -265,6 +265,16 @@ export function Navbar({ standalone = false, topClass }: NavbarProps) {
             <NavIconButton aria-label="Settings" className="hidden sm:inline-flex">
               <Settings size={16} />
             </NavIconButton>
+
+            {user && appConfig.features.enableNavbarLogout && (
+              <NavIconButton
+                onClick={() => logout()}
+                aria-label="Log out"
+                className="hidden sm:inline-flex"
+              >
+                <LogOut size={16} />
+              </NavIconButton>
+            )}
 
             {user && (
               <Link

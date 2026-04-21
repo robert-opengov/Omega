@@ -55,6 +55,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en" suppressHydrationWarning style={themeStyle}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var s=localStorage.getItem('g-bp-theme')||'system';var d=s==='dark'||(s==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.add(d?'dark':'light');}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className={`${dmSans.variable} ${geistMono.variable} antialiased`}>
         <Providers
           enableAuth={authConfig.enableAuth}

@@ -43,7 +43,7 @@ export interface WizardCardProps {
  */
 export function WizardCard({ stepLabel, title, description, children, actions, footer, className }: WizardCardProps) {
   return (
-    <div className={cn('bg-card rounded-lg shadow-medium w-full max-w-[570px]', className)}>
+    <div className={cn('bg-card rounded-lg shadow-medium w-full max-w-[700px]', className)}>
       <div className="flex flex-col gap-6 p-9">
         {/* Header */}
         <div className="flex flex-col gap-2">

@@ -66,6 +66,8 @@ export interface AppFeatures {
   enableSignup: boolean;
   /** Render a full-width site identifier banner above the navbar */
   enableSiteBanner: boolean;
+  /** Show a logout icon button in the top navbar utility tray */
+  enableNavbarLogout: boolean;
 }
 
 export interface SiteBannerConfig {
@@ -132,6 +134,7 @@ export const appConfig: AppConfig = {
     enableNotifications: process.env.NEXT_PUBLIC_ENABLE_NOTIFICATIONS === 'true',
     enableSignup:        process.env.NEXT_PUBLIC_ENABLE_SIGNUP !== 'false',
     enableSiteBanner:    process.env.NEXT_PUBLIC_ENABLE_SITE_BANNER === 'true',
+    enableNavbarLogout:  process.env.NEXT_PUBLIC_ENABLE_NAVBAR_LOGOUT !== 'false',
   },
   siteBanner: {
     orgName:   process.env.NEXT_PUBLIC_SITE_BANNER_ORG || '',

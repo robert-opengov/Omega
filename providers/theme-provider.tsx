@@ -42,7 +42,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
-    const saved = (localStorage.getItem(THEME_STORAGE_KEY) as Theme) || 'light';
+    const saved = (localStorage.getItem(THEME_STORAGE_KEY) as Theme) || 'system';
     setThemeState(saved);
     injectHslVars();
   }, []);

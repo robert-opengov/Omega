@@ -10,6 +10,7 @@ A forkable Next.js application that provides the frontend foundation for GAB ver
 | UI Primitives | Radix UI + custom Tailwind (shadcn/ui pattern) |
 | Forms | React Hook Form + Zod |
 | Charts | Recharts |
+| Markdown | react-markdown + remark-gfm |
 | i18n | next-intl (opt-in) |
 | Design Tokens | OpenGov Capital Design System v5.5.0 |
 | Testing | Vitest + Testing Library |
