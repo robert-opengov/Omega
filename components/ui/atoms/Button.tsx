@@ -13,7 +13,7 @@ const buttonVariants = cva(
         primary:
           'bg-primary text-primary-foreground hover:bg-primary-dark',
         secondary:
-          'bg-background text-foreground border border-border hover:bg-action-hover-primary hover:border-primary/30',
+          'bg-background text-primary border border-primary hover:bg-action-hover-primary hover:border-primary',
         outline:
           'bg-background text-foreground border border-border hover:bg-action-hover-primary',
         danger:
