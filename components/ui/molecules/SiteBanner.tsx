@@ -4,6 +4,7 @@ import { useState, type ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useInlineSvg } from '@/hooks';
 
 const siteBannerVariants = cva(
   'w-full text-xs',
@@ -35,17 +36,39 @@ export interface SiteBannerProps extends VariantProps<typeof siteBannerVariants>
   className?: string;
 }
 
-function renderIdentity(
-  orgName: string,
-  logo: string | ReactNode | undefined,
-  orgNameElement: ReactNode | undefined,
-) {
-  if (orgNameElement) return orgNameElement;
+function LogoImage({ src, alt }: Readonly<{ src: string; alt: string }>) {
+  const { markup, isInlineable } = useInlineSvg(src);
+
+  if (isInlineable && markup) {
+    return (
+      <span
+        className="inline-flex items-center [&>svg]:h-4 [&>svg]:w-auto"
+        role="img"
+        aria-label={alt}
+        dangerouslySetInnerHTML={{ __html: markup }}
+      />
+    );
+  }
+
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={src} alt={alt} className="h-4 w-auto" />;
+}
+
+function Identity({
+  orgName,
+  logo,
+  orgNameElement,
+}: Readonly<{
+  orgName: string;
+  logo: string | ReactNode | undefined;
+  orgNameElement: ReactNode | undefined;
+}>) {
+  if (orgNameElement) return <>{orgNameElement}</>;
 
   return (
     <span className="inline-flex items-center gap-1.5 font-bold tracking-wide">
       {typeof logo === 'string' ? (
-        <img src={logo} alt={orgName} className="h-4 w-auto" />
+        <LogoImage src={logo} alt={orgName} />
       ) : (
         logo
       )}
@@ -71,7 +94,7 @@ export function SiteBanner({
   return (
     <div className={cn(siteBannerVariants({ variant }), className)}>
       <div className="mx-auto flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 px-4 py-2 text-center sm:text-left">
-        {renderIdentity(orgName, logo, orgNameElement)}
+        <Identity orgName={orgName} logo={logo} orgNameElement={orgNameElement} />
         <span className="opacity-80">
           {resolvedStatement}
         </span>

@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { appConfig } from '@/config/app.config';
+import { useInlineSvg } from '@/hooks';
 
 /**
  * Application Logo — full wordmark version (mark + text).
@@ -10,13 +11,26 @@ import { appConfig } from '@/config/app.config';
  * The wordmark text paths use `currentColor` — black in light mode,
  * white in dark mode (controlled by the parent's text color class).
  *
- * When `appConfig.logo.url` is set, renders a custom `<img>` instead.
- * For custom logos, ensure the image works on both light and dark backgrounds.
+ * When `appConfig.logo.url` points to a local `.svg` file (e.g. `/brand/logo.svg`),
+ * the SVG is fetched and inlined so `currentColor` / CSS custom properties inherit
+ * from the parent. For external URLs or raster images, a plain `<img>` is rendered —
+ * those logos must ship assets that work on both light and dark backgrounds.
  */
 export function Logo({ className }: { className?: string }) {
   const customLogoUrl = appConfig.logo?.url;
+  const { markup, isInlineable } = useInlineSvg(customLogoUrl);
 
   if (customLogoUrl) {
+    if (isInlineable && markup) {
+      return (
+        <div
+          className={cn('flex items-center gap-2 [&>svg]:h-7 [&>svg]:w-auto [&>svg]:max-w-[200px]', className)}
+          role="img"
+          aria-label={appConfig.logo?.alt || appConfig.name}
+          dangerouslySetInnerHTML={{ __html: markup }}
+        />
+      );
+    }
     return (
       <div className={cn('flex items-center gap-2', className)}>
         {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -9,3 +9,4 @@ export { useToggle } from './use-toggle';
 export { useHotkeys } from './use-hotkeys';
 export { useWindowSize } from './use-window-size';
 export { useTokenRefresh } from './use-token-refresh';
+export { useInlineSvg } from './use-inline-svg';
