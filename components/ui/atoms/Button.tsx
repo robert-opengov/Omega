@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 ease-in-out cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50 disabled:cursor-not-allowed',
+  'inline-flex flex-row items-center justify-center gap-2 font-semibold transition-all duration-200 ease-in-out cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50 disabled:cursor-not-allowed',
   {
     variants: {
       variant: {
@@ -90,14 +90,14 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {loading ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            {size !== 'icon' && children && <span>{loadingLabel}</span>}
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+            {size !== 'icon' && children && <span className="whitespace-nowrap">{loadingLabel}</span>}
           </>
         ) : (
           <>
-            {Icon && <Icon className="h-4 w-4" />}
-            {children && <span>{children}</span>}
-            {IconRight && <IconRight className="h-4 w-4" />}
+            {Icon && <Icon className="h-4 w-4 shrink-0" />}
+            {children && <span className="whitespace-nowrap">{children}</span>}
+            {IconRight && <IconRight className="h-4 w-4 shrink-0" />}
           </>
         )}
       </button>

@@ -66,7 +66,11 @@ export function WizardCard({ stepLabel, title, description, children, actions, f
         <div className="flex flex-col gap-6">{children}</div>
 
         {/* Actions */}
-        {actions && <div>{actions}</div>}
+        {actions && (
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3">
+            {actions}
+          </div>
+        )}
       </div>
 
       {/* Footer — separated by a divider */}
