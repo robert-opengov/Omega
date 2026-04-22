@@ -2153,9 +2153,19 @@ function ResponsiveGridDemo() {
   as?: ElementType;
   children: ReactNode;
   className?: string;
+  maxWidth?: string; // e.g. "1440px" — constrains grid width and centers it
 }`}
     >
       <ResponsiveGrid columns={{ default: 1, sm: 2, lg: 4 }} gap="md">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="bg-primary-light border border-primary/20 rounded px-3 py-2 text-sm text-center">
+            Item {i + 1}
+          </div>
+        ))}
+      </ResponsiveGrid>
+
+      <p className="text-sm text-muted-foreground mt-4 mb-2">With <code>maxWidth=&quot;600px&quot;</code>:</p>
+      <ResponsiveGrid columns={{ default: 1, sm: 2, lg: 4 }} gap="md" maxWidth="600px">
         {Array.from({ length: 8 }).map((_, i) => (
           <div key={i} className="bg-primary-light border border-primary/20 rounded px-3 py-2 text-sm text-center">
             Item {i + 1}

@@ -28,6 +28,7 @@ export type ResponsiveGridProps = VariantProps<typeof gridGapVariants> & {
   columns?: ResponsiveGridColumns;
   as?: ElementType;
   className?: string;
+  maxWidth?: string;
 };
 
 const BREAKPOINTS: Record<string, string> = {
@@ -54,6 +55,7 @@ export function ResponsiveGrid({
   gap,
   as: Tag = 'div',
   className,
+  maxWidth,
 }: ResponsiveGridProps) {
   const reactId = useId();
   const styleId = useMemo(() => `rg-${reactId.replace(/:/g, '')}`, [reactId]);
@@ -75,7 +77,10 @@ export function ResponsiveGrid({
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: cssText }} />
-      <Tag className={cn(gridGapVariants({ gap }), styleId, className)}>
+      <Tag
+        className={cn(gridGapVariants({ gap }), styleId, maxWidth && 'mx-auto', className)}
+        style={maxWidth ? { maxWidth } : undefined}
+      >
         {children}
       </Tag>
     </>

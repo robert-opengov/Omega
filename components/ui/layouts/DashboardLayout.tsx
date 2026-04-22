@@ -52,7 +52,7 @@ function MainArea({ children, navbarHeight }: { children: React.ReactNode; navba
       className="bg-background flex flex-col"
       style={{ minHeight: `calc(100vh - ${navbarHeight}px)` }}
     >
-      <div className="flex-1 w-full">{children}</div>
+      <div className="flex-1 w-full max-w-[var(--content-max-width)] mx-auto">{children}</div>
     </main>
   );
 }

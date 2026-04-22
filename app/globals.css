@@ -11,6 +11,10 @@
    Primary = #4B3FFF (OpenGov indigo/violet).
    ==================================================================== */
 :root {
+  /* --- Layout constraints — set to a value like 1440px to enable --- */
+  --nav-max-width: none;
+  --content-max-width: none;
+
   /* --- Primary (indigo/violet — CDS-37 #4B3FFF) --- */
   --primary-h: 244;
   --primary-s: 100%;

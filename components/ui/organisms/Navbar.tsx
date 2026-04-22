@@ -174,7 +174,7 @@ export function Navbar({ standalone = false, topClass }: NavbarProps) {
 
       <header className={cn("sticky z-header bg-background border-b border-border", topClass || "top-0")}>
         <div
-          className="w-full px-4 flex items-center justify-between overflow-hidden"
+          className="max-w-[var(--nav-max-width)] mx-auto w-full px-4 flex items-center justify-between overflow-hidden"
           style={{ height: NAVBAR_HEIGHT }}
         >
           {/* ---- Left: hamburger · logo · divider · app name · tabs ---- */}
