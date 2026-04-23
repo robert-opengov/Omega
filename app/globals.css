@@ -72,6 +72,10 @@
   --muted: #F8F8F8;
   --muted-foreground: #757575;
 
+  /* Content canvas — the gray surface between the header and panels */
+  --surface-canvas: hsl(var(--primary-h) calc(var(--primary-s) * 0.06) 96%);
+  --surface-panel: #ffffff;
+
   --accent: hsl(var(--primary-h) calc(var(--primary-s) * 0.3) 95%);
   --accent-foreground: hsl(var(--primary-h) var(--primary-s) var(--primary-l));
 
@@ -163,6 +167,10 @@
   --secondary-foreground: hsl(var(--primary-h) calc(var(--primary-s) * 0.15) 95%);
   --muted: hsl(var(--primary-h) calc(var(--primary-s) * 0.2) 12%);
   --muted-foreground: hsl(var(--primary-h) calc(var(--primary-s) * 0.3) 60%);
+
+  /* Content canvas — darker than --background so panels sit on top */
+  --surface-canvas: hsl(var(--primary-h) calc(var(--primary-s) * 0.25) 7%);
+  --surface-panel: hsl(var(--primary-h) calc(var(--primary-s) * 0.3) 10%);
   --accent: hsl(var(--primary-h) calc(var(--primary-s) * 0.4) 18%);
   --accent-foreground: hsl(var(--primary-h) calc(var(--primary-s) * 0.6) 76%);
   --destructive: hsl(var(--danger-h) var(--danger-s) 65%);
@@ -263,6 +271,8 @@
   --color-action-hover: var(--action-hover);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-surface-canvas: var(--surface-canvas);
+  --color-surface-panel: var(--surface-panel);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);

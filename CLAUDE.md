@@ -93,6 +93,8 @@ Use the `create-vertical` skill (`.cursor/skills/create-vertical/SKILL.md`) for 
 
 Colors defined as hex in `config/app.config.ts` → decomposed into HSL CSS variables at runtime by `ThemeProvider`. Override via `NEXT_PUBLIC_THEME_*` env vars. Dark mode uses `@variant dark (&:is(.dark *))` Tailwind v4 pattern.
 
+**Page surface convention:** OpenGov-branded dashboard pages wrap their content area in `<div className="bg-surface-canvas">` to render a gray canvas behind cards and panels. The token is HSL-driven (`--surface-canvas`) and adapts automatically to dark mode and brand color overrides. Custom forks may skip this wrapper — `DashboardLayout` defaults to `bg-background`.
+
 ### Provider Stack
 
 `Providers` (`providers/index.tsx`): `ThemeProvider` → `AuthProvider` → `SidebarProvider` → `ToastProvider`.

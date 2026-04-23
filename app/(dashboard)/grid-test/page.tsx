@@ -67,7 +67,8 @@ export default function GridTestPage() {
         subtitle="Toggle the CSS variables to see the navbar and content area constrain independently."
       />
 
-      <div className="p-6 space-y-8 max-w-[var(--content-max-width)] mx-auto">
+      <div className="bg-surface-canvas">
+        <div className="p-6 space-y-8 max-w-[var(--content-max-width)] mx-auto">
 
         <section className="space-y-4">
           <h2 className="text-lg font-semibold">Controls</h2>
@@ -145,6 +146,7 @@ export default function GridTestPage() {
             ))}
           </ResponsiveGrid>
         </section>
+        </div>
       </div>
     </>
   );

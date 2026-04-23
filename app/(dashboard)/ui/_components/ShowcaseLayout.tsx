@@ -112,7 +112,7 @@ export function ShowcaseLayout({ children }: ShowcaseLayoutProps) {
         </div>
       </div>
 
-      <div className="flex-1 p-6 lg:p-8 isolate">
+      <div className="flex-1 p-6 lg:p-8 isolate bg-surface-canvas">
         {children}
       </div>
     </div>

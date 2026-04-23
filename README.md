@@ -237,6 +237,33 @@ Default palette is aligned with **OpenGov Capital Design System v5.5.0**.
 
 Dark mode uses the `@variant dark (&:is(.dark *))` Tailwind v4 pattern, toggled via the navbar (`enableDarkMode` feature flag).
 
+### Page Surface (Content Canvas)
+
+Two HSL surface tokens control the page canvas and elevated panels:
+
+| Token | Tailwind class | Light | Dark |
+|---|---|---|---|
+| `--surface-canvas` | `bg-surface-canvas` | Subtle gray (`L=96%`, primary-hue tinted) | Dark gray (`L=7%`, primary-hue tinted) |
+| `--surface-panel` | `bg-surface-panel` | White | Slightly elevated dark (`L=10%`) |
+
+Both derive from `--primary-h` / `--primary-s`, so they automatically adapt when the brand color changes.
+
+**Convention for OpenGov-branded verticals:** wrap the page content area in `bg-surface-canvas` so cards and panels visually float on a gray canvas (matching the OpenGov CDS patterns). Elevated sections within the canvas use `bg-surface-panel` or `bg-card`.
+
+```tsx
+export function MyDashboard({ data }: Props) {
+  return (
+    <div className="bg-surface-canvas">
+      <div className="p-6 space-y-6 max-w-[var(--content-max-width)] mx-auto">
+        {/* Cards, grids, panels sit on the gray canvas */}
+      </div>
+    </div>
+  );
+}
+```
+
+Custom forks that don't follow the OpenGov visual language can skip `bg-surface-canvas` entirely — the default `DashboardLayout` renders on `bg-background` (white in light, dark in dark).
+
 ## Authentication
 
 Auth is controlled by three config layers:

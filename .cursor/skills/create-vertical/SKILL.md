@@ -242,15 +242,17 @@ interface PermittingDashboardProps {
 
 export function PermittingDashboard({ summary }: PermittingDashboardProps) {
   return (
-    <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-semibold text-foreground">Permitting Dashboard</h1>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard title="Pending Applications" value={String(summary.pendingCount)} />
-        <MetricCard title="Avg Review Time" value={`${summary.avgReviewDays} days`} />
-        <MetricCard title="Approved This Month" value={String(summary.approvedThisMonth)} />
-        <MetricCard title="Expiring Soon" value={String(summary.expiringSoonCount)}>
-          <Badge variant="danger" size="sm">{summary.expiringSoonCount} expiring</Badge>
-        </MetricCard>
+    <div className="bg-surface-canvas">
+      <div className="space-y-6 p-6">
+        <h1 className="text-2xl font-semibold text-foreground">Permitting Dashboard</h1>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <MetricCard title="Pending Applications" value={String(summary.pendingCount)} />
+          <MetricCard title="Avg Review Time" value={`${summary.avgReviewDays} days`} />
+          <MetricCard title="Approved This Month" value={String(summary.approvedThisMonth)} />
+          <MetricCard title="Expiring Soon" value={String(summary.expiringSoonCount)}>
+            <Badge variant="danger" size="sm">{summary.expiringSoonCount} expiring</Badge>
+          </MetricCard>
+        </div>
       </div>
     </div>
   );

@@ -44,6 +44,17 @@ components/
 - **No custom CSS files.** No `.css` or `.scss` files outside of `app/globals.css`. All styling is Tailwind.
 - **No copy-paste customization.** Never copy a component from `components/ui/` to modify it. Use the component's existing props and variants. If the props don't cover your case, that's a signal to request an upstream enhancement.
 
+## Page Surface Convention
+
+OpenGov-branded verticals use `bg-surface-canvas` as the page content background. This creates the gray content canvas that cards and panels sit on top of — matching the OpenGov CDS visual language.
+
+- Wrap the outermost content `<div>` in the client component with `className="bg-surface-canvas"`.
+- Use `bg-surface-panel` or `bg-card` for elevated sections within the canvas.
+- Do **not** override `bg-background` on page wrappers — that's the layout's responsibility via `DashboardLayout`.
+- Custom verticals that don't follow the OpenGov visual language may skip `bg-surface-canvas` entirely. The default layout renders on `bg-background` (white).
+
+Both `--surface-canvas` and `--surface-panel` are HSL tokens derived from `--primary-h` and auto-adapt to dark mode and brand overrides.
+
 ## Import Rules
 
 Always import from barrel exports:
