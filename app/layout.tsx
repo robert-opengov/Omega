@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     url: siteUrl,
     images: [
       {
-        url: '/brand/login.png',
+        url: '/brand/login.webp',
         width: 1200,
         height: 630,
         alt: `${appConfig.name} - ${appConfig.description}`,
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: appConfig.name,
     description: appConfig.description,
-    images: ['/brand/login.png'],
+    images: ['/brand/login.webp'],
   },
 };
 

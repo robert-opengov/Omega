@@ -92,7 +92,7 @@ export default function HomePage() {
           primaryAction={{ label: 'Explore Components', href: '/ui' }}
           secondaryAction={{ label: 'AI Builder', href: '/ai-builder' }}
           variant="image"
-          backgroundImage="/brand/demo-bg-boston.jpg"
+          backgroundImage="/brand/demo-bg-boston.webp"
           backgroundPosition="center"
           overlay="brand"
         />

@@ -535,7 +535,7 @@ Copy `.env.example` to `.env.local`. The example file is fully commented.
 | `NEXT_PUBLIC_APP_NAME` | `GAB Application` | App name (navbar, page titles) |
 | `NEXT_PUBLIC_APP_DESCRIPTION` | `Powered by GAB` | App description (meta tags) |
 | `NEXT_PUBLIC_LOGO_URL` | — | Custom logo URL (navbar + sidebar) |
-| `NEXT_PUBLIC_LOGIN_HERO_IMAGE` | `/brand/login.png` | Login page hero image |
+| `NEXT_PUBLIC_LOGIN_HERO_IMAGE` | `/brand/login.webp` | Login page hero image |
 
 ### Site Banner
 

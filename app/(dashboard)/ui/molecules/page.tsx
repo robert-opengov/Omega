@@ -1540,7 +1540,7 @@ function HeroDemo() {
           primaryAction={{ label: 'Get Started', href: '#' }}
           secondaryAction={{ label: 'Learn More', href: '#' }}
           variant="image"
-          backgroundImage="/brand/demo-bg-boston.jpg"
+          backgroundImage="/brand/demo-bg-boston.webp"
           backgroundPosition="top"
           overlay="brand"
         />
@@ -1550,7 +1550,7 @@ function HeroDemo() {
           primaryAction={{ label: 'Get Started', href: '#' }}
           secondaryAction={{ label: 'Learn More', href: '#' }}
           variant="image"
-          backgroundImage="/brand/demo-bg-boston.jpg"
+          backgroundImage="/brand/demo-bg-boston.webp"
           backgroundPosition="top"
           overlay="gradient"
         />
@@ -1560,7 +1560,7 @@ function HeroDemo() {
           primaryAction={{ label: 'Get Started', href: '#' }}
           secondaryAction={{ label: 'Learn More', href: '#' }}
           variant="image"
-          backgroundImage="/brand/demo-bg-boston.jpg"
+          backgroundImage="/brand/demo-bg-boston.webp"
           backgroundPosition="top"
           overlay
         />
