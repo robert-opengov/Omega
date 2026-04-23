@@ -10,10 +10,10 @@ import {
   CardContent,
   CardFooter,
   MetricCard,
+  ContentHeader,
 } from '@/components/ui/molecules';
-import { Button } from '@/components/ui/atoms';
-import { PageHeader } from '@/components/ui/molecules';
-import { BarChart3, Users, DollarSign, FileText, Clock } from 'lucide-react';
+import { Button, IconButton, UILink } from '@/components/ui/atoms';
+import { BarChart3, Users, DollarSign, FileText, Clock, ChevronLeft, RefreshCw } from 'lucide-react';
 
 const stats = [
   { label: 'Total Revenue', value: '$48,290', icon: DollarSign, trend: '+12.5%' },
@@ -39,6 +39,7 @@ const statusColor: Record<string, string> = {
 
 export default function GridTestPage() {
   const [constrainNav, setConstrainNav] = useState(false);
+  const [constrainHeader, setConstrainHeader] = useState(false);
   const [constrainContent, setConstrainContent] = useState(false);
 
   return (
@@ -47,17 +48,26 @@ export default function GridTestPage() {
         dangerouslySetInnerHTML={{
           __html: `:root {
             --nav-max-width: ${constrainNav ? '1440px' : 'none'};
+            --header-max-width: ${constrainHeader ? '1440px' : 'none'};
             --content-max-width: ${constrainContent ? '1440px' : 'none'};
           }`,
         }}
       />
 
-      <div className="p-6 space-y-8">
-        <PageHeader
-          title="Layout Constraint Test"
-          description="Toggle the CSS variables to see the navbar and content area constrain independently."
-          breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Grid Test' }]}
-        />
+      <ContentHeader
+        navActions={
+          <>
+            <IconButton icon={ChevronLeft} label="Back" variant="outline" size="sm" />
+            <IconButton icon={RefreshCw} label="Refresh" variant="outline" size="sm" />
+          </>
+        }
+        utilityActions={<UILink href="/settings">Settings</UILink>}
+        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Grid Test' }]}
+        title="Layout Constraint Test"
+        subtitle="Toggle the CSS variables to see the navbar and content area constrain independently."
+      />
+
+      <div className="p-6 space-y-8 max-w-[var(--content-max-width)] mx-auto">
 
         <section className="space-y-4">
           <h2 className="text-lg font-semibold">Controls</h2>
@@ -69,15 +79,24 @@ export default function GridTestPage() {
               --nav-max-width: {constrainNav ? '1440px' : 'none'}
             </Button>
             <Button
+              variant={constrainHeader ? 'primary' : 'outline'}
+              onClick={() => setConstrainHeader(!constrainHeader)}
+            >
+              --header-max-width: {constrainHeader ? '1440px' : 'none'}
+            </Button>
+            <Button
               variant={constrainContent ? 'primary' : 'outline'}
               onClick={() => setConstrainContent(!constrainContent)}
             >
               --content-max-width: {constrainContent ? '1440px' : 'none'}
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Widen your browser past 1440px to see the effect. The navbar background always extends full width.
-          </p>
+          <div className="text-sm text-muted-foreground space-y-1">
+            <p>Widen your browser past 1440px to see the effect. Backgrounds always extend full width.</p>
+            <p><strong>--nav-max-width</strong> constrains the navbar inner content.</p>
+            <p><strong>--header-max-width</strong> constrains the ContentHeader content. Defaults to --content-max-width if not set independently.</p>
+            <p><strong>--content-max-width</strong> constrains the main page content area.</p>
+          </div>
         </section>
 
         <section className="space-y-4">

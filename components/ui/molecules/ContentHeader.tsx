@@ -79,7 +79,7 @@ export function ContentHeader({
         className,
       )}
     >
-      <div className={cn('flex flex-col gap-4 px-6', tabs ? 'pt-4' : 'py-4')}>
+      <div className={cn('flex flex-col gap-4 px-6 max-w-[var(--header-max-width)] mx-auto', tabs ? 'pt-4' : 'py-4')}>
         {/* Toolbar: nav actions left, utility actions right */}
         {hasToolbar && (
           <div className="flex items-center justify-between gap-4">

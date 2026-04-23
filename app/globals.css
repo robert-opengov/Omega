@@ -13,6 +13,7 @@
 :root {
   /* --- Layout constraints — set to a value like 1440px to enable --- */
   --nav-max-width: none;
+  --header-max-width: var(--content-max-width);
   --content-max-width: none;
 
   /* --- Primary (indigo/violet — CDS-37 #4B3FFF) --- */
