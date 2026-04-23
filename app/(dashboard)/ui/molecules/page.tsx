@@ -293,6 +293,7 @@ function CardDemo() {
 Sub-components (all optional):
   CardMedia      — image/map/video at the top (src or children)
   CardHeader     — wrapper; action prop adds a top-right slot
+                   variant?: 'default' | 'filled' (filled = muted bg flush to edges)
   CardSubtitle   — small uppercase label above or below title
   CardTitle      — heading (h2/h3/h4)
   CardDescription — muted paragraph
@@ -356,6 +357,47 @@ Sub-components (all optional):
             <Text size="sm" color="muted">
               This proves backward compatibility — no media, no info tooltip, no subtitle, no footer. Still looks clean.
             </Text>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Text size="xs" weight="semibold" color="muted" className="mt-6 uppercase tracking-wider">Filled header variant</Text>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+        <Card>
+          <CardHeader variant="filled" action={<CardInfo content="Compliance data refreshed daily." />}>
+            <CardTitle>Compliance Flags</CardTitle>
+            <CardDescription>Identify and resolve compliance risks before they become issues.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Badge variant="danger" size="sm" shape="pill">Critical</Badge>
+                <Text size="sm" weight="medium">DOJ COPS Hiring — budget at 91% utilization</Text>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge variant="warning" size="sm" shape="pill">Warning</Badge>
+                <Text size="sm" weight="medium">CDBG-DR — burn rate below pace</Text>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card variant="outlined">
+          <CardHeader variant="filled">
+            <CardTitle>Program Overview</CardTitle>
+            <CardDescription>Summary of all active programs and their current status.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Text size="sm" color="muted">Active Programs</Text>
+                <Text size="sm" weight="semibold" color="foreground">12</Text>
+              </div>
+              <div className="flex justify-between">
+                <Text size="sm" color="muted">Pending Review</Text>
+                <Text size="sm" weight="semibold" color="foreground">3</Text>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -45,14 +45,33 @@ export function Card({ variant = 'default', className, ...props }: CardProps) {
 export interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
   /** Optional top-right action slot (e.g. a button or icon). */
   action?: ReactNode;
+  /**
+   * @default 'default'
+   * - `default` — transparent background, bottom padding removed.
+   * - `filled` — muted background flush to card edges with bottom border.
+   */
+  variant?: 'default' | 'filled';
 }
 
 /**
  * Card header section with optional right-aligned action slot.
  */
-export function CardHeader({ action, className, children, ...props }: CardHeaderProps) {
+export function CardHeader({
+  action,
+  variant = 'default',
+  className,
+  children,
+  ...props
+}: CardHeaderProps) {
   return (
-    <div className={cn('p-6 pb-0', className)} {...props}>
+    <div
+      className={cn(
+        variant === 'default' && 'p-6 pb-0',
+        variant === 'filled' && 'bg-muted rounded-t p-6 border-b border-border',
+        className
+      )}
+      {...props}
+    >
       {action ? (
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">{children}</div>
