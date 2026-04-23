@@ -19,14 +19,39 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 export const metadata: Metadata = {
-  title: 'GAB Verticals Boilerplate',
-  description: 'AI-ready foundation for Government Apps',
+  metadataBase: new URL(siteUrl),
+  title: { default: appConfig.name, template: `%s | ${appConfig.name}` },
+  description: appConfig.description,
+  applicationName: appConfig.name,
   icons: {
     icon: [
       { url: '/brand/favicon.ico', sizes: 'any' },
       { url: '/brand/icon.svg', type: 'image/svg+xml' },
     ],
+  },
+  openGraph: {
+    type: 'website',
+    siteName: appConfig.name,
+    title: appConfig.name,
+    description: appConfig.description,
+    url: siteUrl,
+    images: [
+      {
+        url: '/brand/login.png',
+        width: 1200,
+        height: 630,
+        alt: `${appConfig.name} - ${appConfig.description}`,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: appConfig.name,
+    description: appConfig.description,
+    images: ['/brand/login.png'],
   },
 };
 
