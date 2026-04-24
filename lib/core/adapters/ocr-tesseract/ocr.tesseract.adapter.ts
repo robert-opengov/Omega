@@ -1,42 +1,78 @@
 import 'server-only';
-import type { IOCRPort, OCRResult } from '../../ports/ocr.port';
+import type {
+  IOCRPort,
+  OCRJobHandle,
+  OCRJobStatus,
+  OCRResult,
+} from '../../ports/ocr.port';
 import { OCRServiceError } from '../../ports/ocr.port';
-
-const POLL_INTERVAL_MS = 3_000;
-const MAX_POLL_ATTEMPTS = 100; // 5 minutes at 3s intervals
 
 /**
  * Tesseract OCR adapter — talks to the standalone OCR microservice.
  *
- * Internally manages the full async job lifecycle:
- *   1. POST /ocr/jobs            → create job + get presigned upload URL
- *   2. PUT  to presigned URL     → upload PDF
- *   3. GET  /ocr/jobs/:id/status → poll until COMPLETED or FAILED
- *   4. GET  /ocr/jobs/:id/result → fetch extracted text
- *
- * Callers see a single `extractText()` call.
+ * Exposes the job lifecycle as three separate operations so callers can
+ * decide their own polling cadence:
+ *   - startJob:     POST /ocr/jobs  +  PUT to presigned URL (returns handle)
+ *   - getJobStatus: GET  /ocr/jobs/:id/status
+ *   - getJobResult: GET  /ocr/jobs/:id/result
  */
 export class OCRTesseractAdapter implements IOCRPort {
   constructor(private readonly baseUrl: string) {}
 
-  /* ------------------------------------------------------------------ */
-  /*  extractText — the only public method                               */
-  /* ------------------------------------------------------------------ */
-
-  async extractText(file: Uint8Array, fileName: string): Promise<OCRResult> {
-    if (!this.baseUrl) {
-      throw new OCRServiceError(
-        'OCR service not configured: OCR_SERVICE_URL is missing.',
-      );
-    }
+  async startJob(
+    file: Uint8Array,
+    fileName: string,
+  ): Promise<OCRJobHandle> {
+    this.assertConfigured();
     const { jobId, uploadUrl } = await this.createJob(fileName);
     await this.uploadFile(uploadUrl, file);
-    await this.pollUntilDone(jobId);
-    return this.fetchResult(jobId);
+    return { jobId, fileName };
+  }
+
+  async getJobStatus(jobId: string): Promise<OCRJobStatus> {
+    this.assertConfigured();
+    const res = await fetch(
+      `${this.baseUrl}/ocr/jobs/${encodeURIComponent(jobId)}/status`,
+      { cache: 'no-store' },
+    );
+    await this.assertOk(res, 'getJobStatus');
+    const data = await res.json();
+
+    switch (data.status) {
+      case 'PENDING':
+      case 'PROCESSING':
+      case 'COMPLETED':
+        return { status: data.status };
+      case 'FAILED':
+        return {
+          status: 'FAILED',
+          error: data.error ?? `OCR job ${jobId} failed.`,
+        };
+      default:
+        throw new OCRServiceError(
+          `Unknown OCR job status: ${data.status}`,
+        );
+    }
+  }
+
+  async getJobResult(jobId: string): Promise<OCRResult> {
+    this.assertConfigured();
+    const res = await fetch(
+      `${this.baseUrl}/ocr/jobs/${encodeURIComponent(jobId)}/result`,
+      { cache: 'no-store' },
+    );
+    await this.assertOk(res, 'getJobResult');
+
+    const data = await res.json();
+    return {
+      pageCount: data.pageCount,
+      pages: data.pages,
+      fullText: data.fullText,
+    };
   }
 
   /* ------------------------------------------------------------------ */
-  /*  Internal: job lifecycle steps                                      */
+  /*  Internal                                                           */
   /* ------------------------------------------------------------------ */
 
   private async createJob(
@@ -73,51 +109,13 @@ export class OCRTesseractAdapter implements IOCRPort {
     }
   }
 
-  private async pollUntilDone(jobId: string): Promise<void> {
-    const encodedId = encodeURIComponent(jobId);
-
-    for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
-      const res = await fetch(
-        `${this.baseUrl}/ocr/jobs/${encodedId}/status`,
-        { cache: 'no-store' },
+  private assertConfigured(): void {
+    if (!this.baseUrl) {
+      throw new OCRServiceError(
+        'OCR service not configured: OCR_SERVICE_URL is missing.',
       );
-      await this.assertOk(res, 'getJobStatus');
-      const data = await res.json();
-
-      if (data.status === 'COMPLETED') return;
-
-      if (data.status === 'FAILED') {
-        throw new OCRServiceError(
-          data.error || `OCR job ${jobId} failed.`,
-        );
-      }
-
-      await sleep(POLL_INTERVAL_MS);
     }
-
-    throw new OCRServiceError(
-      `OCR job ${jobId} timed out after ${MAX_POLL_ATTEMPTS * POLL_INTERVAL_MS / 1000}s.`,
-    );
   }
-
-  private async fetchResult(jobId: string): Promise<OCRResult> {
-    const res = await fetch(
-      `${this.baseUrl}/ocr/jobs/${encodeURIComponent(jobId)}/result`,
-      { cache: 'no-store' },
-    );
-    await this.assertOk(res, 'getJobResult');
-
-    const data = await res.json();
-    return {
-      pageCount: data.pageCount,
-      pages: data.pages,
-      fullText: data.fullText,
-    };
-  }
-
-  /* ------------------------------------------------------------------ */
-  /*  Internal helpers                                                   */
-  /* ------------------------------------------------------------------ */
 
   private async assertOk(res: Response, op: string): Promise<void> {
     if (res.ok) return;
@@ -128,8 +126,4 @@ export class OCRTesseractAdapter implements IOCRPort {
       res.status,
     );
   }
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
