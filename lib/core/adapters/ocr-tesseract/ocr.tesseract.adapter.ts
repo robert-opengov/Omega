@@ -1,4 +1,5 @@
 import 'server-only';
+import { PDFDocument } from 'pdf-lib';
 import type {
   IOCRPort,
   OCRJobHandle,
@@ -6,6 +7,10 @@ import type {
   OCRResult,
 } from '../../ports/ocr.port';
 import { OCRServiceError } from '../../ports/ocr.port';
+
+const DEFAULT_PAGE_COUNT = 10;
+/** Measured tesseract throughput: ~10 seconds per page. */
+const MS_PER_PAGE = 10_000;
 
 /**
  * Tesseract OCR adapter — talks to the standalone OCR microservice.
@@ -26,7 +31,8 @@ export class OCRTesseractAdapter implements IOCRPort {
     this.assertConfigured();
     const { jobId, uploadUrl } = await this.createJob(fileName);
     await this.uploadFile(uploadUrl, file);
-    return { jobId, fileName };
+    const pageCount = await countPdfPages(file);
+    return { jobId, fileName, estimatedTimeMs: pageCount * MS_PER_PAGE };
   }
 
   async getJobStatus(jobId: string): Promise<OCRJobStatus> {
@@ -125,5 +131,18 @@ export class OCRTesseractAdapter implements IOCRPort {
       `OCR service ${op} failed (${res.status}): ${detail}`,
       res.status,
     );
+  }
+}
+
+async function countPdfPages(file: Uint8Array): Promise<number> {
+  try {
+    const doc = await PDFDocument.load(file, { updateMetadata: false });
+    return doc.getPageCount();
+  } catch (err) {
+    console.warn(
+      `[ocr] Could not parse PDF for page count, defaulting to ${DEFAULT_PAGE_COUNT}:`,
+      err instanceof Error ? err.message : err,
+    );
+    return DEFAULT_PAGE_COUNT;
   }
 }

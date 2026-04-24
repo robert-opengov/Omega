@@ -21,6 +21,11 @@ export interface OCRResult {
 export interface OCRJobHandle {
   jobId: string;
   fileName: string;
+  /**
+   * Best-effort estimate of how long OCR will take, in milliseconds.
+   * Adapters derive this from page count and their own throughput profile.
+   */
+  estimatedTimeMs: number;
 }
 
 export type OCRJobStatus =

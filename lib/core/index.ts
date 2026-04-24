@@ -15,6 +15,7 @@ import { GabAppRoleV1Adapter } from './adapters/gab-v1/app-role.adapter';
 import { GabAppRoleV2Adapter } from './adapters/gab-v2/app-role.adapter';
 import { BedrockGatewayAdapter } from './adapters/gab-ai/bedrock-gateway.adapter';
 import { OCRTesseractAdapter } from './adapters/ocr-tesseract/ocr.tesseract.adapter';
+import { OCRMockAdapter } from './adapters/ocr-mock/ocr.mock.adapter';
 // ---------------------------------------------------------------------------
 // Composition Root — the single place where ports are wired to adapters.
 //
@@ -65,9 +66,16 @@ export const aiGatewayPort = new BedrockGatewayAdapter(
 );
 
 // ---------------------------------------------------------------------------
-// OCR Service — standalone microservice for PDF text extraction
-// Throws OCRServiceError at construction time if OCR_SERVICE_URL is not set.
+// OCR Service — standalone microservice for PDF text extraction.
+//
+// Set USE_MOCK_OCR=true to bypass the real OCR microservice and use an
+// in-memory mock that simulates the three-call lifecycle. Useful for local
+// dev without OCR_SERVICE_URL configured.
 // ---------------------------------------------------------------------------
 
-export const ocrPort = new OCRTesseractAdapter(ocrConfig.baseUrl);
+const useMockOcr = process.env.USE_MOCK_OCR === 'true';
+
+export const ocrPort = useMockOcr
+  ? new OCRMockAdapter()
+  : new OCRTesseractAdapter(ocrConfig.baseUrl);
 
