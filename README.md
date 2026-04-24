@@ -17,13 +17,67 @@ A forkable Next.js application that provides the frontend foundation for GAB ver
 | Linting | ESLint 9 (Next.js core-web-vitals + React Compiler) |
 | CI | GitHub Actions (lint, typecheck, build) |
 
-## Quick Start
+## Getting Started
+
+OpenGov repos cannot be forked. Instead, you create your own repo and add this boilerplate as a secondary git remote called `boilerplate`. This lets you pull boilerplate updates whenever you want without losing your customizations.
+
+### First-time setup
+
+Run these commands once. After the initial merge, the npm shortcut scripts (described below) handle everything.
+
+1. Create a new empty repo on GitHub for your vertical, clone it, and enter the directory:
 
 ```bash
-git clone <repo-url> && cd gab-boilerplate
+git clone <your-repo-url> && cd <your-repo>
+```
+
+2. Add the boilerplate as a remote, fetch it, and merge:
+
+```bash
+git remote add boilerplate https://github.com/OpenGov/gab-boilerplate.git
+git fetch boilerplate
+git merge boilerplate/main --allow-unrelated-histories
+```
+
+> `--allow-unrelated-histories` is required the first time because your empty repo and the boilerplate have no common ancestor. You will not need this flag again.
+
+3. Install dependencies, create your env file, and push:
+
+```bash
 npm install
 cp .env.example .env.local
+git add -A && git commit -m "chore: initial boilerplate merge"
+git push origin main
 ```
+
+You're done. Your repo now has the full boilerplate code and a `boilerplate` remote configured for future updates.
+
+### Syncing boilerplate updates
+
+After the first-time setup, use the npm shortcuts to stay up to date:
+
+```bash
+npm run boilerplate:status   # see how many commits you are behind
+npm run boilerplate:diff     # preview what changed before merging
+npm run boilerplate:sync     # merge boilerplate updates into your branch
+```
+
+If a sync produces merge conflicts, ask Cursor: *"resolve the boilerplate merge conflicts"* — the included Cursor skill knows which side to prefer.
+
+To add the `boilerplate` remote on a collaborator's machine that only cloned your repo (not the boilerplate), run `npm run boilerplate:init`.
+
+### FAQ
+
+**Can I fork instead of using a remote?**
+No. OpenGov policy does not allow forking repos. The remote-based workflow described above is the supported path.
+
+**What if I modified files in `components/ui/`?**
+The next sync will produce merge conflicts in those files. Avoid modifying `components/ui/` — use `components/_custom/` for fork-specific components. See the [Fork Rules](#fork-rules) section.
+
+**How often should I sync?**
+Whenever you want. Weekly is a healthy cadence. Syncing less frequently is fine but means more changes per merge.
+
+### Environment
 
 The default env already targets the V2 API — no URL needed:
 

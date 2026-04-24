@@ -9,7 +9,11 @@
     "start": "next start",
     "lint": "eslint . --max-warnings 100",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "boilerplate:init": "bash scripts/boilerplate/init.sh",
+    "boilerplate:status": "bash scripts/boilerplate/status.sh",
+    "boilerplate:diff": "bash scripts/boilerplate/diff.sh",
+    "boilerplate:sync": "bash scripts/boilerplate/sync.sh"
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "^2.19.0",
