@@ -5,6 +5,7 @@ import type { Column } from '@/components/ui/molecules/DataTable';
 import type { GabField } from '@/lib/core/ports/field.repository';
 import type { GabRow } from '@/lib/core/ports/data.repository';
 import { Badge } from '@/components/ui/atoms';
+import { EditableCell } from './EditableCell';
 
 /**
  * Per-type cell formatters. The list intentionally covers the most common
@@ -45,23 +46,61 @@ function renderCell(field: GabField, value: unknown): ReactNode {
   }
 }
 
+export function isEditable(field: GabField): boolean {
+  if (field.isSystem) return false;
+  if (field.formula) return false;
+  if (field.lookupConfig) return false;
+  if (field.summaryConfig) return false;
+  return true;
+}
+
+export interface BuildColumnsOptions {
+  visibleKeys?: string[];
+  /** Enable inline editing. When provided, `onCellCommit` receives the change. */
+  editable?: boolean;
+  /**
+   * Commit a single cell change. Receives the row, field, and parsed value.
+   * Should throw on failure so the editor can surface the message.
+   */
+  onCellCommit?: (row: GabRow, field: GabField, next: unknown) => Promise<void>;
+}
+
 /**
  * Build {@link Column} definitions for {@link DataTable} from GAB field metadata.
  * Sorting is left enabled — the grid wires `onSort` to a server-side request.
  */
 export function buildColumnsFromFields(
   fields: GabField[],
-  visibleKeys?: string[],
+  options: BuildColumnsOptions | string[] = {},
 ): Column<GabRow>[] {
+  // Backwards-compat: if the caller passed a `visibleKeys` array directly,
+  // normalise it into the new options shape.
+  const opts: BuildColumnsOptions = Array.isArray(options) ? { visibleKeys: options } : options;
+
   const ordered = [...fields].sort((a, b) => a.sortOrder - b.sortOrder);
-  const filtered = visibleKeys
-    ? ordered.filter((f) => visibleKeys.includes(f.key))
+  const filtered = opts.visibleKeys
+    ? ordered.filter((f) => opts.visibleKeys!.includes(f.key))
     : ordered.filter((f) => !f.isSystem);
 
   return filtered.map((field) => ({
     key: field.key,
     header: field.name,
     sortable: true,
-    render: (row) => renderCell(field, row[field.key]),
+    render: (row) => {
+      const display = renderCell(field, row[field.key]);
+      if (!opts.editable || !opts.onCellCommit || !isEditable(field)) {
+        return display;
+      }
+      return (
+        <EditableCell
+          field={field}
+          value={row[field.key]}
+          renderDisplay={(v) => renderCell(field, v)}
+          onCommit={async (next) => {
+            await opts.onCellCommit!(row, field, next);
+          }}
+        />
+      );
+    },
   }));
 }

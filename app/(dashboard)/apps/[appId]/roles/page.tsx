@@ -47,7 +47,11 @@ export default async function AppRolesPage({
           {roles.items.length === 0 ? (
             <div className="p-4">
               <EmptyState
-                icon={Users}
+                illustration={
+                  <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
+                    <Users className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
+                  </div>
+                }
                 title="No roles yet"
                 description="Roles are typically seeded with the app template."
               />

@@ -1,4 +1,4 @@
-import { gabFieldRepo } from '@/lib/core';
+import { gabAppRepo, gabFieldRepo, gabTableRepo } from '@/lib/core';
 import { Card, CardContent } from '@/components/ui/molecules';
 import { Text } from '@/components/ui/atoms';
 import { AlertCircle } from 'lucide-react';
@@ -11,13 +11,18 @@ export default async function TableRecordsPage({
 }) {
   const { appId, tableId } = await params;
 
-  let fields: Awaited<ReturnType<typeof gabFieldRepo.listFields>> = { items: [], total: 0 };
-  let loadError: string | null = null;
-  try {
-    fields = await gabFieldRepo.listFields(appId, tableId);
-  } catch (err) {
-    loadError = err instanceof Error ? err.message : 'Failed to load fields';
-  }
+  const [fieldsResult, appResult, tableResult] = await Promise.allSettled([
+    gabFieldRepo.listFields(appId, tableId),
+    gabAppRepo.getApp(appId),
+    gabTableRepo.getTable(appId, tableId),
+  ]);
+
+  const loadError =
+    fieldsResult.status === 'rejected'
+      ? fieldsResult.reason instanceof Error
+        ? fieldsResult.reason.message
+        : 'Failed to load fields'
+      : null;
 
   if (loadError) {
     return (
@@ -35,12 +40,19 @@ export default async function TableRecordsPage({
     );
   }
 
+  const fields = fieldsResult.status === 'fulfilled' ? fieldsResult.value : { items: [], total: 0 };
+  const app = appResult.status === 'fulfilled' ? appResult.value : null;
+  const table = tableResult.status === 'fulfilled' ? tableResult.value : null;
+
   return (
     <RecordsGrid
       appId={appId}
       tableId={tableId}
+      applicationKey={app?.key ?? appId}
+      tableKey={table?.key ?? tableId}
       fields={fields.items}
       title="Records"
+      editable
     />
   );
 }

@@ -4,7 +4,9 @@ import {
   gabTableRepo,
   gabRelationshipRepo,
   gabAppRoleRepo,
+  gabTemplateRepo,
 } from '@/lib/core';
+import { TemplateSubscriptionCard } from './_components/TemplateSubscriptionCard';
 import { Badge, Button, Heading, Text } from '@/components/ui/atoms';
 import {
   Card,
@@ -12,17 +14,10 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  MetricCard,
 } from '@/components/ui/molecules';
-import {
-  Database,
-  GitBranch,
-  Users,
-  Activity,
-  AlertCircle,
-  ArrowRight,
-} from 'lucide-react';
+import { AlertCircle, ArrowRight } from 'lucide-react';
 import { AppOverviewActions } from './_components/AppOverviewActions';
+import { AppOverviewMetrics } from './_components/AppOverviewMetrics';
 
 export default async function AppOverviewPage({
   params,
@@ -34,12 +29,27 @@ export default async function AppOverviewPage({
   // Parallel-fetch all overview metrics. Each call is wrapped so a single
   // 5xx doesn't blank out the whole page — the component renders a
   // per-card error state instead.
-  const [tablesRes, relsRes, rolesRes, complexityRes] = await Promise.allSettled([
+  const [tablesRes, relsRes, rolesRes, complexityRes, subscriptionRes] = await Promise.allSettled([
     gabTableRepo.listTables(appId),
     gabRelationshipRepo.listRelationships(appId),
     gabAppRoleRepo.listRoles(appId),
     gabAppRepo.getComplexityScore(appId),
+    gabTemplateRepo.getAppSubscription(appId),
   ]);
+
+  const subscription =
+    subscriptionRes.status === 'fulfilled' ? subscriptionRes.value : null;
+  const templateRes = subscription?.templateId
+    ? await Promise.allSettled([gabTemplateRepo.getTemplate(subscription.templateId)])
+    : null;
+  const template =
+    templateRes && templateRes[0].status === 'fulfilled' ? templateRes[0].value : null;
+  const templateError =
+    templateRes && templateRes[0].status === 'rejected'
+      ? templateRes[0].reason instanceof Error
+        ? templateRes[0].reason.message
+        : 'Failed to load template'
+      : null;
 
   const tableCount = tablesRes.status === 'fulfilled' ? tablesRes.value.total : null;
   const relCount = relsRes.status === 'fulfilled' ? relsRes.value.total : null;
@@ -66,28 +76,39 @@ export default async function AppOverviewPage({
         <AppOverviewActions appId={appId} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          title="Tables"
-          value={tableCount === null ? '—' : String(tableCount)}
-          icon={Database}
+      <AppOverviewMetrics
+        metrics={[
+          {
+            iconKey: 'tables',
+            title: 'Tables',
+            value: tableCount === null ? '—' : String(tableCount),
+          },
+          {
+            iconKey: 'relationships',
+            title: 'Relationships',
+            value: relCount === null ? '—' : String(relCount),
+          },
+          {
+            iconKey: 'roles',
+            title: 'Roles',
+            value: roleCount === null ? '—' : String(roleCount),
+          },
+          {
+            iconKey: 'activity',
+            title: 'Complexity',
+            value: complexity ? complexity.tier : '—',
+          },
+        ]}
+      />
+
+      {subscription && (
+        <TemplateSubscriptionCard
+          appId={appId}
+          subscription={subscription}
+          template={template}
+          templateError={templateError}
         />
-        <MetricCard
-          title="Relationships"
-          value={relCount === null ? '—' : String(relCount)}
-          icon={GitBranch}
-        />
-        <MetricCard
-          title="Roles"
-          value={roleCount === null ? '—' : String(roleCount)}
-          icon={Users}
-        />
-        <MetricCard
-          title="Complexity"
-          value={complexity ? complexity.tier : '—'}
-          icon={Activity}
-        />
-      </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2">

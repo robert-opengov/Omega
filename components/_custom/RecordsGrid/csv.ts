@@ -48,6 +48,88 @@ export function rowsToCsv(fields: GabField[], rows: GabRow[]): string {
   return '\ufeff' + lines.join('\r\n');
 }
 
+/**
+ * Parse a CSV string into a header row + records. Supports RFC 4180 quoting,
+ * embedded newlines inside quoted fields, and `""` escaping. Strips a leading
+ * UTF-8 BOM if present. Empty trailing lines are ignored.
+ */
+export function parseCsv(input: string): { headers: string[]; rows: string[][] } {
+  let text = input;
+  if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
+
+  const records: string[][] = [];
+  let field = '';
+  let row: string[] = [];
+  let inQuotes = false;
+  let i = 0;
+
+  while (i < text.length) {
+    const ch = text[i];
+
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') {
+          field += '"';
+          i += 2;
+          continue;
+        }
+        inQuotes = false;
+        i++;
+        continue;
+      }
+      field += ch;
+      i++;
+      continue;
+    }
+
+    if (ch === '"') {
+      inQuotes = true;
+      i++;
+      continue;
+    }
+
+    if (ch === ',') {
+      row.push(field);
+      field = '';
+      i++;
+      continue;
+    }
+
+    if (ch === '\r') {
+      if (text[i + 1] === '\n') i++;
+      row.push(field);
+      records.push(row);
+      row = [];
+      field = '';
+      i++;
+      continue;
+    }
+
+    if (ch === '\n') {
+      row.push(field);
+      records.push(row);
+      row = [];
+      field = '';
+      i++;
+      continue;
+    }
+
+    field += ch;
+    i++;
+  }
+
+  if (field !== '' || row.length > 0) {
+    row.push(field);
+    records.push(row);
+  }
+
+  const cleaned = records.filter((r) => !(r.length === 1 && r[0] === ''));
+  if (cleaned.length === 0) return { headers: [], rows: [] };
+
+  const [headers, ...rows] = cleaned;
+  return { headers, rows };
+}
+
 export function triggerCsvDownload(filename: string, csv: string): void {
   if (typeof window === 'undefined') return;
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });

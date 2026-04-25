@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from 'react';
 import { z } from 'zod';
-import { Plus, Trash2, GitBranch, ArrowRight } from 'lucide-react';
+import { Plus, Trash2, GitBranch, ArrowRight, List, Network } from 'lucide-react';
 import { Badge, Button, Text } from '@/components/ui/atoms';
 import {
   Card,
@@ -22,6 +22,7 @@ import {
 } from '@/app/actions/relationships';
 import type { GabRelationship } from '@/lib/core/ports/relationship.repository';
 import type { GabTable } from '@/lib/core/ports/table.repository';
+import { RelationshipsERD } from './RelationshipsERD';
 
 const RELATIONSHIP_TYPES = ['1:1', '1:N', 'N:M'] as const;
 
@@ -49,6 +50,7 @@ export function RelationshipsList({
   const [createOpen, setCreateOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<GabRelationship | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [view, setView] = useState<'list' | 'graph'>('list');
   const [isPending, startTransition] = useTransition();
 
   const tableMap = useMemo(() => {
@@ -176,17 +178,50 @@ export function RelationshipsList({
         description="Typed links between tables. GAB Core auto-creates the FK column on the child table."
         condensed
         actions={
-          <Button
-            variant="primary"
-            onClick={() => setCreateOpen(true)}
-            disabled={tables.length < 2}
-          >
-            <Plus className="h-4 w-4 mr-1.5" />
-            New Relationship
-          </Button>
+          <div className="flex items-center gap-2">
+            <div className="inline-flex items-center rounded border border-border p-0.5 bg-muted/40">
+              <button
+                type="button"
+                onClick={() => setView('list')}
+                aria-pressed={view === 'list'}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded transition-colors ${
+                  view === 'list'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <List className="h-3.5 w-3.5" />
+                List
+              </button>
+              <button
+                type="button"
+                onClick={() => setView('graph')}
+                aria-pressed={view === 'graph'}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded transition-colors ${
+                  view === 'graph'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Network className="h-3.5 w-3.5" />
+                Graph
+              </button>
+            </div>
+            <Button
+              variant="primary"
+              onClick={() => setCreateOpen(true)}
+              disabled={tables.length < 2}
+            >
+              <Plus className="h-4 w-4 mr-1.5" />
+              New Relationship
+            </Button>
+          </div>
         }
       />
 
+      {view === 'graph' ? (
+        <RelationshipsERD tables={tables} relationships={relationships} />
+      ) : (
       <Card>
         <CardContent className="p-4">
           {relationships.length === 0 ? (
@@ -214,6 +249,7 @@ export function RelationshipsList({
           )}
         </CardContent>
       </Card>
+      )}
 
       <Modal
         open={createOpen}

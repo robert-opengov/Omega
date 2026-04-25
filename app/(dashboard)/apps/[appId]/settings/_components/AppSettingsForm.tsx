@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
-import { Save, Trash2 } from 'lucide-react';
+import { Package, Save, Trash2 } from 'lucide-react';
 import { Button, Text, Textarea } from '@/components/ui/atoms';
 import {
   Card,
@@ -13,9 +13,11 @@ import {
   CardTitle,
   ConfirmDialog,
   FormField,
+  Modal,
   ZodForm,
 } from '@/components/ui/molecules';
 import { deleteAppAction, updateAppAction } from '@/app/actions/apps';
+import { extractTemplateFromAppAction } from '@/app/actions/templates';
 import type { GabApp } from '@/lib/core/ports/app.repository';
 
 const settingsSchema = z.object({
@@ -52,6 +54,26 @@ export function AppSettingsForm({ app }: AppSettingsFormProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isSaving, startSave] = useTransition();
   const [isDeleting, startDelete] = useTransition();
+  const [extractOpen, setExtractOpen] = useState(false);
+  const [extractName, setExtractName] = useState(`${app.name} template`);
+  const [extractError, setExtractError] = useState<string | null>(null);
+  const [isExtracting, startExtract] = useTransition();
+
+  const onExtract = () => {
+    setExtractError(null);
+    startExtract(async () => {
+      const res = await extractTemplateFromAppAction(app.id, {
+        ...(extractName ? { templateName: extractName } : {}),
+      });
+      if (!res.success) {
+        setExtractError(res.error);
+        return;
+      }
+      setExtractOpen(false);
+      router.push(`/templates/${res.data.id}`);
+      router.refresh();
+    });
+  };
 
   const onSave = (values: SettingsValues) => {
     setError(null);
@@ -152,6 +174,22 @@ export function AppSettingsForm({ app }: AppSettingsFormProps) {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Templates</CardTitle>
+          <CardDescription>
+            Extract this app&apos;s schema into a reusable template that other tenants
+            can stamp into their own apps.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button variant="outline" onClick={() => setExtractOpen(true)}>
+            <Package className="h-4 w-4 mr-1.5" />
+            Extract template from app
+          </Button>
+        </CardContent>
+      </Card>
+
       <Card className="border-danger-light-border">
         <CardHeader>
           <CardTitle>Danger zone</CardTitle>
@@ -178,6 +216,35 @@ export function AppSettingsForm({ app }: AppSettingsFormProps) {
         loading={isDeleting}
         onConfirm={onDelete}
       />
+
+      <Modal
+        open={extractOpen}
+        onOpenChange={(open) => {
+          setExtractOpen(open);
+          if (!open) setExtractError(null);
+        }}
+        title="Extract template"
+        description="Captures the current schema as a new template draft. Publish it from the templates page to make it available to other tenants."
+        primaryAction={{
+          label: isExtracting ? 'Extracting…' : 'Extract',
+          onClick: onExtract,
+        }}
+        secondaryAction={{
+          label: 'Cancel',
+          onClick: () => setExtractOpen(false),
+        }}
+      >
+        <div className="space-y-3">
+          <FormField
+            label="Template name"
+            value={extractName}
+            onChange={(e) => setExtractName(e.target.value)}
+          />
+          {extractError && (
+            <Text size="sm" className="text-danger-text">{extractError}</Text>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 }

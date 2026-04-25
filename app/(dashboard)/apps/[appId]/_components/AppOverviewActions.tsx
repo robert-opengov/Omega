@@ -7,6 +7,7 @@ import { Modal } from '@/components/ui/molecules';
 import { recomputeAllAction } from '@/app/actions/tables';
 import { getDependencyGraphAction } from '@/app/actions/apps';
 import type { DependencyGraph } from '@/lib/core/ports/app.repository';
+import { DependencyGraphView } from './DependencyGraphView';
 
 export function AppOverviewActions({ appId }: { appId: string }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -148,37 +149,10 @@ export function AppOverviewActions({ appId }: { appId: string }) {
                 {graph.complexity.level} complexity ({graph.complexity.score})
               </Badge>
             </div>
-            <div className="rounded border border-border max-h-72 overflow-auto">
-              {graph.nodes.length === 0 ? (
-                <div className="p-4">
-                  <Text size="sm" color="muted">
-                    No computed fields yet. Add a formula, lookup, or summary field to
-                    populate the graph.
-                  </Text>
-                </div>
-              ) : (
-                <ul className="divide-y divide-border">
-                  {graph.nodes.map((node) => (
-                    <li
-                      key={node.fieldId}
-                      className="px-3 py-2 flex items-center justify-between gap-3"
-                    >
-                      <div className="min-w-0">
-                        <Text size="sm" weight="medium" className="truncate">
-                          {node.fieldName}
-                        </Text>
-                        <Text size="xs" color="muted" className="font-mono truncate">
-                          {node.fieldKey}
-                        </Text>
-                      </div>
-                      <Badge size="sm" variant="default">{node.dependencyType}</Badge>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            <DependencyGraphView graph={graph} />
             <Text size="xs" color="muted">
-              Visual graph editor (drag, zoom, layout) is coming with the relationships ERD.
+              Drag nodes to reposition. Edges flow from a source field to the computed
+              field that depends on it.
             </Text>
           </div>
         )}

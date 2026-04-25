@@ -8,6 +8,7 @@ import {
   Users,
   Settings,
   LayoutDashboard,
+  Boxes,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -25,6 +26,7 @@ const NAV_ITEMS: AppNavItem[] = [
   { label: 'Tables', href: (id) => `/apps/${id}/tables`, icon: Database },
   { label: 'Relationships', href: (id) => `/apps/${id}/relationships`, icon: GitBranch },
   { label: 'Roles', href: (id) => `/apps/${id}/roles`, icon: Users },
+  { label: 'Sandbox', href: (id) => `/apps/${id}/sandbox`, icon: Boxes },
   { label: 'Settings', href: (id) => `/apps/${id}/settings`, icon: Settings },
 ];
 

@@ -6,22 +6,40 @@ import { Button, Heading, Text } from '@/components/ui/atoms';
 import {
   Card,
   CardContent,
+  ConfirmDialog,
   DataTable,
   EmptyState,
   Pagination,
   SearchInput,
   Toolbar,
 } from '@/components/ui/molecules';
-import { Inbox, RefreshCw, AlertCircle, Download } from 'lucide-react';
-import { fetchRowsAction } from '@/app/actions/data';
+import {
+  Inbox,
+  RefreshCw,
+  AlertCircle,
+  Download,
+  Upload,
+  Plus,
+  Trash2,
+} from 'lucide-react';
+import {
+  createRowAction,
+  deleteRowsAction,
+  fetchRowsAction,
+  syncRowsAction,
+  updateRowAction,
+} from '@/app/actions/data';
 import { buildColumnsFromFields } from './columns';
 import { rowsToCsv, triggerCsvDownload } from './csv';
+import { CreateRecordModal } from './CreateRecordModal';
+import { CsvImportModal } from './CsvImportModal';
 import type {
   RecordsGridProps,
   RecordsGridFetcher,
   RecordsGridFetchResult,
 } from './types';
 import type { GabRow } from '@/lib/core/ports/data.repository';
+import type { GabField } from '@/lib/core/ports/field.repository';
 
 const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -77,7 +95,14 @@ export function RecordsGrid({
   className,
   title,
   toolbarActions,
+  editable = false,
+  enableMutations,
+  applicationKey,
+  tableKey,
 }: RecordsGridProps) {
+  const mutationsEnabled = enableMutations ?? editable;
+  const appKey = applicationKey ?? appId;
+  const tblKey = tableKey ?? tableId;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -102,10 +127,79 @@ export function RecordsGrid({
   const [, startTransition] = useTransition();
   const [loading, setLoading] = useState(true);
 
-  const columns = useMemo(
-    () => buildColumnsFromFields(fields, visibleFieldKeys),
-    [fields, visibleFieldKeys],
+  const handleCellCommit = useCallback(
+    async (row: GabRow, field: GabField, next: unknown) => {
+      const id = extractRowIdNum(row);
+      if (id === null) {
+        throw new Error('Cannot edit a row without a numeric id.');
+      }
+      const res = await updateRowAction(tblKey, appKey, id, { [field.key]: next });
+      if (!res.success) {
+        throw new Error(res.error ?? 'Update failed');
+      }
+      setRows((prev) =>
+        prev.map((r) => {
+          const rid = extractRowIdNum(r);
+          return rid === id ? { ...r, [field.key]: next } : r;
+        }),
+      );
+    },
+    [appKey, tblKey],
   );
+
+  const columns = useMemo(
+    () =>
+      buildColumnsFromFields(fields, {
+        visibleKeys: visibleFieldKeys,
+        editable,
+        onCellCommit: handleCellCommit,
+      }),
+    [fields, visibleFieldKeys, editable, handleCellCommit],
+  );
+
+  const [createOpen, setCreateOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
+  const [mutationError, setMutationError] = useState<string | null>(null);
+  const [isMutating, startMutation] = useTransition();
+
+  const onCreateRecord = async (values: GabRow) => {
+    const res = await createRowAction(tblKey, appKey, values);
+    if (!res.success) throw new Error(res.error ?? 'Create failed');
+    await refresh();
+  };
+
+  const onImportRows = async (records: GabRow[]) => {
+    if (records.length === 0) return { inserted: 0 };
+    const actions = records.map((r) => ({ action: 'new' as const, fields: r }));
+    const res = await syncRowsAction(tblKey, appKey, actions);
+    if (!res.success) throw new Error(res.error ?? 'Import failed');
+    await refresh();
+    return { inserted: records.length };
+  };
+
+  const onBulkDelete = () => {
+    setMutationError(null);
+    const numericIds = selectedIds
+      .map((id) => Number(id))
+      .filter((n) => !Number.isNaN(n));
+    if (numericIds.length === 0) {
+      setMutationError('No deletable rows selected.');
+      setConfirmBulkDelete(false);
+      return;
+    }
+    startMutation(async () => {
+      const res = await deleteRowsAction(tblKey, appKey, numericIds);
+      if (!res.success) {
+        setMutationError(res.error ?? 'Delete failed');
+        setConfirmBulkDelete(false);
+        return;
+      }
+      setSelectedIds([]);
+      setConfirmBulkDelete(false);
+      await refresh();
+    });
+  };
 
   const activeFetcher = fetcher ?? defaultFetcher;
 
@@ -219,6 +313,27 @@ export function RecordsGrid({
             }
             actions={
               <>
+                {mutationsEnabled && (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setImportOpen(true)}
+                      aria-label="Import CSV"
+                    >
+                      <Upload className="h-3.5 w-3.5 mr-1.5" />
+                      Import CSV
+                    </Button>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => setCreateOpen(true)}
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1.5" />
+                      New Record
+                    </Button>
+                  </>
+                )}
                 <Button
                   variant="outline"
                   size="sm"
@@ -246,13 +361,20 @@ export function RecordsGrid({
             }
           />
 
-          {selectable && selectedIds.length > 0 && bulkActions && bulkActions.length > 0 && (
+          {mutationError && (
+            <div className="flex items-start gap-2 p-2 rounded bg-danger-light text-danger-text">
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <Text size="sm">{mutationError}</Text>
+            </div>
+          )}
+
+          {selectable && selectedIds.length > 0 && (mutationsEnabled || (bulkActions && bulkActions.length > 0)) && (
             <div className="flex items-center gap-2 px-3 py-2 rounded border border-primary/20 bg-primary-light">
               <Text size="sm" weight="medium">
                 {selectedIds.length} selected
               </Text>
               <div className="ml-auto flex items-center gap-1.5">
-                {bulkActions.map((action) => (
+                {bulkActions?.map((action) => (
                   <Button
                     key={action.id}
                     size="sm"
@@ -264,6 +386,17 @@ export function RecordsGrid({
                     {action.label}
                   </Button>
                 ))}
+                {mutationsEnabled && (
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    disabled={isMutating}
+                    onClick={() => setConfirmBulkDelete(true)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                    Delete
+                  </Button>
+                )}
               </div>
             </div>
           )}
@@ -320,8 +453,44 @@ export function RecordsGrid({
           />
         </CardContent>
       </Card>
+
+      {mutationsEnabled && (
+        <>
+          <CreateRecordModal
+            open={createOpen}
+            onOpenChange={setCreateOpen}
+            fields={fields}
+            onSubmit={onCreateRecord}
+          />
+          <CsvImportModal
+            open={importOpen}
+            onOpenChange={setImportOpen}
+            fields={fields}
+            onImport={onImportRows}
+          />
+          <ConfirmDialog
+            open={confirmBulkDelete}
+            onOpenChange={setConfirmBulkDelete}
+            variant="danger"
+            title={`Delete ${selectedIds.length} record${selectedIds.length === 1 ? '' : 's'}?`}
+            description="The selected rows will be permanently removed. This cannot be undone."
+            confirmLabel={isMutating ? 'Deleting…' : 'Delete records'}
+            loading={isMutating}
+            onConfirm={onBulkDelete}
+          />
+        </>
+      )}
     </div>
   );
+}
+
+function extractRowIdNum(row: GabRow): number | null {
+  if (row && typeof row === 'object' && 'id' in row) {
+    const id = (row as { id: unknown }).id;
+    const n = Number(id);
+    if (!Number.isNaN(n)) return n;
+  }
+  return null;
 }
 
 function extractRowId(row: GabRow, fallback: number): string {

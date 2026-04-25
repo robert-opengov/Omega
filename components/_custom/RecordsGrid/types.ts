@@ -75,4 +75,26 @@ export interface RecordsGridProps {
   title?: React.ReactNode;
   /** Right-aligned content in the toolbar (e.g. "New Record" button). */
   toolbarActions?: React.ReactNode;
+  /**
+   * Enable inline cell editing. Computed/system fields are always read-only
+   * regardless of this flag. @default false
+   */
+  editable?: boolean;
+  /**
+   * Show "Create record", "Import CSV", and bulk-delete affordances. The grid
+   * uses `gabDataRepo` server actions under the hood — pass `false` for
+   * read-only views or for verticals that supply their own create flow.
+   * @default true when `editable` is true
+   */
+  enableMutations?: boolean;
+  /**
+   * Resolve the GAB API key for an app id. Defaults to the appId itself
+   * (which is already accepted by GAB V2 endpoints), but pages with the app
+   * loaded can pass `app.key` for clarity / tracing.
+   */
+  applicationKey?: string;
+  /**
+   * Resolve the GAB API key for the table id. Defaults to the tableId.
+   */
+  tableKey?: string;
 }
