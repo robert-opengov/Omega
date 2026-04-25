@@ -12,6 +12,7 @@ import {
   Bell,
   Zap,
   ScrollText,
+  ClipboardList,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -32,6 +33,7 @@ const NAV_ITEMS: AppNavItem[] = [
   { label: 'Notifications', href: (id) => `/apps/${id}/notifications`, icon: Bell },
   { label: 'Jobs', href: (id) => `/apps/${id}/jobs`, icon: Zap },
   { label: 'Audit', href: (id) => `/apps/${id}/audit`, icon: ScrollText },
+  { label: 'Forms', href: (id) => `/apps/${id}/forms`, icon: ClipboardList },
   { label: 'Sandbox', href: (id) => `/apps/${id}/sandbox`, icon: Boxes },
   { label: 'Settings', href: (id) => `/apps/${id}/settings`, icon: Settings },
 ];

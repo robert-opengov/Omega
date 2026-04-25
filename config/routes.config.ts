@@ -23,6 +23,7 @@ export const publicRoutes: string[] = [
 /** Route prefixes accessible without authentication (e.g., API endpoints) */
 export const publicPrefixes: string[] = [
   '/api/auth/',
+  '/pub/',
 ];
 
 /** Routes that should redirect to home if the user is already authenticated */

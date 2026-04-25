@@ -77,4 +77,22 @@ describe('V1-only adapter fallbacks for newly added repos', () => {
       'Not supported when GAB_API_VERSION=v1',
     );
   });
+
+  it('rejects form repositories in v1 mode', async () => {
+    const { GabFormV1Adapter } = await import('../form.adapter');
+    const authPort = {
+      getToken: vi.fn().mockResolvedValue('access-token'),
+    };
+    const adapter = new GabFormV1Adapter(authPort as any, 'https://gab-v1.example.com');
+
+    await expect(adapter.listForms('app_1')).rejects.toThrow(
+      'Not supported when GAB_API_VERSION=v1',
+    );
+    await expect(adapter.getForm('app_1', 'form_1')).rejects.toThrow(
+      'Not supported when GAB_API_VERSION=v1',
+    );
+    await expect(adapter.resolvePublicForm('token_1')).rejects.toThrow(
+      'Not supported when GAB_API_VERSION=v1',
+    );
+  });
 });
