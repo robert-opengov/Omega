@@ -43,7 +43,7 @@ export function InstancesTable({
       header: 'Workflow',
       render: (row) => (
         <Link
-          href={`/apps/${appId}/workflows/${row.workflowId}/runs/${row.id}`}
+          href={`/apps/${appId}/workflows/instances/${row.id}`}
           className="text-sm text-primary hover:underline"
         >
           {workflowNameById[row.workflowId] ?? row.workflowId}

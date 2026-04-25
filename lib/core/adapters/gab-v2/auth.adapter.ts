@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { AUTH_COOKIE_NAMES } from '@/lib/constants';
 import type {
+  ImpersonationContext,
   IAuthPort,
   LoginParams,
   LoginResult,
@@ -34,6 +35,19 @@ export class GabAuthV2Adapter implements IAuthPort {
   async getToken(): Promise<string | null> {
     const cookieStore = await cookies();
     return cookieStore.get(AUTH_COOKIE_NAMES.accessToken)?.value || null;
+  }
+
+  async getImpersonationContext(): Promise<ImpersonationContext | null> {
+    const cookieStore = await cookies();
+    const raw = cookieStore.get(AUTH_COOKIE_NAMES.impersonationContext)?.value;
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw) as Partial<ImpersonationContext>;
+      if (!parsed.userId || !parsed.roleId) return null;
+      return { userId: String(parsed.userId), roleId: String(parsed.roleId) };
+    } catch {
+      return null;
+    }
   }
 
   async login(params: LoginParams): Promise<LoginResult> {

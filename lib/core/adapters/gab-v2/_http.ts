@@ -27,8 +27,16 @@ export class GabV2Http {
    */
   async json<T>(endpoint: string, options: GabFetchOptions = {}): Promise<T> {
     const token = await this.authPort.getToken();
+    const impersonation =
+      typeof (this.authPort as any).getImpersonationContext === 'function'
+        ? await (this.authPort as any).getImpersonationContext()
+        : null;
     const headers = new Headers(options.headers);
     if (token) headers.set('Authorization', `Bearer ${token}`);
+    if (impersonation) {
+      headers.set('X-Impersonate-User', impersonation.userId);
+      headers.set('X-Impersonate-Role', impersonation.roleId);
+    }
     if (!headers.has('Content-Type') && options.body) {
       headers.set('Content-Type', 'application/json');
     }

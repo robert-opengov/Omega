@@ -80,4 +80,11 @@ export interface IGabSandboxRepository {
     appId: string,
     backupId?: string,
   ): Promise<{ rolledBack: boolean }>;
+  /** Export the app schema as a JSON-serializable document. */
+  exportSchema(appId: string): Promise<Record<string, unknown>>;
+  /** Import a full app schema document. */
+  importSchema(
+    appId: string,
+    payload: Record<string, unknown>,
+  ): Promise<{ imported: boolean }>;
 }

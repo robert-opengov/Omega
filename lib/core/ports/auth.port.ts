@@ -38,12 +38,19 @@ export interface UserProfile {
   isAdmin: boolean;
 }
 
+export interface ImpersonationContext {
+  userId: string;
+  roleId: string;
+}
+
 export interface IAuthPort {
   /**
    * Retrieves the current authentication token from the session.
    * This could be a user token (pass-through) or a service token (M2M).
    */
   getToken(): Promise<string | null>;
+  /** Returns active impersonation context from session cookies, if set. */
+  getImpersonationContext(): Promise<ImpersonationContext | null>;
 
   /**
    * Authenticates a user against the GAB backend.

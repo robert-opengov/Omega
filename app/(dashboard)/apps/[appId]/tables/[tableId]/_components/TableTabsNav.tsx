@@ -2,7 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Table2, Columns3, SlidersHorizontal, type LucideIcon } from 'lucide-react';
+import {
+  Table2,
+  Columns3,
+  SlidersHorizontal,
+  Bell,
+  type LucideIcon,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TableTab {
@@ -16,6 +22,7 @@ interface TableTab {
 const TABS: TableTab[] = [
   { label: 'Records', segment: '', icon: Table2, exact: true },
   { label: 'Fields', segment: 'fields', icon: Columns3 },
+  { label: 'Notifications', segment: 'notifications', icon: Bell },
   { label: 'Settings', segment: 'settings', icon: SlidersHorizontal },
 ];
 

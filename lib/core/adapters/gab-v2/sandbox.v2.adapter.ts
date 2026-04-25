@@ -61,4 +61,21 @@ export class GabSandboxV2Adapter implements IGabSandboxRepository {
       body: JSON.stringify(backupId ? { backupId } : {}),
     });
   }
+
+  async exportSchema(appId: string): Promise<Record<string, unknown>> {
+    const res = await this.http.json<Record<string, unknown>>(
+      `/v2/apps/${appId}/export`,
+    );
+    return res ?? {};
+  }
+
+  async importSchema(
+    appId: string,
+    payload: Record<string, unknown>,
+  ): Promise<{ imported: boolean }> {
+    return this.http.json<{ imported: boolean }>(`/v2/apps/${appId}/import`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
 }

@@ -99,4 +99,36 @@ describe('GabSandboxV2Adapter', () => {
     const [, init] = spy.mock.calls[0] as [string, RequestInit];
     expect(JSON.parse(init.body as string)).toEqual({});
   });
+
+  it('exports schema from the app export endpoint', async () => {
+    const { GabSandboxV2Adapter } = await import('../sandbox.v2.adapter');
+    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      jsonResponse({ tables: [], fields: [] }),
+    );
+
+    const adapter = new GabSandboxV2Adapter(authPortStub() as never, BASE_URL);
+    const result = await adapter.exportSchema('app_1');
+
+    const [url, init] = spy.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe(`${BASE_URL}/v2/apps/app_1/export`);
+    expect(init.method ?? 'GET').toBe('GET');
+    expect(result).toEqual({ tables: [], fields: [] });
+  });
+
+  it('imports schema using the app import endpoint', async () => {
+    const { GabSandboxV2Adapter } = await import('../sandbox.v2.adapter');
+    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      jsonResponse({ imported: true }),
+    );
+
+    const adapter = new GabSandboxV2Adapter(authPortStub() as never, BASE_URL);
+    const payload = { tables: [{ key: 'cases' }] };
+    const result = await adapter.importSchema('app_1', payload);
+
+    const [url, init] = spy.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe(`${BASE_URL}/v2/apps/app_1/import`);
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(init.body as string)).toEqual(payload);
+    expect(result).toEqual({ imported: true });
+  });
 });

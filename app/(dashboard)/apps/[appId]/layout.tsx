@@ -2,8 +2,11 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Database, Lock, AppWindow } from 'lucide-react';
 import { Badge, Heading, Text } from '@/components/ui/atoms';
+import { getImpersonationAction } from '@/app/actions/auth';
 import { tryGetAppContext } from '@/lib/core/app-context';
+import { gabAppRoleRepo, gabUserRepo } from '@/lib/core';
 import { AppTabsNav } from './_components/AppTabsNav';
+import { ImpersonationBar } from './_components/ImpersonationBar';
 
 export default async function AppLayout({
   children,
@@ -18,9 +21,32 @@ export default async function AppLayout({
   if (!ctx) notFound();
 
   const { app, isSandbox, schemaLocked } = ctx;
+  const [impersonation, usersRes, rolesRes] = await Promise.allSettled([
+    getImpersonationAction(),
+    gabUserRepo.listUsers({ page: 1, pageSize: 100 }),
+    gabAppRoleRepo.listRoles(appId),
+  ]);
+  const users =
+    usersRes.status === 'fulfilled'
+      ? usersRes.value.items.map((u) => ({
+          id: u.id,
+          label: `${u.firstName} ${u.lastName}`.trim() || u.email,
+        }))
+      : [];
+  const roles =
+    rolesRes.status === 'fulfilled'
+      ? rolesRes.value.items.map((r) => ({ id: r.id, label: r.name }))
+      : [];
+  const initialImpersonation =
+    impersonation.status === 'fulfilled' ? impersonation.value : null;
 
   return (
     <div className="bg-surface-canvas min-h-full">
+      <ImpersonationBar
+        initialSession={initialImpersonation}
+        users={users}
+        roles={roles}
+      />
       <div className="border-b border-border bg-card">
         <div className="px-6 lg:px-8 pt-6 pb-3">
           <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground mb-2">

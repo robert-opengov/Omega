@@ -15,6 +15,7 @@ const ITEMS: SubNavItem[] = [
   { label: 'Navigation', href: (id) => `/apps/${id}/settings/navigation` },
   { label: 'Public links', href: (id) => `/apps/${id}/settings/public-links` },
   { label: 'Access tokens', href: (id) => `/apps/${id}/settings/access-tokens` },
+  { label: 'Backups', href: (id) => `/apps/${id}/settings/backups` },
 ];
 
 export function SettingsSubNav({ appId }: { appId: string }) {

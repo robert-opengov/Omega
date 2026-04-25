@@ -89,8 +89,36 @@ export async function restoreBackupAction(
   try {
     const data = await gabSandboxRepo.restoreBackup(appId, backupId);
     revalidatePath(`/apps/${appId}`);
+    revalidatePath(`/apps/${appId}/sandbox`);
+    revalidatePath(`/apps/${appId}/settings/backups`);
     return { success: true, data };
   } catch (err) {
     return fail('restoreBackupAction error:', err);
+  }
+}
+
+export async function exportSchemaAction(
+  appId: string,
+): Promise<ActionResult<Record<string, unknown>>> {
+  try {
+    const data = await gabSandboxRepo.exportSchema(appId);
+    return { success: true, data };
+  } catch (err) {
+    return fail('exportSchemaAction error:', err);
+  }
+}
+
+export async function importSchemaAction(
+  appId: string,
+  payload: Record<string, unknown>,
+): Promise<ActionResult<{ imported: boolean }>> {
+  try {
+    const data = await gabSandboxRepo.importSchema(appId, payload);
+    revalidatePath(`/apps/${appId}`);
+    revalidatePath(`/apps/${appId}/sandbox`);
+    revalidatePath(`/apps/${appId}/settings/backups`);
+    return { success: true, data };
+  } catch (err) {
+    return fail('importSchemaAction error:', err);
   }
 }

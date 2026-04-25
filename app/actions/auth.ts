@@ -17,6 +17,27 @@ export interface SessionUser {
   role: 'participant' | 'admin' | 'superadmin';
 }
 
+export interface ImpersonationSession {
+  userId: string;
+  roleId: string;
+  startedAt: string;
+}
+
+function parseImpersonationCookie(raw: string | undefined): ImpersonationSession | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as Partial<ImpersonationSession>;
+    if (!parsed.userId || !parsed.roleId || !parsed.startedAt) return null;
+    return {
+      userId: String(parsed.userId),
+      roleId: String(parsed.roleId),
+      startedAt: String(parsed.startedAt),
+    };
+  } catch {
+    return null;
+  }
+}
+
 function getUserFullName(firstName: string, lastName: string, fallback: string): string {
   const fullName = `${firstName} ${lastName}`.trim();
   return fullName || fallback;
@@ -184,6 +205,49 @@ export async function logoutAction(): Promise<void> {
   cookieStore.delete(AUTH_COOKIE_NAMES.refreshToken);
   cookieStore.delete(AUTH_COOKIE_NAMES.userInfo);
   cookieStore.delete(AUTH_COOKIE_NAMES.authProvider);
+  cookieStore.delete(AUTH_COOKIE_NAMES.impersonationContext);
+}
+
+export async function getImpersonationAction(): Promise<ImpersonationSession | null> {
+  const cookieStore = await cookies();
+  return parseImpersonationCookie(
+    cookieStore.get(AUTH_COOKIE_NAMES.impersonationContext)?.value,
+  );
+}
+
+export async function startImpersonationAction(
+  userId: string,
+  roleId: string,
+): Promise<{ success: boolean; data?: ImpersonationSession; error?: string }> {
+  const nextUserId = userId.trim();
+  const nextRoleId = roleId.trim();
+  if (!nextUserId || !nextRoleId) {
+    return { success: false, error: 'User and role are required.' };
+  }
+  const session: ImpersonationSession = {
+    userId: nextUserId,
+    roleId: nextRoleId,
+    startedAt: new Date().toISOString(),
+  };
+  const cookieStore = await cookies();
+  const isProduction = process.env.NODE_ENV === 'production';
+  cookieStore.set(
+    AUTH_COOKIE_NAMES.impersonationContext,
+    JSON.stringify(session),
+    {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      path: '/',
+    },
+  );
+  return { success: true, data: session };
+}
+
+export async function stopImpersonationAction(): Promise<{ success: true }> {
+  const cookieStore = await cookies();
+  cookieStore.delete(AUTH_COOKIE_NAMES.impersonationContext);
+  return { success: true };
 }
 
 export async function registerAction(
