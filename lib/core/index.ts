@@ -13,6 +13,13 @@ import { GabNotificationsV1Adapter } from './adapters/gab-v1/notifications.adapt
 import { GabNotificationsV2Adapter } from './adapters/gab-v2/notifications.adapter';
 import { GabAppRoleV1Adapter } from './adapters/gab-v1/app-role.adapter';
 import { GabAppRoleV2Adapter } from './adapters/gab-v2/app-role.adapter';
+import { GabAppV2Adapter } from './adapters/gab-v2/app.v2.adapter';
+import { GabTenantV2Adapter } from './adapters/gab-v2/tenant.v2.adapter';
+import { GabTableV2Adapter } from './adapters/gab-v2/table.v2.adapter';
+import { GabFieldV2Adapter } from './adapters/gab-v2/field.v2.adapter';
+import { GabRelationshipV2Adapter } from './adapters/gab-v2/relationship.v2.adapter';
+import { GabSandboxV2Adapter } from './adapters/gab-v2/sandbox.v2.adapter';
+import { GabTemplateV2Adapter } from './adapters/gab-v2/template.v2.adapter';
 import { BedrockGatewayAdapter } from './adapters/gab-ai/bedrock-gateway.adapter';
 import { OCRTesseractAdapter } from './adapters/ocr-tesseract/ocr.tesseract.adapter';
 import { OCRMockAdapter } from './adapters/ocr-mock/ocr.mock.adapter';
@@ -53,6 +60,22 @@ export const gabNotificationRepo = apiVersion === 'v2'
 export const gabAppRoleRepo = apiVersion === 'v2'
   ? new GabAppRoleV2Adapter(authPort, apiUrl)
   : new GabAppRoleV1Adapter(authPort, apiUrl);
+
+// ---------------------------------------------------------------------------
+// GAB Core admin/runtime ports — V2 only.
+//
+// These power the multi-app admin UI under app/(dashboard)/apps/[appId]/...
+// V1 has no equivalent surface, so the V2 adapters are wired unconditionally.
+// They will throw at call time if the configured api version is V1.
+// ---------------------------------------------------------------------------
+
+export const gabAppRepo = new GabAppV2Adapter(authPort, apiUrl);
+export const gabTenantRepo = new GabTenantV2Adapter(authPort, apiUrl);
+export const gabTableRepo = new GabTableV2Adapter(authPort, apiUrl);
+export const gabFieldRepo = new GabFieldV2Adapter(authPort, apiUrl);
+export const gabRelationshipRepo = new GabRelationshipV2Adapter(authPort, apiUrl);
+export const gabSandboxRepo = new GabSandboxV2Adapter(authPort, apiUrl);
+export const gabTemplateRepo = new GabTemplateV2Adapter(authPort, apiUrl);
 
 // ---------------------------------------------------------------------------
 // AI Gateway — Bedrock proxy via GAB AI Gateway
