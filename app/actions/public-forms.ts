@@ -5,6 +5,7 @@ import type {
   PublicFormField,
   PublicFormSettings,
   PublicFormSubmitResult,
+  PublicPageResolveResult,
   GabForm,
 } from '@/lib/core/ports/form.repository';
 
@@ -41,6 +42,17 @@ export async function resolvePublicFormAction(
     };
   } catch (err) {
     return fail('resolvePublicFormAction', err);
+  }
+}
+
+export async function resolvePublicPageAction(
+  token: string,
+): Promise<ActionResult<PublicPageResolveResult>> {
+  try {
+    const data = await gabPublicFormRepo.resolvePublicPage(token);
+    return { success: true, data };
+  } catch (err) {
+    return fail('resolvePublicPageAction', err);
   }
 }
 

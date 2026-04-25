@@ -80,4 +80,31 @@ describe('GabPublicFormV2Adapter', () => {
     const adapter = new GabPublicFormV2Adapter(BASE_URL);
     await expect(adapter.resolvePublicForm('expired')).rejects.toThrow('Link expired');
   });
+
+  it('resolves public page', async () => {
+    const { GabPublicFormV2Adapter } = await import('../public-form.v2.adapter');
+    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      jsonResponse({
+        type: 'page',
+        appId: 'appX',
+        page: {
+          key: 'dashboard',
+          name: 'Dashboard',
+          slug: 'dashboard',
+          layout: { type: 'grid', rows: [] },
+          config: { requiresAuth: true },
+        },
+        settings: {},
+        bearerToken: 'page-bearer',
+      }),
+    );
+
+    const adapter = new GabPublicFormV2Adapter(BASE_URL);
+    const result = await adapter.resolvePublicPage('page_token');
+    const [url] = spy.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe(`${BASE_URL}/v2/public/page_token`);
+    expect(result.appId).toBe('appX');
+    expect(result.page.slug).toBe('dashboard');
+    expect(result.bearerToken).toBe('page-bearer');
+  });
 });

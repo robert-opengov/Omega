@@ -2,6 +2,7 @@ import type {
   IGabPublicFormRepository,
   PublicFormResolveResult,
   PublicFormSubmitResult,
+  PublicPageResolveResult,
 } from '../../ports/form.repository';
 import { normalizeForm, normalizePublicField } from './form.v2.adapter';
 
@@ -35,6 +36,41 @@ export class GabPublicFormV2Adapter implements IGabPublicFormRepository {
     return {
       form: normalizeForm(payload.form),
       fields: Array.isArray(payload.fields) ? payload.fields.map(normalizePublicField) : [],
+      settings:
+        payload?.settings && typeof payload.settings === 'object'
+          ? (payload.settings as Record<string, unknown>)
+          : {},
+      bearerToken: String(payload?.bearerToken ?? ''),
+    };
+  }
+
+  async resolvePublicPage(token: string): Promise<PublicPageResolveResult> {
+    const res = await fetch(`${this.apiUrl}/v2/public/${token}`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    });
+
+    const payload = await parseJson(res);
+    if (!res.ok) {
+      throw new Error(getErrorMessage(payload, res));
+    }
+    if (payload?.type !== 'page') {
+      throw new Error('Public token does not resolve to a page.');
+    }
+
+    const p = payload.page;
+    return {
+      appId: String(payload?.appId ?? ''),
+      page: {
+        key: String(p?.key ?? ''),
+        name: String(p?.name ?? ''),
+        slug: String(p?.slug ?? ''),
+        layout: p?.layout,
+        config:
+          p?.config && typeof p.config === 'object' && !Array.isArray(p.config)
+            ? (p.config as Record<string, unknown>)
+            : {},
+      },
       settings:
         payload?.settings && typeof payload.settings === 'object'
           ? (payload.settings as Record<string, unknown>)

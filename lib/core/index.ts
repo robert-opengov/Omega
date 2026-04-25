@@ -29,6 +29,9 @@ import { GabPublicFormV2Adapter } from './adapters/gab-v2/public-form.v2.adapter
 import { GabWorkflowV1Adapter } from './adapters/gab-v1/workflow.adapter';
 import { GabWorkflowV2Adapter } from './adapters/gab-v2/workflow.v2.adapter';
 import { GabReportV2Adapter } from './adapters/gab-v2/report.v2.adapter';
+import { GabPageV2Adapter } from './adapters/gab-v2/pages.v2.adapter';
+import { GabCustomComponentV2Adapter } from './adapters/gab-v2/custom-components.v2.adapter';
+import { GabDocumentV2Adapter } from './adapters/gab-v2/documents.v2.adapter';
 import { BedrockGatewayAdapter } from './adapters/gab-ai/bedrock-gateway.adapter';
 import { OCRTesseractAdapter } from './adapters/ocr-tesseract/ocr.tesseract.adapter';
 import { OCRMockAdapter } from './adapters/ocr-mock/ocr.mock.adapter';
@@ -98,6 +101,9 @@ export const gabWorkflowRepo = apiVersion === 'v2'
   ? new GabWorkflowV2Adapter(authPort, apiUrl)
   : new GabWorkflowV1Adapter(authPort, apiUrl);
 export const gabReportRepo = new GabReportV2Adapter(authPort, apiUrl);
+export const gabPageRepo = new GabPageV2Adapter(authPort, apiUrl);
+export const gabCustomComponentRepo = new GabCustomComponentV2Adapter(authPort, apiUrl);
+export const gabDocumentRepo = new GabDocumentV2Adapter(authPort, apiUrl);
 
 // ---------------------------------------------------------------------------
 // AI Gateway — Bedrock proxy via GAB AI Gateway

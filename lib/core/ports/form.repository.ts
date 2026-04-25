@@ -200,6 +200,20 @@ export interface PublicFormSubmitResult {
   redirectUrl?: string;
 }
 
+/** Anonymous `GET /v2/public/:token` when the link targets a page. */
+export interface PublicPageResolveResult {
+  appId: string;
+  page: {
+    key: string;
+    name: string;
+    slug: string;
+    layout: unknown;
+    config: Record<string, unknown>;
+  };
+  settings: PublicFormSettings;
+  bearerToken: string;
+}
+
 export interface IGabFormRepository {
   listForms(appId: string, query?: ListFormsQuery): Promise<{ items: GabForm[]; total: number }>;
   getForm(appId: string, formId: string): Promise<GabForm>;
@@ -212,6 +226,8 @@ export interface IGabFormRepository {
 
 export interface IGabPublicFormRepository {
   resolvePublicForm(token: string): Promise<PublicFormResolveResult>;
+  /** `GET /v2/public/:token` — throws if the token is not a page link. */
+  resolvePublicPage(token: string): Promise<PublicPageResolveResult>;
   submitPublicForm(
     token: string,
     bearerToken: string,

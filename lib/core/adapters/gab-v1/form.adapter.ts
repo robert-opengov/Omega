@@ -7,6 +7,7 @@ import type {
   ListFormsQuery,
   PublicFormResolveResult,
   PublicFormSubmitResult,
+  PublicPageResolveResult,
   UpdateFormPayload,
 } from '../../ports/form.repository';
 
@@ -49,6 +50,10 @@ export class GabFormV1Adapter implements IGabFormRepository, IGabPublicFormRepos
   }
 
   resolvePublicForm(_token: string): Promise<PublicFormResolveResult> {
+    return notSupported();
+  }
+
+  resolvePublicPage(_token: string): Promise<PublicPageResolveResult> {
     return notSupported();
   }
 
