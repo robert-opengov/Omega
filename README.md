@@ -104,7 +104,7 @@ Start the dev server:
 
 ```bash
 npm run dev
-# Open http://localhost:3000
+# Open http://localhost:4200
 # Visit /ui to browse every available component
 ```
 

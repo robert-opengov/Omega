@@ -90,7 +90,7 @@ If a `Button` doesn't have the variant you need, don't copy `components/ui/atoms
 
 ### Step 1 — Browse the showcase
 
-Start the dev server and visit http://localhost:3000/ui
+Start the dev server and visit http://localhost:4200/ui
 
 Every component is rendered there with live interactive examples. Browse through:
 - `/ui/atoms` — basic building blocks
