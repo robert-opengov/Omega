@@ -20,6 +20,9 @@ import { GabFieldV2Adapter } from './adapters/gab-v2/field.v2.adapter';
 import { GabRelationshipV2Adapter } from './adapters/gab-v2/relationship.v2.adapter';
 import { GabSandboxV2Adapter } from './adapters/gab-v2/sandbox.v2.adapter';
 import { GabTemplateV2Adapter } from './adapters/gab-v2/template.v2.adapter';
+import { GabPublicAccessV2Adapter } from './adapters/gab-v2/public-access.v2.adapter';
+import { GabJobV2Adapter } from './adapters/gab-v2/job.v2.adapter';
+import { GabAuditLogV2Adapter } from './adapters/gab-v2/audit-log.v2.adapter';
 import { BedrockGatewayAdapter } from './adapters/gab-ai/bedrock-gateway.adapter';
 import { OCRTesseractAdapter } from './adapters/ocr-tesseract/ocr.tesseract.adapter';
 import { OCRMockAdapter } from './adapters/ocr-mock/ocr.mock.adapter';
@@ -76,6 +79,9 @@ export const gabFieldRepo = new GabFieldV2Adapter(authPort, apiUrl);
 export const gabRelationshipRepo = new GabRelationshipV2Adapter(authPort, apiUrl);
 export const gabSandboxRepo = new GabSandboxV2Adapter(authPort, apiUrl);
 export const gabTemplateRepo = new GabTemplateV2Adapter(authPort, apiUrl);
+export const gabPublicAccessRepo = new GabPublicAccessV2Adapter(authPort, apiUrl);
+export const gabJobRepo = new GabJobV2Adapter(authPort, apiUrl);
+export const gabAuditLogRepo = new GabAuditLogV2Adapter(authPort, apiUrl);
 
 // ---------------------------------------------------------------------------
 // AI Gateway — Bedrock proxy via GAB AI Gateway

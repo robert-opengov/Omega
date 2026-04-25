@@ -9,6 +9,9 @@ import {
   Settings,
   LayoutDashboard,
   Boxes,
+  Bell,
+  Zap,
+  ScrollText,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -26,6 +29,9 @@ const NAV_ITEMS: AppNavItem[] = [
   { label: 'Tables', href: (id) => `/apps/${id}/tables`, icon: Database },
   { label: 'Relationships', href: (id) => `/apps/${id}/relationships`, icon: GitBranch },
   { label: 'Roles', href: (id) => `/apps/${id}/roles`, icon: Users },
+  { label: 'Notifications', href: (id) => `/apps/${id}/notifications`, icon: Bell },
+  { label: 'Jobs', href: (id) => `/apps/${id}/jobs`, icon: Zap },
+  { label: 'Audit', href: (id) => `/apps/${id}/audit`, icon: ScrollText },
   { label: 'Sandbox', href: (id) => `/apps/${id}/sandbox`, icon: Boxes },
   { label: 'Settings', href: (id) => `/apps/${id}/settings`, icon: Settings },
 ];

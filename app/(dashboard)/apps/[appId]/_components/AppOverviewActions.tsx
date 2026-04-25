@@ -1,15 +1,17 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { RefreshCw, Activity, Network, Sigma, Link2 } from 'lucide-react';
 import { Badge, Button, Text } from '@/components/ui/atoms';
 import { Modal } from '@/components/ui/molecules';
-import { recomputeAllAction } from '@/app/actions/tables';
+import { recomputeAllAction } from '@/app/actions/jobs';
 import { getDependencyGraphAction } from '@/app/actions/apps';
 import type { DependencyGraph } from '@/lib/core/ports/app.repository';
 import { DependencyGraphView } from './DependencyGraphView';
 
 export function AppOverviewActions({ appId }: { appId: string }) {
+  const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
@@ -42,15 +44,8 @@ export function AppOverviewActions({ appId }: { appId: string }) {
         setError(res.error);
         return;
       }
-      // The endpoint may return either an immediate summary or an async progress
-      // handle. Show whichever shape we got back.
-      const data = res.data;
-      if ('status' in data) {
-        setResult(`Status: ${data.status} (${data.tablesCompleted}/${data.totalTables} tables)`);
-      } else {
-        setResult(`Recomputed ${data.records} records across ${data.tables} tables.`);
-      }
       setConfirmOpen(false);
+      router.push(`/apps/${appId}/jobs`);
     });
   };
 

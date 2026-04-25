@@ -3,6 +3,10 @@ import {
   CreateNotificationParams,
   GabNotification,
   IGabNotificationRepository,
+  NotificationLogEntry,
+  NotificationLogQuery,
+  NotificationLogStats,
+  UpdateNotificationParams,
 } from '../../ports/notification.repository';
 
 /**
@@ -28,6 +32,39 @@ export class GabNotificationsV1Adapter implements IGabNotificationRepository {
   }
 
   async listNotificationsByTable(_appId: string, _tableId: string): Promise<{ items: GabNotification[] }> {
+    throw new Error('Not supported when GAB_API_VERSION=v1');
+  }
+
+  async updateNotification(
+    _appId: string,
+    _notificationId: string,
+    _patch: UpdateNotificationParams,
+  ): Promise<GabNotification> {
+    throw new Error('Not supported when GAB_API_VERSION=v1');
+  }
+
+  async deleteNotification(_appId: string, _notificationId: string): Promise<{ ok: boolean }> {
+    throw new Error('Not supported when GAB_API_VERSION=v1');
+  }
+
+  async testNotification(
+    _appId: string,
+    _notificationId: string,
+  ): Promise<{ message: string; jobId?: string }> {
+    throw new Error('Not supported when GAB_API_VERSION=v1');
+  }
+
+  async listLogs(
+    _appId: string,
+    _query?: NotificationLogQuery,
+  ): Promise<{ items: NotificationLogEntry[]; total: number; offset: number; limit: number }> {
+    throw new Error('Not supported when GAB_API_VERSION=v1');
+  }
+
+  async getLogStats(
+    _appId: string,
+    _query?: NotificationLogQuery,
+  ): Promise<NotificationLogStats> {
     throw new Error('Not supported when GAB_API_VERSION=v1');
   }
 }

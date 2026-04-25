@@ -10,6 +10,10 @@ vi.mock('@/lib/core', () => ({
   gabAppRoleRepo: gabAppRoleRepoMock,
 }));
 
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn(),
+}));
+
 describe('app-role actions', () => {
   beforeEach(() => {
     vi.clearAllMocks();

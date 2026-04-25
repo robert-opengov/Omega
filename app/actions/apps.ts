@@ -9,6 +9,7 @@ import { revalidatePath } from 'next/cache';
 import { gabAppRepo } from '@/lib/core';
 import type {
   GabApp,
+  AppNavigation,
   CreateAppPayload,
   UpdateAppPayload,
   CopyAppPayload,
@@ -112,5 +113,19 @@ export async function getDependencyGraphAction(
     return { success: true, data: await gabAppRepo.getDependencyGraph(appId) };
   } catch (err) {
     return fail('getDependencyGraphAction', err);
+  }
+}
+
+export async function updateAppNavigationAction(
+  appId: string,
+  navigation: AppNavigation | null,
+): Promise<ActionResult<GabApp>> {
+  try {
+    const data = await gabAppRepo.updateApp(appId, { navigation });
+    revalidatePath(`/apps/${appId}`);
+    revalidatePath(`/apps/${appId}/settings/navigation`);
+    return { success: true, data };
+  } catch (err) {
+    return fail('updateAppNavigationAction', err);
   }
 }

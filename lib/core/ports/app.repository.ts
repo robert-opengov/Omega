@@ -21,8 +21,8 @@ export interface GabApp {
   schemaLockedAt?: string | null;
   /** IANA timezone, e.g. "America/New_York". Defaults set server-side. */
   timezone?: string;
-  /** Sidebar navigation tree (opaque JSON, edited via Navigation Editor). */
-  navigation?: unknown;
+  /** Sidebar navigation tree. Edited via Navigation Editor. */
+  navigation?: AppNavigation | null;
   tenantName?: string | null;
   tenantId?: string;
   createdAt?: string;
@@ -40,8 +40,45 @@ export interface UpdateAppPayload {
   name?: string;
   description?: string | null;
   timezone?: string;
-  /** Opaque navigation tree — replaced wholesale on update. */
-  navigation?: unknown;
+  /** Navigation tree — replaced wholesale on update. */
+  navigation?: AppNavigation | null;
+}
+
+// ---------------------------------------------------------------------------
+// Sidebar navigation tree
+//
+// Mirrors the GAB Core `NavItem` shape so the editor and the runtime renderer
+// can share types. Stored as `app.navigation` and saved via PATCH /v2/apps/:id.
+// ---------------------------------------------------------------------------
+
+export type AppNavItemType = 'page' | 'link' | 'group' | 'divider';
+
+export interface AppNavItem {
+  id: string;
+  label: string;
+  type: AppNavItemType;
+  /** Lucide icon NAME (e.g. "Database"). Resolved client-side at render. */
+  icon?: string;
+  /** Page key (when type === 'page'). */
+  pageKey?: string;
+  /** External or internal href (when type === 'link'). */
+  href?: string;
+  /**
+   * Role NAMES (not ids) that may see the item. Empty / undefined means
+   * "visible to everyone". Mirrors GAB Core behavior.
+   */
+  visibleTo?: string[];
+  /** Reserved for `type === 'group'`. UI flattens for now. */
+  children?: AppNavItem[];
+}
+
+export interface AppNavigation {
+  sidebar: {
+    enabled: boolean;
+    collapsible?: boolean;
+    title?: string;
+    items: AppNavItem[];
+  };
 }
 
 export interface CopyAppPayload {
