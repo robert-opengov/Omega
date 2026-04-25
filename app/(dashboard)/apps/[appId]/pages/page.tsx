@@ -23,6 +23,12 @@ export default async function AppPagesListPage({
   }
 
   return (
-    <PagesPanel appId={appId} appName={ctx.app.name} initialItems={items} total={total} />
+    <PagesPanel
+      appId={appId}
+      appName={ctx.app.name}
+      initialItems={items}
+      total={total}
+      schemaLocked={ctx.schemaLocked}
+    />
   );
 }

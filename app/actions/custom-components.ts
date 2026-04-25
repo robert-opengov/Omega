@@ -110,3 +110,29 @@ export async function rollbackCustomComponentAction(
     return fail('rollbackCustomComponentAction', err);
   }
 }
+
+export async function shareCustomComponentAction(
+  appId: string,
+  key: string,
+): Promise<ActionResult<GabCustomComponent>> {
+  try {
+    const data = await gabCustomComponentRepo.shareComponent(appId, key);
+    revalidateComponents(appId, key);
+    return { success: true, data };
+  } catch (err) {
+    return fail('shareCustomComponentAction', err);
+  }
+}
+
+export async function duplicateCustomComponentAction(
+  appId: string,
+  key: string,
+): Promise<ActionResult<GabCustomComponent>> {
+  try {
+    const data = await gabCustomComponentRepo.duplicateComponent(appId, key);
+    revalidateComponents(appId, data.key);
+    return { success: true, data };
+  } catch (err) {
+    return fail('duplicateCustomComponentAction', err);
+  }
+}

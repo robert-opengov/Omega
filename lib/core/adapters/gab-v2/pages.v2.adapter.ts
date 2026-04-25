@@ -61,6 +61,26 @@ export class GabPageV2Adapter implements IGabPageRepository {
     return normalizePage(res);
   }
 
+  /**
+   * Single round-trip slug lookup. Tries the dedicated query endpoint first,
+   * then falls back to the list endpoint with a filter. Returns null when no
+   * page matches — the caller decides whether to 404 or render a fallback.
+   */
+  async getPageBySlug(appId: string, slug: string): Promise<GabPage | null> {
+    const encoded = encodeURIComponent(slug);
+    try {
+      const res = await this.http.json<any>(
+        `/v2/apps/${appId}/pages?slug=${encoded}&limit=1`,
+      );
+      const first = Array.isArray(res?.items) ? res.items[0] : undefined;
+      if (first) return normalizePage(first);
+    } catch {
+      /* fall through to list */
+    }
+    const list = await this.listPages(appId);
+    return list.items.find((p) => p.slug === slug) ?? null;
+  }
+
   async createPage(appId: string, payload: CreatePagePayload): Promise<GabPage> {
     const res = await this.http.json<any>(`/v2/apps/${appId}/pages`, {
       method: 'POST',

@@ -33,7 +33,6 @@ import {
   TabsContent,
   Breadcrumbs,
   PageHeader,
-  MetricCard,
   Banner,
   Pagination,
   Accordion,
@@ -43,19 +42,27 @@ import {
   LabelValuePair,
 } from '@/components/ui/molecules';
 import {
-  ChartCard,
   Timeline,
   GanttChart,
   KanbanBoard,
   WidgetGrid,
   FilterBuilder,
   Footer,
-  DetailPageHeader,
-  DynamicForm,
-  DataGrid,
   AIDisclaimer,
 } from '@/components/ui/organisms';
-import type { DataBinding } from '@/lib/core/ports/pages.repository';
+import type {
+  DataBinding,
+  PageComponent,
+} from '@/lib/core/ports/pages.repository';
+import { pageComponentRegistry } from '@/lib/page-builder/page-component-registry';
+import { usePageSelection } from '../runtime/PageContexts';
+import { BoundMetricCard } from './data/BoundMetricCard';
+import { BoundDataTable } from './data/BoundDataTable';
+import { BoundChart } from './data/BoundChart';
+import { BoundDetailHeader } from './data/BoundDetailHeader';
+import { BoundKanban } from './data/BoundKanban';
+import { BoundTimeline } from './data/BoundTimeline';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 export interface BlockRenderParams {
@@ -63,6 +70,13 @@ export interface BlockRenderParams {
   props: Record<string, unknown>;
   dataBinding?: DataBinding;
   appId: string;
+  /** Only set for container types (`isContainer: true`). */
+  children?: PageComponent[];
+  /**
+   * Renderer for nested children — passed by `PageRenderer` so containers
+   * never import the parent renderer (avoids a cycle).
+   */
+  renderChildren?: (children: PageComponent[]) => ReactNode;
 }
 
 function str(v: unknown, d = ''): string {
@@ -73,108 +87,223 @@ function num(v: unknown, d = 0): number {
   return typeof v === 'number' && !Number.isNaN(v) ? v : d;
 }
 
-/** @internal */
-export function renderShowcaseBlock(p: BlockRenderParams): ReactNode {
-  const { type, props, appId } = p;
+function bool(v: unknown, d = false): boolean {
+  return typeof v === 'boolean' ? v : d;
+}
+
+function ConditionalGate({
+  showWhen,
+  children,
+}: {
+  showWhen: string;
+  children: ReactNode;
+}) {
+  const { isSelected, selection } = usePageSelection();
+  if (!showWhen) return <>{children}</>;
+  if (!selection[showWhen] && !isSelected(showWhen)) return null;
+  return <>{children}</>;
+}
+
+/**
+ * Renders one canonical page-builder type. Both legacy `atom_*` ids and
+ * canonical `metric-card`/`data-table`/etc. resolve here through the registry.
+ */
+export function renderBlock(p: BlockRenderParams): ReactNode {
+  const { props, appId, dataBinding, children = [], renderChildren } = p;
+  const def = pageComponentRegistry.get(p.type);
+  const type = def?.type ?? p.type;
 
   switch (type) {
-    case 'atom_button':
-      return <Button type="button">{str(props.children, 'Button')}</Button>;
-    case 'atom_badge':
-      return <Badge>{str(props.children, 'Badge')}</Badge>;
-    case 'atom_heading':
-      return (
-        <Heading as="h3" className="text-lg">
-          {str(props.children, 'Title')}
-        </Heading>
-      );
-    case 'atom_text':
-      return <Text>{str(props.children, '')}</Text>;
-    case 'atom_code':
-      return <Code className="text-sm">{str(props.children, '')}</Code>;
-    case 'atom_input':
-      return <Input readOnly placeholder={str(props.placeholder)} />;
-    case 'atom_textarea':
-      return <Textarea readOnly placeholder={str(props.placeholder)} />;
-    case 'atom_select':
-      return (
-        <Select disabled defaultValue="a">
-          <option value="a">A</option>
-        </Select>
-      );
-    case 'atom_checkbox':
-      return <Checkbox label={str(props.label, 'Option')} checked disabled />;
-    case 'atom_switch':
-      return <Switch label={str(props.label)} checked disabled />;
-    case 'atom_chip':
-      return <Chip label={str(props.children, 'Tag')} />;
-    case 'atom_uilink':
-      return (
-        <UILink href={str(props.href, '#')}>{str(props.children, 'Link')}</UILink>
-      );
-    case 'atom_separator':
+    // ─── Layout ───────────────────────────────────────────────────────
+    case 'spacer':
+      return <div style={{ height: num(props.height, 24) }} aria-hidden="true" />;
+    case 'divider':
       return <Separator />;
-    case 'atom_spinner':
-      return <Spinner size="md" />;
-    case 'atom_progress':
-      return <Progress value={num(props.value, 50)} className="w-full" />;
-    case 'atom_avatar':
-      return <Avatar fallback={str(props.fallback, '?')} className="h-10 w-10" />;
-
-    case 'mol_card':
+    case 'card':
       return (
         <Card>
-          <CardHeader>
-            <CardTitle>{str(props.title, 'Card')}</CardTitle>
-          </CardHeader>
+          {(str(props.title) || str(props.description)) && (
+            <CardHeader>
+              {str(props.title) && <CardTitle>{str(props.title, 'Card')}</CardTitle>}
+            </CardHeader>
+          )}
           <CardContent>
-            <Text size="sm" color="muted">
-              {str(props.description, 'Content')}
-            </Text>
+            {str(props.description) && (
+              <Text size="sm" color="muted" className="mb-2">
+                {str(props.description)}
+              </Text>
+            )}
+            {children.length > 0 && renderChildren ? (
+              <div className="space-y-3">{renderChildren(children)}</div>
+            ) : null}
           </CardContent>
         </Card>
       );
-    case 'mol_alert':
+    case 'footer':
+      return <Footer className="border-t border-border" legalText={str(props.legalText, undefined)} />;
+
+    // ─── Containers ───────────────────────────────────────────────────
+    case 'tabs-container': {
+      const labels = str(props.tabLabels, 'Overview, Details')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      // Each tab gets the corresponding child component (in order). Excess
+      // labels render an empty body; excess children fall into the last tab.
       return (
-        <Alert variant="info" title={str(props.title, 'Notice')}>
-          {str(props.children, 'Message')}
-        </Alert>
+        <Tabs defaultValue="t0">
+          <TabsList>
+            {labels.map((l, i) => (
+              <TabsTrigger key={i} value={`t${i}`}>
+                {l}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {labels.map((_, i) => {
+            const childForTab = children[i] ?? null;
+            return (
+              <TabsContent key={i} value={`t${i}`}>
+                {childForTab && renderChildren ? renderChildren([childForTab]) : (
+                  <Text size="sm" color="muted">
+                    Drop a block here for tab {i + 1}.
+                  </Text>
+                )}
+              </TabsContent>
+            );
+          })}
+        </Tabs>
       );
-    case 'mol_hero':
+    }
+    case 'conditional-container': {
+      return (
+        <ConditionalGate showWhen={str(props.showWhen)}>
+          {renderChildren ? renderChildren(children) : null}
+        </ConditionalGate>
+      );
+    }
+    case 'collapsible-section': {
+      const open = bool(props.defaultOpen, true);
+      return (
+        <Accordion type="single" collapsible defaultValue={open ? 'a1' : undefined}>
+          <AccordionItem value="a1">
+            <AccordionTrigger>{str(props.itemTitle, 'Section')}</AccordionTrigger>
+            <AccordionContent>
+              {renderChildren ? renderChildren(children) : null}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      );
+    }
+
+    // ─── Content / typography ─────────────────────────────────────────
+    case 'text-block': {
+      // Map registry sizes to Text component sizes (Text uses `base` instead of `md`).
+      const sizeRaw = str(props.size, 'md');
+      const sizeMap: Record<string, 'xs' | 'sm' | 'base' | 'lg' | 'xl'> = {
+        xs: 'xs',
+        sm: 'sm',
+        md: 'base',
+        lg: 'lg',
+        xl: 'xl',
+      };
+      const size = sizeMap[sizeRaw] ?? 'base';
+      return (
+        <Text size={size} className="whitespace-pre-wrap">
+          {str(props.content, 'Body text')}
+        </Text>
+      );
+    }
+    case 'heading': {
+      const lvl = (str(props.level, 'h2') as 'h1' | 'h2' | 'h3' | 'h4');
+      const sizeMap: Record<string, string> = {
+        h1: 'text-3xl',
+        h2: 'text-2xl',
+        h3: 'text-xl',
+        h4: 'text-lg',
+      };
+      return (
+        <Heading as={lvl} className={sizeMap[lvl]}>
+          {str(props.children, 'Section title')}
+        </Heading>
+      );
+    }
+    case 'page-header':
+      return <PageHeader title={str(props.title, 'Page')} description={str(props.subtitle, '')} />;
+    case 'hero':
       return (
         <Hero
           title={str(props.title, 'Hero')}
-          subtitle={str(props.subtitle, 'Subtitle')}
+          subtitle={str(props.subtitle, '')}
           variant="default"
         />
       );
-    case 'mol_empty_state':
+    case 'alert-block':
+      return (
+        <Alert
+          variant={(str(props.variant, 'info') as 'info' | 'success' | 'warning' | 'error')}
+          title={str(props.title, 'Notice')}
+        >
+          {str(props.children, 'Message')}
+        </Alert>
+      );
+    case 'badge':
+      return <Badge>{str(props.children, 'Label')}</Badge>;
+    case 'chip':
+      return <Chip label={str(props.children, 'Tag')} />;
+    case 'banner':
+      return <Banner>{str(props.children, '')}</Banner>;
+    case 'empty-state':
       return (
         <EmptyState
           title={str(props.title, 'No data')}
           description={str(props.description, '')}
         />
       );
-    case 'mol_tabs': {
-      const parts = str(props.tabLabels, 'One, Two').split(',').map((s) => s.trim());
+    case 'label-value':
       return (
-        <Tabs defaultValue="t0">
-          <TabsList>
-            {parts.map((l, i) => (
-              <TabsTrigger key={i} value={`t${i}`}>
-                {l}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          {parts.map((_, i) => (
-            <TabsContent key={i} value={`t${i}`}>
-              <Text size="sm" color="muted">Tab {i + 1}</Text>
-            </TabsContent>
-          ))}
-        </Tabs>
+        <LabelValuePair label={str(props.label, 'Field')} value={str(props.value, '—')} />
       );
+    case 'code':
+      return <Code className="text-sm">{str(props.children, '')}</Code>;
+    case 'spinner':
+      return <Spinner size="md" />;
+    case 'progress':
+      return <Progress value={num(props.value, 50)} className="w-full" />;
+
+    // ─── Buttons / actions ────────────────────────────────────────────
+    case 'page-button': {
+      const label = str(props.children, 'Button');
+      // Map registry variants to Button component variants
+      // (Button uses `danger`, registry uses `destructive`).
+      const variantRaw = str(props.variant, 'primary');
+      const variantMap: Record<string, 'primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger'> = {
+        primary: 'primary',
+        secondary: 'secondary',
+        outline: 'outline',
+        ghost: 'ghost',
+        link: 'link',
+        destructive: 'danger',
+        danger: 'danger',
+      };
+      const variant = variantMap[variantRaw] ?? 'primary';
+      const href = str(props.href);
+      const btn = (
+        <Button type="button" variant={variant}>
+          {label}
+        </Button>
+      );
+      if (href) {
+        return (
+          <Link href={href} className="inline-block">
+            {btn}
+          </Link>
+        );
+      }
+      return btn;
     }
-    case 'mol_breadcrumbs': {
+    case 'page-link':
+      return <UILink href={str(props.href, '#')}>{str(props.children, 'Link')}</UILink>;
+    case 'breadcrumbs': {
       const parts = str(props.items, 'Home, Here')
         .split(',')
         .map((s) => s.trim())
@@ -188,18 +317,7 @@ export function renderShowcaseBlock(p: BlockRenderParams): ReactNode {
         />
       );
     }
-    case 'mol_page_header':
-      return <PageHeader title={str(props.title, 'Page')} description={str(props.subtitle, '')} />;
-    case 'mol_metric_card':
-      return (
-        <MetricCard
-          title={str(props.label, 'KPI')}
-          value={str(props.value, '0')}
-        />
-      );
-    case 'mol_banner':
-      return <Banner>{str(props.children, '')}</Banner>;
-    case 'mol_pagination':
+    case 'pagination':
       return (
         <Pagination
           currentPage={num(props.page, 1)}
@@ -207,79 +325,51 @@ export function renderShowcaseBlock(p: BlockRenderParams): ReactNode {
           onPageChange={() => undefined}
         />
       );
-    case 'mol_accordion':
+
+    // ─── Form atoms ───────────────────────────────────────────────────
+    case 'form-input':
+      return <Input readOnly placeholder={str(props.placeholder)} />;
+    case 'form-textarea':
+      return <Textarea readOnly placeholder={str(props.placeholder)} />;
+    case 'form-select':
       return (
-        <Accordion type="single" collapsible defaultValue="a1">
-          <AccordionItem value="a1">
-            <AccordionTrigger>{str(props.itemTitle, 'Section')}</AccordionTrigger>
-            <AccordionContent>
-              <Text size="sm">{str(props.content, 'Details')}</Text>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        <Select disabled defaultValue="a">
+          <option value="a">{str(props.placeholder, 'Select')}</option>
+        </Select>
       );
-    case 'mol_label_value':
+    case 'form-checkbox':
+      return <Checkbox label={str(props.label, 'Option')} checked disabled />;
+    case 'form-switch':
+      return <Switch label={str(props.label)} checked disabled />;
+    case 'dynamic-form':
       return (
-        <LabelValuePair label={str(props.label, 'Field')} value={str(props.value, '—')} />
+        <Text size="sm" color="muted" className="p-3 border border-dashed border-border rounded">
+          Form embed — set form id in builder props (app: {appId}).
+        </Text>
       );
 
-    case 'org_chart_card':
+    // ─── Data widgets ─────────────────────────────────────────────────
+    case 'metric-card':
       return (
-        <ChartCard
-          title={str(props.title, 'Chart')}
-          type="bar"
-          data={[{ name: 'A', v: 1 }]}
-          dataKey="v"
+        <BoundMetricCard
+          appId={appId}
+          binding={dataBinding}
+          label={str(props.label, 'KPI')}
+          staticValue={str(props.value, '0')}
+          aggregation={(str(props.aggregation, 'count') as 'count' | 'sum' | 'avg' | 'min' | 'max' | 'first')}
+          valueField={str(props.valueField, undefined)}
         />
       );
-    case 'org_timeline':
+    case 'data-table':
       return (
-        <Timeline
-          items={[
-            { id: '1', title: 'Event', date: 'Today', description: '…' },
-          ]}
+        <BoundDataTable
+          appId={appId}
+          binding={dataBinding}
+          title={str(props.title, 'Records')}
+          pageSize={num(props.pageSize, 10)}
         />
       );
-    case 'org_gantt':
-      return (
-        <GanttChart
-          columns={['D1', 'D2', 'D3']}
-          rows={[
-            {
-              id: 'r1',
-              label: 'Row 1',
-              events: [
-                { id: 'e1', start: 0, end: 1, title: 'Block' },
-              ],
-            },
-          ]}
-        />
-      );
-    case 'org_location_map':
-      return (
-        <div className="h-48 rounded border border-dashed border-border flex items-center justify-center text-sm text-muted-foreground p-3 text-center">
-          Map block — set map adapter and markers at runtime (UI Showcase: LocationMap).
-        </div>
-      );
-    case 'org_kanban':
-      return <KanbanBoard columns={[{ id: 'a', title: 'Col', items: [] }]} />;
-    case 'org_widget_grid': {
-      const n = num(props.columns, 2);
-      const c = n <= 2 ? 2 : n >= 4 ? 4 : 3;
-      return (
-        <WidgetGrid
-          columns={{ default: c }}
-          gap="md"
-        >
-          {Array.from({ length: n }, (_, i) => (
-            <div key={i} className="p-2 border border-border rounded" data-widget-id={`w${i}`}>
-              <Text size="sm">Item {i + 1}</Text>
-            </div>
-          ))}
-        </WidgetGrid>
-      );
-    }
-    case 'org_filter_builder':
+    case 'filter-builder':
       return (
         <FilterBuilder
           fields={[{ key: 'f1', label: 'Field', type: 'text' }]}
@@ -287,45 +377,101 @@ export function renderShowcaseBlock(p: BlockRenderParams): ReactNode {
           onFiltersChange={() => undefined}
         />
       );
-    case 'org_footer':
-      return <Footer className="border-t border-border" legalText={str(props.legalText, undefined)} />;
-    case 'org_detail_header':
+    case 'detail-header':
       return (
-        <DetailPageHeader
-          breadcrumbs={[{ label: 'Home' }, { label: 'Here' }]}
-          title={str(props.title, 'Record')}
-          metadata={[]}
-          tabs={[{ label: 'Overview', value: 'o' }]}
-          activeTab="o"
-          onTabChange={() => undefined}
+        <BoundDetailHeader
+          appId={appId}
+          binding={dataBinding}
+          staticTitle={str(props.title, 'Record')}
+          titleField={str(props.titleField, 'name')}
+          descriptionField={str(props.descriptionField, undefined)}
+          metadataFields={str(props.metadataFields, undefined)}
         />
       );
-    case 'org_dynamic_form':
+    case 'kanban-board': {
+      const columnField = str(props.columnField, 'status');
+      const titleField = str(props.titleField, 'name');
+      const descField = str(props.descriptionField, undefined);
+      // Without a binding we keep the empty column so the editor preview is
+      // still meaningful. The bound case derives columns from distinct values
+      // of `columnField` across the rows.
+      if (!dataBinding || dataBinding.source === 'static') {
+        return <KanbanBoard columns={[{ id: 'a', title: 'Col', items: [] }]} />;
+      }
       return (
-        <Text size="sm" color="muted" className="p-3 border border-dashed border-border rounded">
-          Form embed — set table in builder props (app: {appId}).
-        </Text>
-      );
-    case 'org_data_grid':
-      return (
-        <DataGrid
-          title={str(props.title, 'Records')}
-          data={[]}
-          columns={[{ key: 'placeholder', header: '—', render: () => '—' }]}
+        <BoundKanban
+          appId={appId}
+          binding={dataBinding}
+          columnField={columnField}
+          titleField={titleField}
+          descriptionField={descField}
         />
       );
-    case 'org_ai_disclaimer':
-      return <AIDisclaimer className="max-w-xl" />;
+    }
+    case 'gantt-chart':
+      return (
+        <GanttChart
+          columns={['D1', 'D2', 'D3']}
+          rows={[
+            {
+              id: 'r1',
+              label: 'Row 1',
+              events: [{ id: 'e1', start: 0, end: 1, title: 'Block' }],
+            },
+          ]}
+        />
+      );
+    case 'timeline': {
+      if (!dataBinding || dataBinding.source === 'static') {
+        return (
+          <Timeline
+            items={[{ id: '1', title: 'Event', date: 'Today', description: '…' }]}
+          />
+        );
+      }
+      return (
+        <BoundTimeline
+          appId={appId}
+          binding={dataBinding}
+          titleField={str(props.titleField, 'name')}
+          dateField={str(props.dateField, 'created_at')}
+          descriptionField={str(props.descriptionField, undefined)}
+        />
+      );
+    }
+    case 'widget-grid': {
+      const n = num(props.columns, 2);
+      const c = n <= 2 ? 2 : n >= 4 ? 4 : 3;
+      return (
+        <WidgetGrid columns={{ default: c }} gap="md">
+          {children.length > 0 && renderChildren ? (
+            renderChildren(children)
+          ) : (
+            Array.from({ length: n }, (_, i) => (
+              <div key={i} className="p-2 border border-border rounded">
+                <Text size="sm">Item {i + 1}</Text>
+              </div>
+            ))
+          )}
+        </WidgetGrid>
+      );
+    }
 
-    case 'pb_text_block':
+    // ─── Charts ───────────────────────────────────────────────────────
+    case 'chart':
       return (
-        <p className={cn('whitespace-pre-wrap text-sm text-foreground')}>
-          {str(props.content, 'Text')}
-        </p>
+        <BoundChart
+          appId={appId}
+          binding={dataBinding}
+          title={str(props.title, 'Chart')}
+          type={(str(props.kind, 'bar') as 'bar' | 'line' | 'area' | 'pie')}
+          dataKey={str(props.dataKey, 'value')}
+          labelKey={str(props.labelKey, 'name')}
+        />
       );
-    case 'pb_spacer':
-      return <div style={{ height: num(props.height, 24) }} aria-hidden="true" />;
-    case 'pb_image':
+
+    // ─── Media ────────────────────────────────────────────────────────
+    case 'image':
       return (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -334,19 +480,51 @@ export function renderShowcaseBlock(p: BlockRenderParams): ReactNode {
           className="max-w-full h-auto rounded border border-border"
         />
       );
-    case 'app_custom': {
-      const name = str(props.name, 'Component');
+    case 'iframe-embed':
       return (
-        <div className="rounded border border-dashed border-warning/50 bg-warning/5 p-3 text-sm">
-          Custom component: <code className="font-mono">{name}</code>
+        <iframe
+          src={str(props.src)}
+          height={num(props.height, 400)}
+          className="w-full rounded border border-border"
+          sandbox="allow-scripts allow-same-origin"
+          title="Embedded content"
+        />
+      );
+    case 'avatar':
+      return (
+        <Avatar
+          fallback={str(props.fallback, '?')}
+          src={str(props.src, undefined)}
+          className="h-10 w-10"
+        />
+      );
+    case 'ai-disclaimer':
+      return <AIDisclaimer className="max-w-xl" />;
+    case 'location-map':
+      return (
+        <div className="h-48 rounded border border-dashed border-border flex items-center justify-center text-sm text-muted-foreground p-3 text-center">
+          Map block — bind a table with lat/lng fields at runtime.
         </div>
       );
-    }
+
     default:
+      // Custom components rendered separately by ShowcaseBlockRenderer.
       return (
-        <div className="text-sm text-destructive border border-dashed border-destructive/40 rounded p-2">
-          Unknown block type: <code>{type}</code>
+        <div
+          className={cn(
+            'text-sm text-destructive border border-dashed border-destructive/40 rounded p-2',
+          )}
+        >
+          Unknown block type: <code>{p.type}</code>
         </div>
       );
   }
+}
+
+/**
+ * @deprecated kept for back-compat with the older ShowcaseBlockRenderer name.
+ * Prefer `renderBlock`. Drops `children` (existing callers passed flat blocks).
+ */
+export function renderShowcaseBlock(p: BlockRenderParams): ReactNode {
+  return renderBlock(p);
 }

@@ -8,7 +8,10 @@ import { Button, Heading, Text, Input, Label } from '@/components/ui/atoms';
 import { Card, CardContent, PageHeader, Alert } from '@/components/ui/molecules';
 import type { GabCustomComponent } from '@/lib/core/ports/custom-components.repository';
 import { updateCustomComponentAction } from '@/app/actions/custom-components';
-import { analyzeCustomComponentCode } from '@/lib/page-builder/custom-component-analyze';
+import {
+  analyzeCustomComponentCode,
+  type AnalyzeIssue,
+} from '@/lib/page-builder/custom-component-analyze';
 import { useTheme } from '@/providers/theme-provider';
 import { useRouter } from 'next/navigation';
 import { CustomComponentPreviewFrame } from './CustomComponentPreviewFrame';
@@ -25,9 +28,11 @@ const DEFAULT_CODE = `export default function MyComponent() {
 export function CustomComponentEditorClient({
   appId,
   component,
+  schemaLocked = false,
 }: {
   appId: string;
   component: GabCustomComponent;
+  schemaLocked?: boolean;
 }) {
   const router = useRouter();
   const { resolvedTheme } = useTheme();
@@ -39,8 +44,9 @@ export function CustomComponentEditorClient({
   const extensions = useMemo(() => [javascript({ jsx: true, typescript: true })], []);
 
   const save = useCallback(async () => {
+    if (schemaLocked) return;
     if (!analysis.ok) {
-      setError(analysis.errors[0] ?? 'Fix analysis errors first');
+      setError(analysis.errors[0]?.message ?? 'Fix analysis errors first');
       return;
     }
     setSaving(true);
@@ -52,7 +58,7 @@ export function CustomComponentEditorClient({
     } else {
       setError(res.error ?? 'Save failed');
     }
-  }, [analysis.ok, analysis.errors, appId, component.key, name, code, router]);
+  }, [analysis.ok, analysis.errors, appId, component.key, name, code, router, schemaLocked]);
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -60,6 +66,12 @@ export function CustomComponentEditorClient({
         title={component.name}
         description={`Key: ${component.key} · v${component.version}`}
       />
+      {schemaLocked && (
+        <Alert variant="warning" title="Schema locked">
+          This app&apos;s schema is locked (sandbox mode). Edits are
+          read-only. Promote the sandbox to production to save changes.
+        </Alert>
+      )}
       {error && (
         <Alert variant="error" onDismiss={() => setError(null)}>
           {error}
@@ -68,8 +80,23 @@ export function CustomComponentEditorClient({
       {!analysis.ok && (
         <Alert variant="error" title="Static check">
           <ul className="list-disc pl-4 text-sm">
-            {analysis.errors.map((e) => (
-              <li key={e}>{e}</li>
+            {analysis.errors.map((e: AnalyzeIssue, i) => (
+              <li key={i}>
+                {e.message}
+                {e.line ? ` (line ${e.line})` : ''}
+              </li>
+            ))}
+          </ul>
+        </Alert>
+      )}
+      {analysis.warnings.length > 0 && (
+        <Alert variant="warning" title="Static check warnings">
+          <ul className="list-disc pl-4 text-sm">
+            {analysis.warnings.map((w: AnalyzeIssue, i) => (
+              <li key={i}>
+                {w.message}
+                {w.line ? ` (line ${w.line})` : ''}
+              </li>
             ))}
           </ul>
         </Alert>
@@ -94,7 +121,12 @@ export function CustomComponentEditorClient({
                 />
               </div>
             </div>
-            <Button type="button" onClick={save} disabled={saving} loading={saving}>
+            <Button
+              type="button"
+              onClick={save}
+              disabled={saving || schemaLocked}
+              loading={saving}
+            >
               Save
             </Button>
           </CardContent>

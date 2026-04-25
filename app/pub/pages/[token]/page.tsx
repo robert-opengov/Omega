@@ -1,7 +1,7 @@
 import { gabPublicFormRepo } from '@/lib/core';
 import { PageRenderer } from '@/components/_custom/page-builder/PageRenderer';
 import { Heading, Text } from '@/components/ui/atoms';
-import { collapseLayoutToOneRow, normalizePageLayout } from '@/lib/page-builder/layout-helpers';
+import { normalizePageLayout } from '@/lib/page-builder/layout-helpers';
 import { PublicPageUnavailable } from './_components/PublicPageUnavailable';
 
 export default async function PublicPageByTokenPage({
@@ -18,7 +18,7 @@ export default async function PublicPageByTokenPage({
     return <PublicPageUnavailable />;
   }
 
-  const layout = collapseLayoutToOneRow(normalizePageLayout(resolved.page.layout));
+  const layout = normalizePageLayout(resolved.page.layout);
 
   return (
     <div className="min-h-screen bg-background p-6">

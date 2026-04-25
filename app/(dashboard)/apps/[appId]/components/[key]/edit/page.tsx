@@ -19,5 +19,5 @@ export default async function CustomComponentEditPage({
     notFound();
   }
 
-  return <CustomComponentEditorClient appId={appId} component={comp} />;
+  return <CustomComponentEditorClient appId={appId} component={comp} schemaLocked={ctx.schemaLocked} />;
 }
