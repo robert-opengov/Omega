@@ -14,6 +14,7 @@ import {
   ScrollText,
   ClipboardList,
   Workflow,
+  BarChart3,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -35,6 +36,7 @@ const NAV_ITEMS: AppNavItem[] = [
   { label: 'Jobs', href: (id) => `/apps/${id}/jobs`, icon: Zap },
   { label: 'Audit', href: (id) => `/apps/${id}/audit`, icon: ScrollText },
   { label: 'Forms', href: (id) => `/apps/${id}/forms`, icon: ClipboardList },
+  { label: 'Reports', href: (id) => `/apps/${id}/reports`, icon: BarChart3 },
   { label: 'Workflows', href: (id) => `/apps/${id}/workflows`, icon: Workflow },
   { label: 'Sandbox', href: (id) => `/apps/${id}/sandbox`, icon: Boxes },
   { label: 'Settings', href: (id) => `/apps/${id}/settings`, icon: Settings },
