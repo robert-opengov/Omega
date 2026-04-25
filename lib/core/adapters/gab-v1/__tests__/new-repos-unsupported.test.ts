@@ -95,4 +95,31 @@ describe('V1-only adapter fallbacks for newly added repos', () => {
       'Not supported when GAB_API_VERSION=v1',
     );
   });
+
+  it('rejects workflow repositories in v1 mode', async () => {
+    const { GabWorkflowV1Adapter } = await import('../workflow.adapter');
+    const authPort = {
+      getToken: vi.fn().mockResolvedValue('access-token'),
+    };
+    const adapter = new GabWorkflowV1Adapter(authPort as any, 'https://gab-v1.example.com');
+
+    await expect(adapter.listWorkflows('app_1')).rejects.toThrow(
+      'Not supported when GAB_API_VERSION=v1',
+    );
+    await expect(adapter.getWorkflow('app_1', 'wf_1')).rejects.toThrow(
+      'Not supported when GAB_API_VERSION=v1',
+    );
+    await expect(adapter.createWorkflow('app_1', { name: 'A' })).rejects.toThrow(
+      'Not supported when GAB_API_VERSION=v1',
+    );
+    await expect(adapter.listInstances('app_1')).rejects.toThrow(
+      'Not supported when GAB_API_VERSION=v1',
+    );
+    await expect(adapter.listTasks('app_1')).rejects.toThrow(
+      'Not supported when GAB_API_VERSION=v1',
+    );
+    await expect(adapter.approveTask('app_1', 'task_1')).rejects.toThrow(
+      'Not supported when GAB_API_VERSION=v1',
+    );
+  });
 });
