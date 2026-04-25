@@ -17,6 +17,21 @@ describe('V1-only adapter fallbacks for newly added repos', () => {
     );
   });
 
+  it('rejects user list/get in v1 mode', async () => {
+    const { GabUserV1Adapter } = await import('../user.adapter');
+    const authPort = {
+      getToken: vi.fn().mockResolvedValue('access-token'),
+    };
+    const adapter = new GabUserV1Adapter(authPort as any, 'https://gab-v1.example.com');
+
+    await expect(adapter.listUsers()).rejects.toThrow(
+      'Not supported when GAB_API_VERSION=v1',
+    );
+    await expect(adapter.getUser('user_1')).rejects.toThrow(
+      'Not supported when GAB_API_VERSION=v1',
+    );
+  });
+
   it('rejects notifications in v1 mode', async () => {
     const { GabNotificationsV1Adapter } = await import('../notifications.adapter');
     const authPort = {

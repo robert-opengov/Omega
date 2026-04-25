@@ -7,7 +7,7 @@
  *   - Sidebar uses `children`, `badge`, `group`; ignores `navbarLabel`.
  *   - CommandPalette uses `flattenNavItems()` to get a searchable flat list.
  */
-import { LayoutDashboard, Settings, Blocks, Bot, UserCircle, LogOut, AppWindow, Package } from 'lucide-react';
+import { LayoutDashboard, Settings, Blocks, Bot, UserCircle, LogOut, AppWindow, Package, Building2, Users } from 'lucide-react';
 import type { ComponentType } from 'react';
 import type { AppFeatures } from '@/config/app.config';
 
@@ -127,6 +127,21 @@ export const navigationItems: NavItem[] = [
     href: '/ai-builder',
     label: 'AI Builder',
     icon: Bot,
+  },
+  {
+    href: '/companies',
+    label: 'Companies',
+    icon: Building2,
+    group: 'Platform',
+    divider: true,
+    roles: ['admin', 'superadmin'],
+  },
+  {
+    href: '/users',
+    label: 'Users',
+    icon: Users,
+    group: 'Platform',
+    roles: ['admin', 'superadmin'],
   },
   {
     href: '/settings',

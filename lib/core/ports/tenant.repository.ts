@@ -27,4 +27,5 @@ export interface IGabTenantRepository {
   getTenant(tenantId: string): Promise<GabTenant>;
   createTenant(payload: CreateTenantPayload): Promise<GabTenant>;
   updateTenant(tenantId: string, payload: UpdateTenantPayload): Promise<GabTenant>;
+  deleteTenant(tenantId: string): Promise<{ ok: boolean }>;
 }

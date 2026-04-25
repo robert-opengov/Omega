@@ -53,4 +53,11 @@ export class GabTenantV2Adapter implements IGabTenantRepository {
     });
     return normalize(res);
   }
+
+  async deleteTenant(tenantId: string): Promise<{ ok: boolean }> {
+    await this.http.json<unknown>(`/v2/companies/${tenantId}`, {
+      method: 'DELETE',
+    });
+    return { ok: true };
+  }
 }
