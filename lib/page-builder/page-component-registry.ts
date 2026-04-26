@@ -65,7 +65,13 @@ export type PropEditor =
   /** Custom-component-only: a child block id (rare). */
   | 'block-ref'
   /** Container children — edited via `ContainerChildEditor` not in the panel. */
-  | 'children-slot';
+  | 'children-slot'
+  /**
+   * Inline source-code editor with an optional AI-generate dialog.
+   * Gated by `pageBuilder.codeProp`; when the flag is OFF, PropertiesPanel
+   * falls back to the JSON editor so existing layouts keep working.
+   */
+  | 'code';
 
 export interface PropDefinition {
   /** Property key under `component.props`. */
@@ -86,6 +92,12 @@ export interface PropDefinition {
    * Used for "show only when X is set" patterns.
    */
   visibleWhen?: (props: Record<string, unknown>) => boolean;
+  /**
+   * For `editor: 'code'` — language hint passed to the code editor and
+   * the AI generate dialog so the prompt can target the right syntax.
+   * Defaults to `'javascript'`.
+   */
+  language?: 'javascript' | 'typescript' | 'tsx' | 'jsx' | 'css' | 'html' | 'json';
 }
 
 /**

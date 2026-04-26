@@ -1,7 +1,9 @@
+import { redirect } from 'next/navigation';
 import { gabPublicFormRepo } from '@/lib/core';
 import { PageRenderer } from '@/components/_custom/page-builder/PageRenderer';
 import { Heading, Text } from '@/components/ui/atoms';
 import { normalizePageLayout } from '@/lib/page-builder/layout-helpers';
+import { isModuleEnabledNow } from '@/lib/feature-overrides';
 import { PublicPageUnavailable } from './_components/PublicPageUnavailable';
 
 export default async function PublicPageByTokenPage({
@@ -10,6 +12,11 @@ export default async function PublicPageByTokenPage({
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params;
+
+  // Dispatcher takes precedence when enabled. Off → original behavior.
+  if (await isModuleEnabledNow('platform.publicDispatcher')) {
+    redirect(`/pub/${token}`);
+  }
 
   let resolved;
   try {

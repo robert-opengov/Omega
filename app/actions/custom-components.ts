@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { gabCustomComponentRepo } from '@/lib/core';
 import type {
   CreateCustomComponentPayload,
+  CustomComponentUsage,
   GabCustomComponent,
   UpdateCustomComponentPayload,
 } from '@/lib/core/ports/custom-components.repository';
@@ -89,9 +90,10 @@ export async function deleteCustomComponentAction(
 export async function getCustomComponentUsageAction(
   appId: string,
   key: string,
-) {
+): Promise<ActionResult<CustomComponentUsage>> {
   try {
-    return { success: true, data: await gabCustomComponentRepo.getUsage(appId, key) };
+    const data = await gabCustomComponentRepo.getUsage(appId, key);
+    return { success: true, data };
   } catch (err) {
     return fail('getCustomComponentUsageAction', err);
   }

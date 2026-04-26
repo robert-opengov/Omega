@@ -42,6 +42,10 @@ export interface PlatformModules {
   aiBuilder: boolean;
   /** /ui — atomic component showcase */
   uiShowcase: boolean;
+  /** /users/metadata — user-metadata schema admin (custom per-user fields) */
+  userMetadata: boolean;
+  /** /pub/[token] single dispatcher (unified public link entrypoint) */
+  publicDispatcher: boolean;
 }
 
 export interface AppModules {
@@ -73,6 +77,18 @@ export interface AppModules {
   sandbox: boolean;
   /** /apps/[appId]/settings/** */
   settings: boolean;
+  /** App-scoped sidebar nav (coexists with the existing tabs nav). */
+  appSidebar: boolean;
+  /** /apps/[appId]/dashboards/** — first-class dashboards (list/viewer/builder) */
+  dashboards: boolean;
+  /** Versions / usage / share / rollback / diff UI on the custom-component editor. */
+  customComponentLifecycle: boolean;
+  /** Drawer variant of the App Complexity score on the overview page. */
+  complexityDrawer: boolean;
+  /** Multi-step CSV import wizard (validation preview + per-row error report). */
+  csvImportStepper: boolean;
+  /** Form templates picker on the "New form" flow. */
+  formTemplates: boolean;
 }
 
 export interface ServiceModules {
@@ -80,6 +96,12 @@ export interface ServiceModules {
   ocr: boolean;
   /** GAB Bedrock AI gateway port (used by AI Builder + assistants). */
   ai: boolean;
+  /** In-app AI Assistant drawer (summonable from any page). */
+  aiAssistant: boolean;
+  /** In-app AI App Builder drawer (modify the current app via tool calls). */
+  aiAppBuilder: boolean;
+  /** Extended iframe page-SDK methods (relationships, documents, form widget channel). */
+  pageSdkExtended: boolean;
 }
 
 export interface PageBuilderModules {
@@ -87,6 +109,14 @@ export interface PageBuilderModules {
   builtins: boolean;
   /** App-scoped custom components in the palette. */
   customComponents: boolean;
+  /** Master flag for the lazy-loaded vertical domain widgets (HealthScorecard, BudgetWaterfall, …). */
+  verticalWidgets: boolean;
+  /** "Convert to component" wizard on the page editor (block → reusable component). */
+  convertToComponent: boolean;
+  /** Per-page Share button on the editor toolbar (opens public-links create dialog). */
+  pageShare: boolean;
+  /** "code" PropDefinition editor + AiCodeDialog (inline AI code generation). */
+  codeProp: boolean;
 }
 
 export interface ModulesConfig {
@@ -112,35 +142,51 @@ function envBool(value: string | undefined, defaultValue: boolean): boolean {
 // time. The verbose explicit list is intentional.
 export const modulesConfig: ModulesConfig = {
   platform: {
-    tenants:    envBool(process.env.NEXT_PUBLIC_MODULE_PLATFORM_TENANTS,    true),
-    users:      envBool(process.env.NEXT_PUBLIC_MODULE_PLATFORM_USERS,      true),
-    templates:  envBool(process.env.NEXT_PUBLIC_MODULE_PLATFORM_TEMPLATES,  true),
-    aiBuilder:  envBool(process.env.NEXT_PUBLIC_MODULE_PLATFORM_AI_BUILDER, true),
-    uiShowcase: envBool(process.env.NEXT_PUBLIC_MODULE_PLATFORM_UI_SHOWCASE, true),
+    tenants:          envBool(process.env.NEXT_PUBLIC_MODULE_PLATFORM_TENANTS,          true),
+    users:            envBool(process.env.NEXT_PUBLIC_MODULE_PLATFORM_USERS,            true),
+    templates:        envBool(process.env.NEXT_PUBLIC_MODULE_PLATFORM_TEMPLATES,        true),
+    aiBuilder:        envBool(process.env.NEXT_PUBLIC_MODULE_PLATFORM_AI_BUILDER,       true),
+    uiShowcase:       envBool(process.env.NEXT_PUBLIC_MODULE_PLATFORM_UI_SHOWCASE,      true),
+    userMetadata:     envBool(process.env.NEXT_PUBLIC_MODULE_PLATFORM_USER_METADATA,    true),
+    publicDispatcher: envBool(process.env.NEXT_PUBLIC_MODULE_PLATFORM_PUBLIC_DISPATCHER, true),
   },
   app: {
-    overview:         envBool(process.env.NEXT_PUBLIC_MODULE_APP_OVERVIEW,          true),
-    tables:           envBool(process.env.NEXT_PUBLIC_MODULE_APP_TABLES,            true),
-    relationships:    envBool(process.env.NEXT_PUBLIC_MODULE_APP_RELATIONSHIPS,     true),
-    roles:            envBool(process.env.NEXT_PUBLIC_MODULE_APP_ROLES,             true),
-    notifications:    envBool(process.env.NEXT_PUBLIC_MODULE_APP_NOTIFICATIONS,     true),
-    jobs:             envBool(process.env.NEXT_PUBLIC_MODULE_APP_JOBS,              true),
-    audit:            envBool(process.env.NEXT_PUBLIC_MODULE_APP_AUDIT,             true),
-    forms:            envBool(process.env.NEXT_PUBLIC_MODULE_APP_FORMS,             true),
-    reports:          envBool(process.env.NEXT_PUBLIC_MODULE_APP_REPORTS,           true),
-    pages:            envBool(process.env.NEXT_PUBLIC_MODULE_APP_PAGES,             true),
-    customComponents: envBool(process.env.NEXT_PUBLIC_MODULE_APP_CUSTOM_COMPONENTS, true),
-    workflows:        envBool(process.env.NEXT_PUBLIC_MODULE_APP_WORKFLOWS,         true),
-    sandbox:          envBool(process.env.NEXT_PUBLIC_MODULE_APP_SANDBOX,           true),
-    settings:         envBool(process.env.NEXT_PUBLIC_MODULE_APP_SETTINGS,          true),
+    overview:                 envBool(process.env.NEXT_PUBLIC_MODULE_APP_OVERVIEW,                  true),
+    tables:                   envBool(process.env.NEXT_PUBLIC_MODULE_APP_TABLES,                    true),
+    relationships:            envBool(process.env.NEXT_PUBLIC_MODULE_APP_RELATIONSHIPS,             true),
+    roles:                    envBool(process.env.NEXT_PUBLIC_MODULE_APP_ROLES,                     true),
+    notifications:            envBool(process.env.NEXT_PUBLIC_MODULE_APP_NOTIFICATIONS,             true),
+    jobs:                     envBool(process.env.NEXT_PUBLIC_MODULE_APP_JOBS,                      true),
+    audit:                    envBool(process.env.NEXT_PUBLIC_MODULE_APP_AUDIT,                     true),
+    forms:                    envBool(process.env.NEXT_PUBLIC_MODULE_APP_FORMS,                     true),
+    reports:                  envBool(process.env.NEXT_PUBLIC_MODULE_APP_REPORTS,                   true),
+    pages:                    envBool(process.env.NEXT_PUBLIC_MODULE_APP_PAGES,                     true),
+    customComponents:         envBool(process.env.NEXT_PUBLIC_MODULE_APP_CUSTOM_COMPONENTS,         true),
+    workflows:                envBool(process.env.NEXT_PUBLIC_MODULE_APP_WORKFLOWS,                 true),
+    sandbox:                  envBool(process.env.NEXT_PUBLIC_MODULE_APP_SANDBOX,                   true),
+    settings:                 envBool(process.env.NEXT_PUBLIC_MODULE_APP_SETTINGS,                  true),
+    // App-scoped sidebar defaults OFF — additive, opt-in until validated.
+    appSidebar:               envBool(process.env.NEXT_PUBLIC_MODULE_APP_APP_SIDEBAR,               false),
+    dashboards:               envBool(process.env.NEXT_PUBLIC_MODULE_APP_DASHBOARDS,                true),
+    customComponentLifecycle: envBool(process.env.NEXT_PUBLIC_MODULE_APP_CUSTOM_COMPONENT_LIFECYCLE, true),
+    complexityDrawer:         envBool(process.env.NEXT_PUBLIC_MODULE_APP_COMPLEXITY_DRAWER,         true),
+    csvImportStepper:         envBool(process.env.NEXT_PUBLIC_MODULE_APP_CSV_IMPORT_STEPPER,        true),
+    formTemplates:            envBool(process.env.NEXT_PUBLIC_MODULE_APP_FORM_TEMPLATES,            true),
   },
   services: {
-    ocr: envBool(process.env.NEXT_PUBLIC_MODULE_SERVICES_OCR, true),
-    ai:  envBool(process.env.NEXT_PUBLIC_MODULE_SERVICES_AI,  true),
+    ocr:             envBool(process.env.NEXT_PUBLIC_MODULE_SERVICES_OCR,                true),
+    ai:              envBool(process.env.NEXT_PUBLIC_MODULE_SERVICES_AI,                 true),
+    aiAssistant:     envBool(process.env.NEXT_PUBLIC_MODULE_SERVICES_AI_ASSISTANT,       true),
+    aiAppBuilder:    envBool(process.env.NEXT_PUBLIC_MODULE_SERVICES_AI_APP_BUILDER,     true),
+    pageSdkExtended: envBool(process.env.NEXT_PUBLIC_MODULE_SERVICES_PAGE_SDK_EXTENDED,  true),
   },
   pageBuilder: {
-    builtins:         envBool(process.env.NEXT_PUBLIC_MODULE_PAGE_BUILDER_BUILTINS, true),
-    customComponents: envBool(process.env.NEXT_PUBLIC_MODULE_PAGE_BUILDER_CUSTOM_COMPONENTS, true),
+    builtins:           envBool(process.env.NEXT_PUBLIC_MODULE_PAGE_BUILDER_BUILTINS,             true),
+    customComponents:   envBool(process.env.NEXT_PUBLIC_MODULE_PAGE_BUILDER_CUSTOM_COMPONENTS,    true),
+    verticalWidgets:    envBool(process.env.NEXT_PUBLIC_MODULE_PAGE_BUILDER_VERTICAL_WIDGETS,     true),
+    convertToComponent: envBool(process.env.NEXT_PUBLIC_MODULE_PAGE_BUILDER_CONVERT_TO_COMPONENT, true),
+    pageShare:          envBool(process.env.NEXT_PUBLIC_MODULE_PAGE_BUILDER_PAGE_SHARE,           true),
+    codeProp:           envBool(process.env.NEXT_PUBLIC_MODULE_PAGE_BUILDER_CODE_PROP,            true),
   },
 };
 

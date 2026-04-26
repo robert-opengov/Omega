@@ -1,11 +1,14 @@
 'use client';
 
-import { useMemo, type ChangeEvent } from 'react';
-import { Input, Textarea, Label, Switch, Select, Text, NumberInput } from '@/components/ui/atoms';
+import { useMemo, useState, type ChangeEvent } from 'react';
+import { Input, Textarea, Label, Switch, Select, Text, NumberInput, Button } from '@/components/ui/atoms';
+import { Sparkles } from 'lucide-react';
 import type { PageComponent, PageRow } from '@/lib/core/ports/pages.repository';
 import type { PropDefinition } from '@/lib/page-builder/page-component-registry';
 import { pageComponentRegistry } from '@/lib/page-builder/page-component-registry';
 import { DataBindingEditor } from './DataBindingEditor';
+import { useModuleEnabled } from '@/providers/module-flags-provider';
+import { AiCodeDialog } from './AiCodeDialog';
 import { cn } from '@/lib/utils';
 
 export interface PropertiesPanelProps {
@@ -264,9 +267,84 @@ function EditorByType({
           Edit children directly on the canvas.
         </Text>
       );
+    case 'code':
+      return (
+        <CodeEditor
+          id={id}
+          def={def}
+          value={typeof value === 'string' ? value : ''}
+          onChange={onChange}
+        />
+      );
     default:
       return null;
   }
+}
+
+function CodeEditor({
+  id,
+  def,
+  value,
+  onChange,
+}: {
+  id: string;
+  def: PropDefinition;
+  value: string;
+  onChange: (v: unknown) => void;
+}) {
+  // Master kill-switch — when off the editor falls back to the raw JSON
+  // textarea so existing layouts keep their data, just without the
+  // dedicated code chrome. Behaves exactly like the old PropEditor.
+  const codePropEnabled = useModuleEnabled('pageBuilder.codeProp');
+  const [aiOpen, setAiOpen] = useState(false);
+
+  if (!codePropEnabled) {
+    return (
+      <Textarea
+        id={id}
+        value={value}
+        onChange={(e: ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value)}
+        className="font-mono text-xs min-h-[140px]"
+      />
+    );
+  }
+
+  const language = def.language ?? 'javascript';
+
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between">
+        <Text size="xs" color="muted" className="uppercase tracking-wide">
+          {language}
+        </Text>
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          className="h-7 px-2"
+          onClick={() => setAiOpen(true)}
+          icon={Sparkles}
+        >
+          AI
+        </Button>
+      </div>
+      <Textarea
+        id={id}
+        value={value}
+        onChange={(e: ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value)}
+        className="font-mono text-xs min-h-[160px]"
+        spellCheck={false}
+      />
+      <AiCodeDialog
+        open={aiOpen}
+        onOpenChange={setAiOpen}
+        language={language}
+        existing={value}
+        context={def.description ?? `prop "${def.label}"`}
+        onApply={(code) => onChange(code)}
+      />
+    </div>
+  );
 }
 
 function JsonEditor({

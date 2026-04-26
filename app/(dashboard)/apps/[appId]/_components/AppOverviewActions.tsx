@@ -21,7 +21,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   Modal,
-  Sheet,
 } from '@/components/ui/molecules';
 import { recomputeAllAction } from '@/app/actions/jobs';
 import { getComplexityScoreAction, getDependencyGraphAction } from '@/app/actions/apps';
@@ -32,6 +31,8 @@ import {
 } from '@/app/actions/templates';
 import type { ComplexityScore, DependencyGraph } from '@/lib/core/ports/app.repository';
 import { DependencyGraphView } from './DependencyGraphView';
+import { useModuleEnabled } from '@/providers/module-flags-provider';
+import { ComplexityScoreDrawer } from './ComplexityScoreDrawer';
 
 export function AppOverviewActions({ appId }: { appId: string }) {
   const router = useRouter();
@@ -47,6 +48,7 @@ export function AppOverviewActions({ appId }: { appId: string }) {
   const [complexity, setComplexity] = useState<ComplexityScore | null>(null);
   const [complexityLoading, setComplexityLoading] = useState(false);
   const [complexityError, setComplexityError] = useState<string | null>(null);
+  const complexityDrawerEnabled = useModuleEnabled('app.complexityDrawer');
   const [publishOpen, setPublishOpen] = useState(false);
   const [templateName, setTemplateName] = useState('');
 
@@ -267,49 +269,49 @@ export function AppOverviewActions({ appId }: { appId: string }) {
         )}
       </Modal>
 
-      <Sheet
-        open={complexityOpen}
-        onOpenChange={setComplexityOpen}
-        title="Complexity score"
-        description="Detailed compute-engine complexity metrics and recommendations."
-        side="right"
-        size="lg"
-      >
-        {complexityLoading ? (
-          <Text size="sm" color="muted">Loading complexity…</Text>
-        ) : complexityError ? (
-          <Text size="sm" className="text-danger-text">{complexityError}</Text>
-        ) : complexity ? (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Badge variant="info" size="sm">{complexity.tier}</Badge>
-              <Text size="sm" weight="medium">Score {complexity.overallScore}</Text>
-            </div>
-            <Text size="sm" color="muted">{complexity.tierDescription}</Text>
-            <div className="grid grid-cols-2 gap-3">
-              <GraphStat label="Schema" value={complexity.subscores.schema.score} />
-              <GraphStat label="Computation" value={complexity.subscores.computation.score} />
-              <GraphStat label="Topology" value={complexity.subscores.graphTopology.score} />
-              <GraphStat label="Volume" value={complexity.subscores.dataVolume.score} />
-            </div>
-            {complexity.recommendations.length > 0 ? (
-              <div className="space-y-2">
-                <Text size="sm" weight="semibold">Recommendations</Text>
-                <ul className="space-y-2">
-                  {complexity.recommendations.slice(0, 5).map((rec, idx) => (
-                    <li key={`${rec.title}-${idx}`} className="rounded border border-border p-3">
-                      <Text size="sm" weight="medium">{rec.title}</Text>
-                      <Text size="xs" color="muted">{rec.description}</Text>
-                    </li>
-                  ))}
-                </ul>
+      {complexityDrawerEnabled ? (
+        <ComplexityScoreDrawer
+          open={complexityOpen}
+          onOpenChange={setComplexityOpen}
+          loading={complexityLoading}
+          error={complexityError}
+          complexity={complexity}
+        />
+      ) : (
+        <Modal
+          open={complexityOpen}
+          onOpenChange={setComplexityOpen}
+          title="Complexity score"
+          description="Compute-engine complexity at a glance."
+          size="md"
+        >
+          {complexityLoading ? (
+            <Text size="sm" color="muted">Loading complexity…</Text>
+          ) : complexityError ? (
+            <Text size="sm" className="text-danger-text">{complexityError}</Text>
+          ) : complexity ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Badge variant="info" size="sm">{complexity.tier}</Badge>
+                <Text size="sm" weight="medium">Score {complexity.overallScore}</Text>
               </div>
-            ) : null}
-          </div>
-        ) : (
-          <Text size="sm" color="muted">Complexity data unavailable.</Text>
-        )}
-      </Sheet>
+              <Text size="sm" color="muted">{complexity.tierDescription}</Text>
+              {complexity.recommendations[0] && (
+                <div className="rounded border border-border p-3">
+                  <Text size="sm" weight="medium">
+                    {complexity.recommendations[0].title}
+                  </Text>
+                  <Text size="xs" color="muted">
+                    {complexity.recommendations[0].description}
+                  </Text>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Text size="sm" color="muted">Complexity data unavailable.</Text>
+          )}
+        </Modal>
+      )}
 
       <Modal
         open={publishOpen}

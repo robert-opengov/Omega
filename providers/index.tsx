@@ -8,6 +8,7 @@ import { AuthProvider } from './auth-provider';
 import { SidebarProvider } from './sidebar-provider';
 import { ToastProvider } from './toast-provider';
 import { ModuleFlagsProvider } from './module-flags-provider';
+import { AiSurface } from '@/components/_custom/ai/AiSurface';
 
 interface ProvidersProps {
   children: ReactNode;
@@ -31,6 +32,7 @@ export function Providers({ children, enableAuth = true, loginMode = 'both', ena
           <SidebarProvider>
             <ToastProvider>
               {children}
+              <AiSurface />
             </ToastProvider>
           </SidebarProvider>
         </AuthProvider>

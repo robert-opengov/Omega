@@ -15,12 +15,19 @@
  */
 
 import type { DataBinding } from '@/lib/core/ports/pages.repository';
+import { buildIframeRuntimeScript } from './build-script';
 
 export interface BuildSandboxOptions {
   code: string;
   props: Record<string, unknown>;
   dataBinding?: DataBinding;
   componentKey: string;
+  /**
+   * Whether `services.pageSdkExtended` is currently enabled. When false
+   * the runtime omits the extended SDK methods + form-widget channel,
+   * matching the server-side flag check exactly.
+   */
+  extendedSdk?: boolean;
 }
 
 const REACT_VERSION = '18.3.1';
@@ -37,95 +44,23 @@ function safeForScriptTag(s: string): string {
 /**
  * Inline runtime — kept short so the iframe boots fast.
  *
- * The runtime exposes (on `window`):
+ * Body is built by `lib/page-builder/build-script.ts` so the
+ * extended-SDK methods can be feature-flag-stripped out of the
+ * generated source. Runtime always exposes:
  *   - React, ReactDOM
  *   - h: React.createElement shorthand
  *   - gab: SDK object with `getTables`, `getRecords`, etc., each returning
  *     a Promise that postMessages a `gab-request` and resolves on the
  *     matching `gab-response`. 30s timeout.
- *   - OMEGA_UI: minimal styled primitives matching Omega's tokens
- *     (Button, Card, Heading, Text, Input).
+ *   - OMEGA_UI: minimal styled primitives matching Omega's tokens.
  *
  * It also wires `console.error`, `window.onerror`, and `unhandledrejection`
  * to a `gab:error` postMessage and ResizeObserver-driven `gab:resize`.
+ *
+ * Kept exported only for tests; the real entry point is `buildSandboxSrcDoc`.
  */
-function buildRuntimeScript(): string {
-  return `
-  (function(){
-    var pending = {};
-    var nextId = 1;
-
-    function post(msg){ try{ parent.postMessage(msg, '*'); }catch(e){} }
-    function call(method, params){
-      return new Promise(function(resolve, reject){
-        var id = String(nextId++);
-        pending[id] = { resolve: resolve, reject: reject, t: Date.now() };
-        post({ type: 'gab-request', id: id, method: method, params: params || {} });
-        setTimeout(function(){
-          if (pending[id]){ pending[id].reject(new Error('SDK request timed out: ' + method)); delete pending[id]; }
-        }, 30000);
-      });
-    }
-    window.addEventListener('message', function(ev){
-      var d = ev.data;
-      if (!d || d.type !== 'gab-response' || !d.id) return;
-      var p = pending[d.id]; if (!p) return;
-      delete pending[d.id];
-      if (d.ok) p.resolve(d.data); else p.reject(new Error(d.error || 'SDK error'));
-    });
-
-    window.gab = {
-      getTables:    function(){ return call('getTables'); },
-      getFields:    function(p){ return call('getFields', p); },
-      getRecords:   function(p){ return call('getRecords', p); },
-      createRecord: function(p){ return call('createRecord', p); },
-      updateRecord: function(p){ return call('updateRecord', p); },
-      deleteRecord: function(p){ return call('deleteRecord', p); },
-      getForms:     function(){ return call('getForms'); }
-    };
-
-    function el(tag, attrs, children){
-      attrs = attrs || {};
-      attrs.className = (attrs.className || '') + (attrs.cls ? ' ' + attrs.cls : '');
-      delete attrs.cls;
-      return React.createElement(tag, attrs, children);
-    }
-    window.h = React.createElement;
-
-    var omegaCss = [
-      ".om-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:6px;border:1px solid transparent;font-size:14px;font-weight:500;cursor:pointer;background:hsl(var(--primary,221 83% 53%));color:hsl(var(--primary-foreground,0 0% 100%))}",
-      ".om-btn-outline{background:transparent;border-color:hsl(var(--border,214 32% 91%));color:hsl(var(--foreground,222 47% 11%))}",
-      ".om-card{background:hsl(var(--card,0 0% 100%));border:1px solid hsl(var(--border,214 32% 91%));border-radius:8px;padding:16px}",
-      ".om-h1,.om-h2,.om-h3{font-weight:600;color:hsl(var(--foreground,222 47% 11%));margin:0 0 8px}",
-      ".om-h1{font-size:24px}.om-h2{font-size:20px}.om-h3{font-size:16px}",
-      ".om-text{font-size:14px;color:hsl(var(--foreground,222 47% 11%));line-height:1.45}",
-      ".om-muted{color:hsl(var(--muted-foreground,215 16% 46%));font-size:12px}",
-      ".om-input{display:block;width:100%;padding:8px 10px;border:1px solid hsl(var(--border,214 32% 91%));border-radius:6px;font-size:14px;background:hsl(var(--background,0 0% 100%));color:hsl(var(--foreground,222 47% 11%))}"
-    ].join('');
-    var s = document.createElement('style'); s.textContent = omegaCss; document.head.appendChild(s);
-
-    window.OMEGA_UI = {
-      Button: function(p){ return el('button', { type: 'button', className: 'om-btn ' + (p.variant === 'outline' ? 'om-btn-outline' : ''), onClick: p.onClick, disabled: p.disabled }, p.children); },
-      Card:   function(p){ return el('div', { className: 'om-card', style: p.style }, p.children); },
-      Heading:function(p){ var lvl = p.as || 'h2'; return el(lvl, { className: 'om-' + lvl }, p.children); },
-      Text:   function(p){ return el('p', { className: 'om-text ' + (p.muted ? 'om-muted' : '') }, p.children); },
-      Input:  function(p){ return el('input', { className: 'om-input', value: p.value, onChange: p.onChange, placeholder: p.placeholder }); }
-    };
-
-    window.addEventListener('error', function(e){ post({ type: 'gab:error', message: e.message || 'error' }); });
-    window.addEventListener('unhandledrejection', function(e){ post({ type: 'gab:error', message: (e.reason && e.reason.message) || 'unhandled' }); });
-
-    function reportSize(){
-      var h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, 60);
-      post({ type: 'gab:resize', height: h });
-    }
-    var ro = new ResizeObserver(reportSize);
-    ro.observe(document.body);
-    setTimeout(reportSize, 50);
-
-    post({ type: 'gab:ready' });
-  })();
-  `;
+export function buildRuntimeScript(extendedSdk: boolean): string {
+  return buildIframeRuntimeScript({ extended: extendedSdk });
 }
 
 /**
@@ -182,7 +117,7 @@ export function buildSandboxSrcDoc(opts: BuildSandboxOptions): string {
 <body>
   <div id="root"></div>
   <script>window.__GAB_PROPS__ = ${propsJson};</script>
-  <script>${buildRuntimeScript()}</script>
+  <script>${buildRuntimeScript(opts.extendedSdk ?? false)}</script>
   <script>${safeForScriptTag(buildMountScript(opts.code))}</script>
 </body>
 </html>`;

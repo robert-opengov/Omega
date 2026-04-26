@@ -57,6 +57,15 @@ export class GabFormV1Adapter implements IGabFormRepository, IGabPublicFormRepos
     return notSupported();
   }
 
+  resolvePublicToken(
+    _token: string,
+  ): Promise<
+    | { type: 'form'; data: PublicFormResolveResult }
+    | { type: 'page'; data: PublicPageResolveResult }
+  > {
+    return notSupported();
+  }
+
   submitPublicForm(
     _token: string,
     _bearerToken: string,

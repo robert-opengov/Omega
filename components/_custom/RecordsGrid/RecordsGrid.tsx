@@ -33,6 +33,8 @@ import { buildColumnsFromFields } from './columns';
 import { rowsToCsv, triggerCsvDownload } from './csv';
 import { CreateRecordModal } from './CreateRecordModal';
 import { CsvImportModal } from './CsvImportModal';
+import { ImportStepper } from './ImportStepper';
+import { useModuleEnabled } from '@/providers/module-flags-provider';
 import type {
   RecordsGridProps,
   RecordsGridFetcher,
@@ -157,6 +159,7 @@ export function RecordsGrid({
     [fields, visibleFieldKeys, editable, handleCellCommit],
   );
 
+  const csvStepperEnabled = useModuleEnabled('app.csvImportStepper');
   const [createOpen, setCreateOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
@@ -462,12 +465,21 @@ export function RecordsGrid({
             fields={fields}
             onSubmit={onCreateRecord}
           />
-          <CsvImportModal
-            open={importOpen}
-            onOpenChange={setImportOpen}
-            fields={fields}
-            onImport={onImportRows}
-          />
+          {csvStepperEnabled ? (
+            <ImportStepper
+              open={importOpen}
+              onOpenChange={setImportOpen}
+              fields={fields}
+              onImport={onImportRows}
+            />
+          ) : (
+            <CsvImportModal
+              open={importOpen}
+              onOpenChange={setImportOpen}
+              fields={fields}
+              onImport={onImportRows}
+            />
+          )}
           <ConfirmDialog
             open={confirmBulkDelete}
             onOpenChange={setConfirmBulkDelete}

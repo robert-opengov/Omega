@@ -17,7 +17,10 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { Button, Heading, Text } from '@/components/ui/atoms';
 import { Card, CardContent, PageHeader, Alert, ConfirmDialog } from '@/components/ui/molecules';
-import { GripVertical, Save, Trash2, Monitor, Tablet, Smartphone } from 'lucide-react';
+import { GripVertical, Save, Trash2, Monitor, Tablet, Smartphone, Share2, Replace } from 'lucide-react';
+import { useModuleEnabled } from '@/providers/module-flags-provider';
+import { SharePageDialog } from './editor/SharePageDialog';
+import { ConvertToComponentWizard } from './editor/ConvertToComponentWizard';
 import type { GabPage, PageComponent, PageLayout, PageRow } from '@/lib/core/ports/pages.repository';
 import {
   createBlockInstance,
@@ -60,6 +63,20 @@ export interface PageEditorClientProps {
    * by the page route so the editor renders with them already available.
    */
   customComponents?: GabCustomComponent[];
+  /**
+   * Optional override for the save handler. When supplied, the editor calls
+   * this instead of `updatePageAction(...)`. Used by the Dashboards builder so
+   * the same editor stack can persist to a different repository without
+   * forking the component. Returning a falsy `error` is treated as success.
+   */
+  onSave?: (layout: PageLayout) => Promise<{ success: boolean; error?: string }>;
+  /**
+   * Hide page-only affordances that don't apply to other surfaces (e.g.
+   * dashboards). When true, the Share button and Convert-to-Component
+   * dialogs that depend on `page.key` are suppressed even if their flags
+   * are on.
+   */
+  hidePageOnlyTools?: boolean;
 }
 
 export function PageEditorClient({
@@ -67,6 +84,8 @@ export function PageEditorClient({
   page,
   schemaLocked = false,
   customComponents,
+  onSave,
+  hidePageOnlyTools = false,
 }: PageEditorClientProps) {
   // Register custom components into the singleton registry so the palette and
   // renderer pick them up. Re-runs when the component list changes (e.g. after
@@ -86,6 +105,13 @@ export function PageEditorClient({
   const [preview, setPreview] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<PageComponent | null>(null);
+  const [shareOpen, setShareOpen] = useState(false);
+  const shareFlag = useModuleEnabled('pageBuilder.pageShare');
+  const shareEnabled = shareFlag && !hidePageOnlyTools;
+  const [convertOpen, setConvertOpen] = useState(false);
+  const [convertTarget, setConvertTarget] = useState<PageComponent | null>(null);
+  const convertFlag = useModuleEnabled('pageBuilder.convertToComponent');
+  const convertEnabled = convertFlag && !hidePageOnlyTools;
 
   const pageLayoutSig = JSON.stringify(page.layout);
   useEffect(() => {
@@ -174,7 +200,9 @@ export function PageEditorClient({
     if (schemaLocked) return;
     setSaving(true);
     setSaveError(null);
-    const res = await updatePageAction(appId, page.key, { layout });
+    const res = onSave
+      ? await onSave(layout)
+      : await updatePageAction(appId, page.key, { layout });
     setSaving(false);
     if (res.success) router.refresh();
     else setSaveError(res.error ?? 'Save failed');
@@ -192,6 +220,36 @@ export function PageEditorClient({
     setDeleteTarget(c);
     setDeleteOpen(true);
   };
+
+  const askConvert = (c: PageComponent) => {
+    setConvertTarget(c);
+    setConvertOpen(true);
+  };
+
+  const onConverted = useCallback(
+    ({
+      blockId,
+      newType,
+      defaultProps,
+    }: {
+      blockId: string;
+      newType: string;
+      defaultProps: Record<string, unknown>;
+    }) => {
+      // Patch in place: keep the same component id and grid position so
+      // the conversion is invisible to the user beyond the new label.
+      setLayout((prev) =>
+        withUpdatedComponent(prev, blockId, {
+          type: newType,
+          props: defaultProps,
+        }),
+      );
+      // Trigger a refresh so the freshly registered custom component
+      // appears in the palette / data fetches that depend on it.
+      router.refresh();
+    },
+    [router, setLayout],
+  );
 
   const canvasMax =
     preview === 'tablet'
@@ -227,6 +285,7 @@ export function PageEditorClient({
         canRedo={history.canRedo}
         onUndo={history.undo}
         onRedo={history.redo}
+        onShare={shareEnabled ? () => setShareOpen(true) : undefined}
       />
 
       {saveError && (
@@ -281,6 +340,7 @@ export function PageEditorClient({
                         selectedId={selectedId}
                         onSelect={setSelectedId}
                         onDelete={askDelete}
+                        onConvert={convertEnabled ? askConvert : undefined}
                       />
                     </div>
                   ))}
@@ -344,6 +404,30 @@ export function PageEditorClient({
           setDeleteTarget(null);
         }}
       />
+
+      {shareEnabled && (
+        <SharePageDialog
+          appId={appId}
+          pageKey={page.key}
+          pageName={page.name}
+          open={shareOpen}
+          onOpenChange={setShareOpen}
+        />
+      )}
+
+      {convertEnabled && (
+        <ConvertToComponentWizard
+          appId={appId}
+          block={convertTarget}
+          pageKey={page.key}
+          open={convertOpen}
+          onOpenChange={(open) => {
+            setConvertOpen(open);
+            if (!open) setConvertTarget(null);
+          }}
+          onConverted={onConverted}
+        />
+      )}
     </div>
   );
 }
@@ -362,6 +446,7 @@ function Toolbar({
   canRedo,
   onUndo,
   onRedo,
+  onShare,
 }: {
   viewMode: 'edit' | 'preview';
   setViewMode: (m: 'edit' | 'preview') => void;
@@ -374,6 +459,7 @@ function Toolbar({
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
+  onShare?: () => void;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -451,6 +537,18 @@ function Toolbar({
         </div>
       )}
       <div className="ml-auto flex gap-2">
+        {onShare && (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={onShare}
+            icon={Share2}
+            aria-label="Share this page"
+          >
+            Share
+          </Button>
+        )}
         <Button
           type="button"
           size="sm"
@@ -474,12 +572,14 @@ function RowCanvas({
   selectedId,
   onSelect,
   onDelete,
+  onConvert,
 }: {
   row: PageRow;
   appId: string;
   selectedId: string | null;
   onSelect: (id: string) => void;
   onDelete: (c: PageComponent) => void;
+  onConvert?: (c: PageComponent) => void;
 }) {
   const cols = row.columns ?? 1;
   const colsMd = row.columnsMd ?? cols;
@@ -519,6 +619,7 @@ function RowCanvas({
             selected={selectedId === c.id}
             onSelect={() => onSelect(c.id)}
             onDelete={() => onDelete(c)}
+            onConvert={onConvert ? () => onConvert(c) : undefined}
           />
         ))}
       </div>
@@ -534,6 +635,7 @@ function SortableEditorBlock({
   selected,
   onSelect,
   onDelete,
+  onConvert,
 }: {
   id: string;
   row: PageRow;
@@ -542,6 +644,7 @@ function SortableEditorBlock({
   selected: boolean;
   onSelect: () => void;
   onDelete: () => void;
+  onConvert?: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const span = comp.colSpan ?? row.columns;
@@ -578,6 +681,22 @@ function SortableEditorBlock({
         >
           <GripVertical className="h-3.5 w-3.5" />
         </Button>
+        {onConvert && !comp.type.startsWith('custom:') && (
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="h-7 w-7 p-0"
+            aria-label="Convert to component"
+            title="Convert to component"
+            onClick={(e) => {
+              e.stopPropagation();
+              onConvert();
+            }}
+          >
+            <Replace className="h-3.5 w-3.5" />
+          </Button>
+        )}
         <Button
           type="button"
           size="sm"

@@ -52,14 +52,25 @@ describe('isFeatureEnabled (navigation)', () => {
 
   it('uses the supplied modules tree (cookie-aware) instead of the static helper when provided', () => {
     const modules = {
-      platform: { tenants: false, users: true, templates: true, aiBuilder: true, uiShowcase: true },
+      platform: {
+        tenants: false, users: true, templates: true, aiBuilder: true, uiShowcase: true,
+        userMetadata: true, publicDispatcher: true,
+      },
       app: {
         overview: true, tables: true, relationships: true, roles: true, notifications: true,
         jobs: true, audit: true, forms: true, reports: true, pages: true,
         customComponents: true, workflows: true, sandbox: true, settings: true,
+        appSidebar: false, dashboards: true, customComponentLifecycle: true,
+        complexityDrawer: true, csvImportStepper: true, formTemplates: true,
       },
-      services: { ocr: true, ai: true },
-      pageBuilder: { builtins: true, customComponents: true },
+      services: {
+        ocr: true, ai: true,
+        aiAssistant: true, aiAppBuilder: true, pageSdkExtended: true,
+      },
+      pageBuilder: {
+        builtins: true, customComponents: true,
+        verticalWidgets: true, convertToComponent: true, pageShare: true, codeProp: true,
+      },
     };
     expect(
       isFeatureEnabled({ ...baseItem, featureFlag: 'platform.tenants' }, features, modules),

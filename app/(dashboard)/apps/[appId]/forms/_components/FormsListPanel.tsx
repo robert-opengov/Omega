@@ -12,6 +12,9 @@ import {
 } from '@/app/actions/forms';
 import type { GabForm } from '@/lib/core/ports/form.repository';
 import type { GabTable } from '@/lib/core/ports/table.repository';
+import { useModuleEnabled } from '@/providers/module-flags-provider';
+import { FORM_TEMPLATES, getFormTemplate } from '@/lib/forms/form-templates';
+import { cn } from '@/lib/utils';
 
 interface FormsListPanelProps {
   appId: string;
@@ -26,19 +29,24 @@ export function FormsListPanel({ appId, initialForms, tables }: Readonly<FormsLi
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState('');
   const [tableId, setTableId] = useState('');
+  const [templateId, setTemplateId] = useState<string>('blank');
+  const templatesEnabled = useModuleEnabled('app.formTemplates');
 
   const onCreate = () => {
     setError(null);
     startTransition(async () => {
+      const tpl = templatesEnabled ? getFormTemplate(templateId) : undefined;
       const result = await createFormAction(appId, {
         name,
         tableId: tableId || undefined,
+        ...(tpl && tpl.id !== 'blank' ? { layout: tpl.layout } : {}),
       });
       handleMutation(result, (created) => {
         setForms((prev) => [created, ...prev]);
         setCreateOpen(false);
         setName('');
         setTableId('');
+        setTemplateId('blank');
       });
     });
   };
@@ -127,6 +135,7 @@ export function FormsListPanel({ appId, initialForms, tables }: Readonly<FormsLi
         onOpenChange={setCreateOpen}
         title="Create Form"
         description="Start a new form and edit it in the builder."
+        size={templatesEnabled ? 'lg' : 'md'}
       >
         <div className="space-y-3">
           <Input placeholder="Form name" value={name} onChange={(event) => setName(event.target.value)} />
@@ -138,6 +147,39 @@ export function FormsListPanel({ appId, initialForms, tables }: Readonly<FormsLi
               </option>
             ))}
           </Select>
+          {templatesEnabled && (
+            <div className="space-y-1.5">
+              <Text size="sm" weight="medium">Start from</Text>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {FORM_TEMPLATES.map((tpl) => {
+                  const selected = templateId === tpl.id;
+                  return (
+                    <li key={tpl.id}>
+                      <button
+                        type="button"
+                        onClick={() => setTemplateId(tpl.id)}
+                        aria-pressed={selected}
+                        className={cn(
+                          'w-full text-left rounded border p-3 transition-colors',
+                          selected
+                            ? 'border-primary ring-1 ring-primary bg-action-hover-primary/40'
+                            : 'border-border hover:bg-action-hover-primary/20',
+                        )}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <Text size="sm" weight="medium">{tpl.title}</Text>
+                          <span className="text-[10px] uppercase tracking-wide rounded bg-muted px-1.5 py-0.5 text-muted-foreground">
+                            {tpl.tag}
+                          </span>
+                        </div>
+                        <Text size="xs" color="muted">{tpl.description}</Text>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
               Cancel

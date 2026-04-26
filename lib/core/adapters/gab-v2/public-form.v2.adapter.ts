@@ -58,6 +58,53 @@ export class GabPublicFormV2Adapter implements IGabPublicFormRepository {
       throw new Error('Public token does not resolve to a page.');
     }
 
+    return this.shapePagePayload(payload);
+  }
+
+  /**
+   * Single-call dispatch for the `/pub/[token]` route. The V2 backend
+   * returns the same payload shape regardless of type, so we only hit
+   * the network once instead of speculatively trying both resolvers.
+   */
+  async resolvePublicToken(
+    token: string,
+  ): Promise<
+    | { type: 'form'; data: PublicFormResolveResult }
+    | { type: 'page'; data: PublicPageResolveResult }
+  > {
+    const res = await fetch(`${this.apiUrl}/v2/public/${token}`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    });
+
+    const payload = await parseJson(res);
+    if (!res.ok) {
+      throw new Error(getErrorMessage(payload, res));
+    }
+
+    if (payload?.type === 'form') {
+      return {
+        type: 'form',
+        data: {
+          form: normalizeForm(payload.form),
+          fields: Array.isArray(payload.fields)
+            ? payload.fields.map(normalizePublicField)
+            : [],
+          settings:
+            payload?.settings && typeof payload.settings === 'object'
+              ? (payload.settings as Record<string, unknown>)
+              : {},
+          bearerToken: String(payload?.bearerToken ?? ''),
+        },
+      };
+    }
+    if (payload?.type === 'page') {
+      return { type: 'page', data: this.shapePagePayload(payload) };
+    }
+    throw new Error('Public token does not resolve to a form or page.');
+  }
+
+  private shapePagePayload(payload: any): PublicPageResolveResult {
     const p = payload.page;
     return {
       appId: String(payload?.appId ?? ''),

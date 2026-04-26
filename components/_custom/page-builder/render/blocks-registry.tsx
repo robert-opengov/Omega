@@ -55,6 +55,8 @@ import type {
   PageComponent,
 } from '@/lib/core/ports/pages.repository';
 import { pageComponentRegistry } from '@/lib/page-builder/page-component-registry';
+import { getLazyAppComponent } from '@/lib/page-builder/lazy-app-components';
+import { Suspense } from 'react';
 import { usePageSelection } from '../runtime/PageContexts';
 import { BoundMetricCard } from './data/BoundMetricCard';
 import { BoundDataTable } from './data/BoundDataTable';
@@ -508,17 +510,57 @@ export function renderBlock(p: BlockRenderParams): ReactNode {
       );
 
     default:
-      // Custom components rendered separately by ShowcaseBlockRenderer.
-      return (
-        <div
-          className={cn(
-            'text-sm text-destructive border border-dashed border-destructive/40 rounded p-2',
-          )}
-        >
-          Unknown block type: <code>{p.type}</code>
-        </div>
-      );
+      return renderLazyOrUnknown(p);
   }
+}
+
+/**
+ * Default block fallback. Custom components are rendered separately by
+ * `ShowcaseBlockRenderer`, but vertical (domain) widgets registered in
+ * `lazy-app-components.ts` are dynamic-imported here so layouts that already
+ * reference a lazy widget keep rendering when the master flag is on. When
+ * the flag is off, palette filtering prevents new inserts and stored
+ * layouts referencing the type fall through to a clean placeholder card
+ * — never the noisy "Unknown block" error.
+ */
+function renderLazyOrUnknown(p: BlockRenderParams): ReactNode {
+  const def = pageComponentRegistry.get(p.type);
+  const Lazy = getLazyAppComponent(p.type);
+  if (Lazy) {
+    return (
+      <Suspense
+        fallback={
+          <div className="h-24 rounded border border-dashed border-border bg-muted/40 animate-pulse" />
+        }
+      >
+        <Lazy
+          appId={p.appId}
+          props={p.props}
+          dataBinding={p.dataBinding}
+        />
+      </Suspense>
+    );
+  }
+  if (def) {
+    return (
+      <div
+        className={cn(
+          'text-sm text-muted-foreground border border-dashed border-border rounded p-3',
+        )}
+      >
+        {def.label} placeholder
+      </div>
+    );
+  }
+  return (
+    <div
+      className={cn(
+        'text-sm text-destructive border border-dashed border-destructive/40 rounded p-2',
+      )}
+    >
+      Unknown block type: <code>{p.type}</code>
+    </div>
+  );
 }
 
 /**

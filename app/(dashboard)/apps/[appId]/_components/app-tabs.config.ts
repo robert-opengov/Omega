@@ -23,6 +23,7 @@ import {
   Workflow,
   BarChart3,
   LayoutTemplate,
+  LayoutGrid,
   Component,
   type LucideIcon,
 } from 'lucide-react';
@@ -114,6 +115,13 @@ export const APP_TABS: AppTab[] = [
     icon: LayoutTemplate,
     href: (id) => `/apps/${id}/pages`,
     feature: 'app.pages',
+  },
+  {
+    id: 'dashboards',
+    label: 'Dashboards',
+    icon: LayoutGrid,
+    href: (id) => `/apps/${id}/dashboards`,
+    feature: 'app.dashboards',
   },
   {
     id: 'components',

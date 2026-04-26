@@ -90,6 +90,41 @@ describe('isValidModulePath', () => {
   });
 });
 
+describe('module catalog completeness (parity-gap leaves)', () => {
+  // If any of these stop existing, the parity-gap implementation has
+  // regressed and the toggle UI / route guards are about to break.
+  const REQUIRED: ReadonlyArray<readonly [keyof typeof modulesConfig, string]> = [
+    ['platform',    'userMetadata'],
+    ['platform',    'publicDispatcher'],
+    ['app',         'appSidebar'],
+    ['app',         'dashboards'],
+    ['app',         'customComponentLifecycle'],
+    ['app',         'complexityDrawer'],
+    ['app',         'csvImportStepper'],
+    ['app',         'formTemplates'],
+    ['services',    'aiAssistant'],
+    ['services',    'aiAppBuilder'],
+    ['services',    'pageSdkExtended'],
+    ['pageBuilder', 'verticalWidgets'],
+    ['pageBuilder', 'convertToComponent'],
+    ['pageBuilder', 'pageShare'],
+    ['pageBuilder', 'codeProp'],
+  ] as const;
+
+  it.each(REQUIRED)('exposes %s.%s as a boolean leaf', (cat, leaf) => {
+    const group = modulesConfig[cat] as unknown as Record<string, unknown>;
+    expect(typeof group[leaf]).toBe('boolean');
+    expect(isValidModulePath(`${cat}.${leaf}`)).toBe(true);
+  });
+
+  it('app.appSidebar defaults to OFF (additive opt-in until validated)', () => {
+    // The other 13 default ON; appSidebar is the documented exception.
+    // This catches a regression where someone flips the default later
+    // without updating the plan/docs.
+    expect(modulesConfig.app.appSidebar).toBe(false);
+  });
+});
+
 describe('cookie I/O', () => {
   it('readOverrides returns {} when cookie is absent', async () => {
     expect(await readOverrides()).toEqual({});

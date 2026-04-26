@@ -4,7 +4,8 @@ import { useCallback, useMemo, useState } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { oneDark } from '@codemirror/theme-one-dark';
-import { Button, Heading, Text, Input, Label } from '@/components/ui/atoms';
+import { History as HistoryIcon, Share2 } from 'lucide-react';
+import { Button, Heading, Text, Input, Label, Badge } from '@/components/ui/atoms';
 import { Card, CardContent, PageHeader, Alert } from '@/components/ui/molecules';
 import type { GabCustomComponent } from '@/lib/core/ports/custom-components.repository';
 import { updateCustomComponentAction } from '@/app/actions/custom-components';
@@ -14,7 +15,11 @@ import {
 } from '@/lib/page-builder/custom-component-analyze';
 import { useTheme } from '@/providers/theme-provider';
 import { useRouter } from 'next/navigation';
+import { useModuleEnabled } from '@/providers/module-flags-provider';
 import { CustomComponentPreviewFrame } from './CustomComponentPreviewFrame';
+import { UsageChip } from './lifecycle/UsageChip';
+import { VersionsDialog } from './lifecycle/VersionsDialog';
+import { ShareDialog } from './lifecycle/ShareDialog';
 
 const DEFAULT_CODE = `export default function MyComponent() {
   return (
@@ -36,10 +41,15 @@ export function CustomComponentEditorClient({
 }) {
   const router = useRouter();
   const { resolvedTheme } = useTheme();
+  // The lifecycle flag wraps every chrome element added in this PR. When
+  // off, the editor renders exactly the legacy save-only experience.
+  const lifecycleEnabled = useModuleEnabled('app.customComponentLifecycle');
   const [name, setName] = useState(component.name);
   const [code, setCode] = useState(component.code || DEFAULT_CODE);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [versionsOpen, setVersionsOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const analysis = useMemo(() => analyzeCustomComponentCode(code), [code]);
   const extensions = useMemo(() => [javascript({ jsx: true, typescript: true })], []);
 
@@ -65,6 +75,40 @@ export function CustomComponentEditorClient({
       <PageHeader
         title={component.name}
         description={`Key: ${component.key} · v${component.version}`}
+        actions={
+          lifecycleEnabled ? (
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge
+                variant={component.visibility === 'app' ? 'info' : 'default'}
+                size="sm"
+              >
+                {component.visibility === 'app' ? 'Shared' : 'Personal'}
+              </Badge>
+              <UsageChip appId={appId} componentKey={component.key} />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                icon={HistoryIcon}
+                onClick={() => setVersionsOpen(true)}
+              >
+                History
+              </Button>
+              {component.visibility !== 'app' && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  icon={Share2}
+                  onClick={() => setShareOpen(true)}
+                  disabled={schemaLocked}
+                >
+                  Share
+                </Button>
+              )}
+            </div>
+          ) : undefined
+        }
       />
       {schemaLocked && (
         <Alert variant="warning" title="Schema locked">
@@ -142,6 +186,27 @@ export function CustomComponentEditorClient({
           <CustomComponentPreviewFrame code={code} />
         </div>
       </div>
+
+      {lifecycleEnabled && (
+        <>
+          <VersionsDialog
+            open={versionsOpen}
+            onOpenChange={setVersionsOpen}
+            appId={appId}
+            component={component}
+            liveCode={code}
+            schemaLocked={schemaLocked}
+            onRolledBack={() => router.refresh()}
+          />
+          <ShareDialog
+            open={shareOpen}
+            onOpenChange={setShareOpen}
+            appId={appId}
+            component={component}
+            onShared={() => router.refresh()}
+          />
+        </>
+      )}
     </div>
   );
 }

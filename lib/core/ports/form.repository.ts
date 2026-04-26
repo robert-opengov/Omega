@@ -228,6 +228,18 @@ export interface IGabPublicFormRepository {
   resolvePublicForm(token: string): Promise<PublicFormResolveResult>;
   /** `GET /v2/public/:token` — throws if the token is not a page link. */
   resolvePublicPage(token: string): Promise<PublicPageResolveResult>;
+  /**
+   * Discriminated resolver — returns whichever shape the backend chose
+   * for this token. Used by the `/pub/[token]` dispatcher (gated by
+   * `platform.publicDispatcher`) so a single URL can render either a
+   * form or a page without two round-trips.
+   */
+  resolvePublicToken(
+    token: string,
+  ): Promise<
+    | { type: 'form'; data: PublicFormResolveResult }
+    | { type: 'page'; data: PublicPageResolveResult }
+  >;
   submitPublicForm(
     token: string,
     bearerToken: string,

@@ -5,7 +5,9 @@ import { Badge, Heading, Text } from '@/components/ui/atoms';
 import { getImpersonationAction } from '@/app/actions/auth';
 import { tryGetAppContext } from '@/lib/core/app-context';
 import { gabAppRoleRepo, gabUserRepo } from '@/lib/core';
+import { isModuleEnabledNow } from '@/lib/feature-overrides';
 import { AppTabsNav } from './_components/AppTabsNav';
+import { AppSidebarNav } from './_components/AppSidebarNav';
 import { ImpersonationBar } from './_components/ImpersonationBar';
 
 export default async function AppLayout({
@@ -21,11 +23,13 @@ export default async function AppLayout({
   if (!ctx) notFound();
 
   const { app, isSandbox, schemaLocked } = ctx;
-  const [impersonation, usersRes, rolesRes] = await Promise.allSettled([
+  const [impersonation, usersRes, rolesRes, sidebarOn] = await Promise.allSettled([
     getImpersonationAction(),
     gabUserRepo.listUsers({ page: 1, pageSize: 100 }),
     gabAppRoleRepo.listRoles(appId),
+    isModuleEnabledNow('app.appSidebar'),
   ]);
+  const showSidebar = sidebarOn.status === 'fulfilled' && sidebarOn.value === true;
   const users =
     usersRes.status === 'fulfilled'
       ? usersRes.value.items.map((u) => ({
@@ -92,7 +96,10 @@ export default async function AppLayout({
         </div>
       </div>
 
-      <div className="p-6 lg:p-8">{children}</div>
+      <div className="flex">
+        {showSidebar && <AppSidebarNav appId={appId} />}
+        <div className="flex-1 min-w-0 p-6 lg:p-8">{children}</div>
+      </div>
     </div>
   );
 }

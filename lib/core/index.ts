@@ -32,6 +32,10 @@ import { GabReportV2Adapter } from './adapters/gab-v2/report.v2.adapter';
 import { GabPageV2Adapter } from './adapters/gab-v2/pages.v2.adapter';
 import { GabCustomComponentV2Adapter } from './adapters/gab-v2/custom-components.v2.adapter';
 import { GabDocumentV2Adapter } from './adapters/gab-v2/documents.v2.adapter';
+import { GabDashboardV2Adapter } from './adapters/gab-v2/dashboard.v2.adapter';
+import { GabDashboardMemoryAdapter } from './adapters/in-memory/dashboard.memory.adapter';
+import { GabUserMetadataV2Adapter } from './adapters/gab-v2/user-metadata.v2.adapter';
+import { GabUserMetadataMemoryAdapter } from './adapters/in-memory/user-metadata.memory.adapter';
 import { BedrockGatewayAdapter } from './adapters/gab-ai/bedrock-gateway.adapter';
 import { OCRTesseractAdapter } from './adapters/ocr-tesseract/ocr.tesseract.adapter';
 import { OCRMockAdapter } from './adapters/ocr-mock/ocr.mock.adapter';
@@ -104,6 +108,25 @@ export const gabReportRepo = new GabReportV2Adapter(authPort, apiUrl);
 export const gabPageRepo = new GabPageV2Adapter(authPort, apiUrl);
 export const gabCustomComponentRepo = new GabCustomComponentV2Adapter(authPort, apiUrl);
 export const gabDocumentRepo = new GabDocumentV2Adapter(authPort, apiUrl);
+
+// Dashboards: V2 backend may not be live yet, so allow opt-in to a
+// process-local memory adapter for local dev / preview deploys. Feature
+// is itself flagged behind `app.dashboards`, so a fork that disables the
+// flag pays no runtime cost either way.
+const useMemoryDashboards = process.env.USE_MEMORY_DASHBOARDS === 'true';
+export const gabDashboardRepo = useMemoryDashboards
+  ? new GabDashboardMemoryAdapter()
+  : new GabDashboardV2Adapter(authPort, apiUrl);
+
+// User metadata: same pattern as dashboards — the V2 backend endpoints
+// (`/apps/:appId/user-metadata-fields`, `/apps/:appId/users/:userId/metadata`)
+// are still being rolled out, so allow opt-in to the in-memory adapter
+// via `USE_MEMORY_USER_METADATA=true`. The `platform.userMetadata` flag
+// gates the surface either way.
+const useMemoryUserMetadata = process.env.USE_MEMORY_USER_METADATA === 'true';
+export const gabUserMetadataRepo = useMemoryUserMetadata
+  ? new GabUserMetadataMemoryAdapter()
+  : new GabUserMetadataV2Adapter(authPort, apiUrl);
 
 // ---------------------------------------------------------------------------
 // AI Gateway — Bedrock proxy via GAB AI Gateway
