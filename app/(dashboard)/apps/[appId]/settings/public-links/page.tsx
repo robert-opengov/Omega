@@ -1,4 +1,5 @@
 import { gabPublicAccessRepo, gabAppRoleRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, PageHeader } from '@/components/ui/molecules';
 import { AlertCircle } from 'lucide-react';
 import { Text } from '@/components/ui/atoms';
@@ -9,6 +10,7 @@ export default async function PublicLinksPage({
 }: {
   params: Promise<{ appId: string }>;
 }) {
+  await featureGuard('app.settings');
   const { appId } = await params;
 
   let links: Awaited<ReturnType<typeof gabPublicAccessRepo.listLinks>> = { items: [], total: 0 };

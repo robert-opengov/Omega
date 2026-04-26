@@ -1,4 +1,5 @@
 import { gabAppRoleRepo, gabTableRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Alert } from '@/components/ui/molecules';
 import { RolesPanel } from './_components/RolesPanel';
 import type {
@@ -13,6 +14,7 @@ export default async function AppRolesPage({
 }: {
   params: Promise<{ appId: string }>;
 }) {
+  await featureGuard('app.roles');
   const { appId } = await params;
 
   let roles: GabAppRole[] = [];

@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { gabPageRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { tryGetAppContext } from '@/lib/core/app-context';
 import { PagesPanel } from './_components/PagesPanel';
 
@@ -8,6 +9,7 @@ export default async function AppPagesListPage({
 }: {
   params: Promise<{ appId: string }>;
 }) {
+  await featureGuard('app.pages');
   const { appId } = await params;
   const ctx = await tryGetAppContext(appId);
   if (!ctx) notFound();

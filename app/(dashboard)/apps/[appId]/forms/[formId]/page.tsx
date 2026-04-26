@@ -1,4 +1,5 @@
 import { gabAppRepo, gabFieldRepo, gabFormRepo, gabTableRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Alert } from '@/components/ui/molecules';
 import { FormPreviewPanel } from './_components/FormPreviewPanel';
 import { toRuntimeField } from '@/components/_custom/FormRuntime/types';
@@ -8,6 +9,7 @@ export default async function FormPreviewPage({
 }: {
   params: Promise<{ appId: string; formId: string }>;
 }) {
+  await featureGuard('app.forms');
   const { appId, formId } = await params;
 
   try {

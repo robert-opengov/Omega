@@ -1,4 +1,5 @@
 import { gabAuditLogRepo, gabTableRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Card, CardContent, PageHeader } from '@/components/ui/molecules';
 import { AlertCircle } from 'lucide-react';
 import { Text } from '@/components/ui/atoms';
@@ -19,6 +20,7 @@ export default async function AuditPage({
     pageSize?: string;
   }>;
 }) {
+  await featureGuard('app.audit');
   const { appId } = await params;
   const sp = await searchParams;
 

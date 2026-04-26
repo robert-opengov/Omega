@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Alert } from '@/components/ui/molecules';
 import { gabWorkflowRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { InstanceTraceViewer } from '@/components/_custom/WorkflowBuilder/_components/InstanceTraceViewer';
 
 export default async function WorkflowInstanceDirectPage({
@@ -9,6 +10,7 @@ export default async function WorkflowInstanceDirectPage({
 }: {
   params: Promise<{ appId: string; instanceId: string }>;
 }) {
+  await featureGuard('app.workflows');
   const { appId, instanceId } = await params;
 
   const instanceRes = await gabWorkflowRepo

@@ -2,65 +2,40 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  Database,
-  GitBranch,
-  Users,
-  Settings,
-  LayoutDashboard,
-  Boxes,
-  Bell,
-  Zap,
-  ScrollText,
-  ClipboardList,
-  Workflow,
-  BarChart3,
-  LayoutTemplate,
-  Component,
-  type LucideIcon,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { APP_TABS, type AppTab } from './app-tabs.config';
+import { useModuleFlags } from '@/providers/module-flags-provider';
 
-interface AppNavItem {
-  label: string;
-  href: (appId: string) => string;
-  icon: LucideIcon;
-  /** Match this segment exactly, otherwise `startsWith` is used. */
-  exact?: boolean;
-}
-
-const NAV_ITEMS: AppNavItem[] = [
-  { label: 'Overview', href: (id) => `/apps/${id}`, icon: LayoutDashboard, exact: true },
-  { label: 'Tables', href: (id) => `/apps/${id}/tables`, icon: Database },
-  { label: 'Relationships', href: (id) => `/apps/${id}/relationships`, icon: GitBranch },
-  { label: 'Roles', href: (id) => `/apps/${id}/roles`, icon: Users },
-  { label: 'Notifications', href: (id) => `/apps/${id}/notifications`, icon: Bell },
-  { label: 'Jobs', href: (id) => `/apps/${id}/jobs`, icon: Zap },
-  { label: 'Audit', href: (id) => `/apps/${id}/audit`, icon: ScrollText },
-  { label: 'Forms', href: (id) => `/apps/${id}/forms`, icon: ClipboardList },
-  { label: 'Reports', href: (id) => `/apps/${id}/reports`, icon: BarChart3 },
-  { label: 'Pages', href: (id) => `/apps/${id}/pages`, icon: LayoutTemplate },
-  { label: 'Components', href: (id) => `/apps/${id}/components`, icon: Component },
-  { label: 'Workflows', href: (id) => `/apps/${id}/workflows`, icon: Workflow },
-  { label: 'Sandbox', href: (id) => `/apps/${id}/sandbox`, icon: Boxes },
-  { label: 'Settings', href: (id) => `/apps/${id}/settings`, icon: Settings },
-];
-
+/**
+ * Per-app top navigation. Reads from `APP_TABS` and filters out any tab
+ * whose module flag is disabled in `modulesConfig`. Both the link and the
+ * underlying route handler must be gated together (each `page.tsx` calls
+ * `featureGuard(...)` with the same module path) so a removed feature can
+ * never be reached via direct URL either.
+ */
 export function AppTabsNav({ appId }: { appId: string }) {
   const pathname = usePathname();
+  const modules = useModuleFlags();
+
+  const visibleTabs = APP_TABS.filter((tab: AppTab) => {
+    if (!tab.feature) return true;
+    const [cat, leaf] = tab.feature.split('.') as [keyof typeof modules, string];
+    const group = modules[cat] as unknown as Record<string, boolean> | undefined;
+    return Boolean(group?.[leaf]);
+  });
 
   return (
     <nav
       aria-label="App sections"
       className="flex items-center gap-1 border-b border-border overflow-x-auto"
     >
-      {NAV_ITEMS.map((item) => {
-        const href = item.href(appId);
-        const active = item.exact ? pathname === href : pathname.startsWith(href);
-        const Icon = item.icon;
+      {visibleTabs.map((tab) => {
+        const href = tab.href(appId);
+        const active = tab.exact ? pathname === href : pathname.startsWith(href);
+        const Icon = tab.icon;
         return (
           <Link
-            key={item.label}
+            key={tab.id}
             href={href}
             aria-current={active ? 'page' : undefined}
             className={cn(
@@ -71,7 +46,7 @@ export function AppTabsNav({ appId }: { appId: string }) {
             )}
           >
             <Icon className="h-4 w-4" />
-            {item.label}
+            {tab.label}
           </Link>
         );
       })}

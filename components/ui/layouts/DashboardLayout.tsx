@@ -8,7 +8,7 @@ import { Navbar } from '@/components/ui/organisms/Navbar';
 import { CommandPalette, type CommandItem } from '@/components/ui/molecules/CommandPalette';
 import { ToastContainer } from '@/components/ui/molecules/Toast';
 import { SiteBanner } from '@/components/ui/molecules/SiteBanner';
-import { useSidebar, useAuth } from '@/providers';
+import { useSidebar, useAuth, useModuleFlags } from '@/providers';
 import { appConfig } from '@/config/app.config';
 import { cn } from '@/lib/utils';
 import { navigationItems, flattenNavItems } from '@/config/navigation.config';
@@ -133,6 +133,7 @@ function GlobalCommandPalette() {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
+  const modules = useModuleFlags();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -146,7 +147,7 @@ function GlobalCommandPalette() {
   }, []);
 
   const items: CommandItem[] = useMemo(() => {
-    const flat = flattenNavItems(navigationItems, appConfig.features, user?.role);
+    const flat = flattenNavItems(navigationItems, appConfig.features, user?.role, modules);
     return flat.map((nav) => ({
       label: nav.label,
       value: nav.href,
@@ -154,7 +155,7 @@ function GlobalCommandPalette() {
       description: `Go to ${nav.label}`,
       onSelect: () => { router.push(nav.href); setOpen(false); },
     }));
-  }, [user?.role, router]);
+  }, [user?.role, router, modules]);
 
   return <CommandPalette open={open} onOpenChange={setOpen} items={items} placeholder="Where do you want to go?" />;
 }

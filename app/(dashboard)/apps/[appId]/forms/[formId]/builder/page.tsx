@@ -1,4 +1,5 @@
 import { gabFieldRepo, gabFormRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Alert } from '@/components/ui/molecules';
 import { FormBuilder } from '@/components/_custom/FormBuilder';
 import { toRuntimeField } from '@/components/_custom/FormRuntime/types';
@@ -8,6 +9,7 @@ export default async function FormBuilderPage({
 }: {
   params: Promise<{ appId: string; formId: string }>;
 }) {
+  await featureGuard('app.forms');
   const { appId, formId } = await params;
 
   try {

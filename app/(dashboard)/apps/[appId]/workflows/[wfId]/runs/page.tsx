@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { gabWorkflowRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Alert } from '@/components/ui/molecules';
 import { InstancesTable } from '../../_components/InstancesTable';
 
@@ -9,6 +10,7 @@ export default async function WorkflowRunsPage({
 }: {
   params: Promise<{ appId: string; wfId: string }>;
 }) {
+  await featureGuard('app.workflows');
   const { appId, wfId } = await params;
 
   const [workflowRes, instancesRes] = await Promise.allSettled([

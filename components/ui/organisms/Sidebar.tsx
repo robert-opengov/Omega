@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronRight, PanelLeftClose } from 'lucide-react';
-import { useSidebar, useAuth } from '@/providers';
+import { useSidebar, useAuth, useModuleFlags } from '@/providers';
 import { navigationItems, userMenuItems, isRouteActive, isFeatureEnabled } from '@/config/navigation.config';
 import type { NavItem, UserMenuItem } from '@/config/navigation.config';
 import { appConfig } from '@/config/app.config';
@@ -47,9 +47,10 @@ function SidebarNavItem({ item, pathname, depth }: { item: NavItem; pathname: st
     (child) => isRouteActive(child.href, pathname),
   );
   const [expanded, setExpanded] = useState(isActive || childActive);
+  const modules = useModuleFlags();
 
   const visibleChildren = (item.children ?? []).filter((child) => {
-    if (!isFeatureEnabled(child, appConfig.features)) return false;
+    if (!isFeatureEnabled(child, appConfig.features, modules)) return false;
     return (child.showIn ?? 'both') !== 'navbar';
   });
 
@@ -134,8 +135,9 @@ function NavigationContent({ isMobile = false }: { isMobile?: boolean }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const modules = useModuleFlags();
   const visibleItems = navigationItems.filter((item) => {
-    if (!isFeatureEnabled(item, appConfig.features)) return false;
+    if (!isFeatureEnabled(item, appConfig.features, modules)) return false;
     if (item.roles?.length && !item.roles.includes(user?.role ?? '')) return false;
     return (item.showIn ?? 'both') !== 'navbar';
   });

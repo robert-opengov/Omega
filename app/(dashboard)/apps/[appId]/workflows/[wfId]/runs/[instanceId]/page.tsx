@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { gabWorkflowRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Alert } from '@/components/ui/molecules';
 import { InstanceTraceViewer } from '@/components/_custom/WorkflowBuilder/_components/InstanceTraceViewer';
 
@@ -9,6 +10,7 @@ export default async function WorkflowInstancePage({
 }: {
   params: Promise<{ appId: string; wfId: string; instanceId: string }>;
 }) {
+  await featureGuard('app.workflows');
   const { appId, wfId, instanceId } = await params;
 
   const [workflowRes, instanceRes] = await Promise.allSettled([

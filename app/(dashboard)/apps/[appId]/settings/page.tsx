@@ -1,4 +1,5 @@
 import { gabAppRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Card, CardContent } from '@/components/ui/molecules';
 import { Text } from '@/components/ui/atoms';
 import { AlertCircle } from 'lucide-react';
@@ -9,6 +10,7 @@ export default async function AppSettingsPage({
 }: {
   params: Promise<{ appId: string }>;
 }) {
+  await featureGuard('app.settings');
   const { appId } = await params;
 
   let app: Awaited<ReturnType<typeof gabAppRepo.getApp>> | null = null;

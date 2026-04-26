@@ -6,6 +6,7 @@ import {
   gabReportRepo,
   gabTableRepo,
 } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Alert } from '@/components/ui/molecules';
 import { ReportBuilder } from '@/components/_custom/ReportBuilder';
 
@@ -16,6 +17,7 @@ export default async function ReportEditorPage({
 }: {
   params: Promise<{ appId: string; reportId: string }>;
 }) {
+  await featureGuard('app.reports');
   const { appId, reportId } = await params;
 
   const [reportRes, tablesRes, appRes] = await Promise.allSettled([

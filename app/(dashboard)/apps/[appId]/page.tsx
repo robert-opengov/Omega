@@ -6,6 +6,7 @@ import {
   gabAppRoleRepo,
   gabTemplateRepo,
 } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { TemplateSubscriptionCard } from './_components/TemplateSubscriptionCard';
 import { Badge, Button, Heading, Text } from '@/components/ui/atoms';
 import {
@@ -24,6 +25,7 @@ export default async function AppOverviewPage({
 }: {
   params: Promise<{ appId: string }>;
 }) {
+  await featureGuard('app.overview');
   const { appId } = await params;
 
   // Parallel-fetch all overview metrics. Each call is wrapped so a single

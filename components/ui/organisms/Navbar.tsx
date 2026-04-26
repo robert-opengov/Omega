@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
-import { useSidebar, useTheme, useAuth } from '@/providers';
+import { useSidebar, useTheme, useAuth, useModuleFlags } from '@/providers';
 import { Menu, Moon, Sun, X, HelpCircle, Bell, Settings, ChevronDown, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -51,6 +51,7 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
   const drawerRef = useRef<HTMLElement>(null);
   const { user } = useAuth();
+  const modules = useModuleFlags();
 
   useEffect(() => { if (open) onClose(); }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -68,7 +69,7 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
 
   const visibleItems = navigationItems.filter(
     (item) =>
-      isFeatureEnabled(item, appConfig.features) &&
+      isFeatureEnabled(item, appConfig.features, modules) &&
       (!item.roles?.length || item.roles.includes(user?.role ?? '')) &&
       (item.showIn ?? 'both') !== 'sidebar',
   );
@@ -146,10 +147,11 @@ export function Navbar({ standalone = false, topClass }: NavbarProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
   const hasSidebar = appConfig.layout.showSidebar && !standalone;
+  const modules = useModuleFlags();
 
   const visibleItems = navigationItems.filter(
     (item) =>
-      isFeatureEnabled(item, appConfig.features) &&
+      isFeatureEnabled(item, appConfig.features, modules) &&
       (!item.roles?.length || item.roles.includes(user?.role ?? '')) &&
       (item.showIn ?? 'both') !== 'sidebar',
   );

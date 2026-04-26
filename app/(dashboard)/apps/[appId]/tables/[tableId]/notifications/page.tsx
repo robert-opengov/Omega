@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/molecules';
 import { gabNotificationRepo, gabTableRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { NotificationsPanel } from '@/app/(dashboard)/apps/[appId]/notifications/_components/NotificationsPanel';
 import type { GabNotification } from '@/lib/core/ports/notification.repository';
 
@@ -16,6 +17,11 @@ export default async function TableNotificationsPage({
 }: {
   params: Promise<{ appId: string; tableId: string }>;
 }) {
+  // Per-table notifications require BOTH features. Guarding the stricter
+  // one (notifications) is sufficient for the route, but we also gate on
+  // tables so the link only appears for active table modules.
+  await featureGuard('app.tables');
+  await featureGuard('app.notifications');
   const { appId, tableId } = await params;
 
   const [tableResult, notificationsResult] = await Promise.allSettled([

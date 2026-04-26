@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { tryGetAppContext } from '@/lib/core/app-context';
+import { featureGuard } from '@/lib/feature-guards';
 import { PageRenderer } from '@/components/_custom/page-builder/PageRenderer';
 import { Heading, Text } from '@/components/ui/atoms';
 import { Alert } from '@/components/ui/molecules';
@@ -12,6 +13,7 @@ export default async function AppPageRuntime({
 }: {
   params: Promise<{ appId: string; slug: string }>;
 }) {
+  await featureGuard('app.pages');
   const { appId, slug } = await params;
   const ctx = await tryGetAppContext(appId);
   if (!ctx) notFound();

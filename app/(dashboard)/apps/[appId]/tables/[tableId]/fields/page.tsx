@@ -1,4 +1,5 @@
 import { gabFieldRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Card, CardContent } from '@/components/ui/molecules';
 import { Text } from '@/components/ui/atoms';
 import { AlertCircle } from 'lucide-react';
@@ -9,6 +10,7 @@ export default async function FieldsPage({
 }: {
   params: Promise<{ appId: string; tableId: string }>;
 }) {
+  await featureGuard('app.tables');
   const { appId, tableId } = await params;
 
   let fields: Awaited<ReturnType<typeof gabFieldRepo.listFields>> = { items: [], total: 0 };

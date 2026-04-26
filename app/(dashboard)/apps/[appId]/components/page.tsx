@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { gabCustomComponentRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { tryGetAppContext } from '@/lib/core/app-context';
 import { Text } from '@/components/ui/atoms';
 import { Card, DataTable, PageHeader, EmptyState, type Column } from '@/components/ui/molecules';
@@ -12,6 +13,7 @@ export default async function AppCustomComponentsListPage({
 }: {
   params: Promise<{ appId: string }>;
 }) {
+  await featureGuard('app.customComponents');
   const { appId } = await params;
   const ctx = await tryGetAppContext(appId);
   if (!ctx) notFound();

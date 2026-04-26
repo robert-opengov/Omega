@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useAuth, useTheme } from '@/providers';
 import { Avatar, Badge, Heading, Text, Separator, Switch, Skeleton } from '@/components/ui/atoms';
 import {
@@ -14,7 +15,7 @@ import {
   TabsTrigger,
   TabsContent,
 } from '@/components/ui/molecules';
-import { User, Palette, Shield, Building2, Mail, Hash, UserCircle } from 'lucide-react';
+import { User, Palette, Shield, Building2, Mail, Hash, UserCircle, ToggleRight, ChevronRight } from 'lucide-react';
 
 function roleBadgeVariant(role: string) {
   if (role === 'superadmin') return 'danger' as const;
@@ -66,6 +67,7 @@ function ProfileSkeleton() {
 export default function SettingsPage() {
   const { user, isLoading } = useAuth();
   const { theme, setTheme, resolvedTheme } = useTheme();
+  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
   return (
     <div className="p-6 lg:p-8 space-y-6">
@@ -84,6 +86,12 @@ export default function SettingsPage() {
             <Palette className="h-4 w-4 mr-1.5" />
             Preferences
           </TabsTrigger>
+          {isAdmin && (
+            <TabsTrigger value="admin">
+              <ToggleRight className="h-4 w-4 mr-1.5" />
+              Admin
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* ============================================================
@@ -188,6 +196,41 @@ export default function SettingsPage() {
             </Card>
           </div>
         </TabsContent>
+
+        {/* ============================================================
+            Admin tab — links to platform-level config pages
+            ============================================================ */}
+        {isAdmin && (
+          <TabsContent value="admin">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Platform configuration</CardTitle>
+                  <CardDescription>
+                    Tools available to platform administrators.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-2">
+                  <Link
+                    href="/settings/modules"
+                    className="flex items-center justify-between gap-4 py-3 -mx-2 px-2 rounded hover:bg-action-hover transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      <ToggleRight className="h-5 w-5 mt-0.5 text-muted-foreground shrink-0" />
+                      <div>
+                        <Text size="sm" weight="medium">Module Flags</Text>
+                        <Text size="xs" color="muted" className="mt-0.5">
+                          Turn entire features (Workflows, Reports, AI Builder…) on or off without a redeploy.
+                        </Text>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

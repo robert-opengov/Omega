@@ -1,4 +1,5 @@
 import { gabTenantRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Card, CardContent } from '@/components/ui/molecules';
 import { AlertCircle } from 'lucide-react';
 import { Text } from '@/components/ui/atoms';
@@ -6,6 +7,7 @@ import { CompaniesPanel } from './_components/CompaniesPanel';
 import type { GabTenant } from '@/lib/core/ports/tenant.repository';
 
 export default async function CompaniesPage() {
+  await featureGuard('platform.tenants');
   let tenants: GabTenant[] = [];
   let total = 0;
   let loadError: string | null = null;

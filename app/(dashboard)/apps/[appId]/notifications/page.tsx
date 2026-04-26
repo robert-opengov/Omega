@@ -1,4 +1,5 @@
 import { gabTableRepo, gabNotificationRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, PageHeader } from '@/components/ui/molecules';
 import { AlertCircle } from 'lucide-react';
 import { Text } from '@/components/ui/atoms';
@@ -12,6 +13,7 @@ export default async function AppNotificationsPage({
   params: Promise<{ appId: string }>;
   searchParams: Promise<{ tableId?: string }>;
 }) {
+  await featureGuard('app.notifications');
   const { appId } = await params;
   const { tableId } = await searchParams;
 

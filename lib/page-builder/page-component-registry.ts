@@ -139,6 +139,14 @@ export interface PageComponentDefinition {
    * GAB Core's earlier type names.
    */
   aliases?: string[];
+  /**
+   * Optional dotted-path module flag (see `config/modules.config.ts`). When
+   * set, the palette filters this entry out and the editor refuses to
+   * insert it if the module is disabled. Stored layouts already using a
+   * disabled type still render — the renderer is intentionally lenient so
+   * a feature flip never blanks an existing page mid-flight.
+   */
+  featureFlag?: string;
 }
 
 class PageComponentRegistry {

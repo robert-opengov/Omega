@@ -1,4 +1,5 @@
 import { gabTableRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { TablesList } from './_components/TablesList';
 
 export default async function TablesPage({
@@ -6,6 +7,7 @@ export default async function TablesPage({
 }: {
   params: Promise<{ appId: string }>;
 }) {
+  await featureGuard('app.tables');
   const { appId } = await params;
 
   let tables: Awaited<ReturnType<typeof gabTableRepo.listTables>> = { items: [], total: 0 };

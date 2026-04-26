@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { gabTemplateRepo, gabTenantRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Card, CardContent } from '@/components/ui/molecules';
 import { Heading, Text } from '@/components/ui/atoms';
 import { AlertCircle } from 'lucide-react';
 import { TemplatesCatalog } from './_components/TemplatesCatalog';
 
 export default async function TemplatesPage() {
+  await featureGuard('platform.templates');
   const [templatesResult, tenantsResult] = await Promise.allSettled([
     gabTemplateRepo.listTemplates(),
     gabTenantRepo.listTenants(),

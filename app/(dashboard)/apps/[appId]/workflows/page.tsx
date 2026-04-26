@@ -1,4 +1,5 @@
 import { gabWorkflowRepo, gabTableRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { WorkflowsPanel } from './_components/WorkflowsPanel';
 
 export default async function AppWorkflowsPage({
@@ -6,6 +7,7 @@ export default async function AppWorkflowsPage({
 }: {
   params: Promise<{ appId: string }>;
 }) {
+  await featureGuard('app.workflows');
   const { appId } = await params;
 
   const [workflowsRes, instancesRes, tasksRes, tablesRes] = await Promise.allSettled([

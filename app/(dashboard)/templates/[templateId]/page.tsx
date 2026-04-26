@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, Package } from 'lucide-react';
 import { Heading, Text, Badge } from '@/components/ui/atoms';
 import { gabTemplateRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { TemplateDetail } from './_components/TemplateDetail';
 
 export default async function TemplateDetailPage({
@@ -10,6 +11,7 @@ export default async function TemplateDetailPage({
 }: {
   params: Promise<{ templateId: string }>;
 }) {
+  await featureGuard('platform.templates');
   const { templateId } = await params;
 
   const [templateResult, versionsResult, subscribersResult] = await Promise.allSettled([

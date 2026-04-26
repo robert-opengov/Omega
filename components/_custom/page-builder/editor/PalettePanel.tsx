@@ -10,6 +10,7 @@ import {
   type PageComponentCategory,
   type PageComponentDefinition,
 } from '@/lib/page-builder/page-component-registry';
+import { useModuleEnabled, useModuleFlags } from '@/providers/module-flags-provider';
 
 export interface PalettePanelProps {
   onAdd: (def: PageComponentDefinition) => void;
@@ -24,9 +25,29 @@ export function PalettePanel({ onAdd }: PalettePanelProps) {
   const [query, setQuery] = useState('');
   const [openCategory, setOpenCategory] = useState<PageComponentCategory | 'all'>('all');
 
+  const builtinsEnabled = useModuleEnabled('pageBuilder.builtins');
+  const customEnabled = useModuleEnabled('pageBuilder.customComponents');
+  const modules = useModuleFlags();
+
   const grouped = useMemo(() => {
     const all = pageComponentRegistry.byCategory();
+    const isPathEnabled = (path: string): boolean => {
+      const segments = path.split('.');
+      let cursor: unknown = modules;
+      for (const segment of segments) {
+        if (!cursor || typeof cursor !== 'object') return false;
+        cursor = (cursor as Record<string, unknown>)[segment];
+      }
+      return cursor === true;
+    };
     const filter = (def: PageComponentDefinition) => {
+      // Master switches: turn off every built-in or every custom component
+      // in one flag. Per-widget flags below offer finer control.
+      if (def.isCustom && !customEnabled) return false;
+      if (!def.isCustom && !builtinsEnabled) return false;
+      // Hide entries whose module flag is off. Existing pages that already
+      // use the type still render — only the palette/insert path is blocked.
+      if (def.featureFlag && !isPathEnabled(def.featureFlag)) return false;
       if (!query.trim()) return true;
       const q = query.toLowerCase();
       return (
@@ -50,7 +71,7 @@ export function PalettePanel({ onAdd }: PalettePanelProps) {
       out[cat] = all[cat].filter(filter).sort((a, b) => a.label.localeCompare(b.label));
     }
     return out;
-  }, [query]);
+  }, [query, builtinsEnabled, customEnabled, modules]);
 
   const categories = openCategory === 'all'
     ? CATEGORY_ORDER.filter((c) => grouped[c].length > 0)

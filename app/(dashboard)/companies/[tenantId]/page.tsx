@@ -1,4 +1,5 @@
 import { gabTenantRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Card, CardContent } from '@/components/ui/molecules';
 import { AlertCircle } from 'lucide-react';
 import { Text } from '@/components/ui/atoms';
@@ -10,6 +11,7 @@ export default async function CompanyDetailPage({
 }: {
   params: Promise<{ tenantId: string }>;
 }) {
+  await featureGuard('platform.tenants');
   const { tenantId } = await params;
 
   let tenant: GabTenant | null = null;

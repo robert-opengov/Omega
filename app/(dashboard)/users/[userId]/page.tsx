@@ -1,4 +1,5 @@
 import { gabTenantRepo, gabUserRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Card, CardContent } from '@/components/ui/molecules';
 import { AlertCircle } from 'lucide-react';
 import { Text } from '@/components/ui/atoms';
@@ -10,6 +11,7 @@ export default async function UserDetailPage({
 }: {
   params: Promise<{ userId: string }>;
 }) {
+  await featureGuard('platform.users');
   const { userId } = await params;
 
   let user: GabUser | null = null;

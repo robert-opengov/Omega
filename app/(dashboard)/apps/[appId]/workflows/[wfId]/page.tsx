@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { gabAppRoleRepo, gabFieldRepo, gabTableRepo, gabWorkflowRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Alert } from '@/components/ui/molecules';
 import { WorkflowBuilder } from '@/components/_custom/WorkflowBuilder';
 
@@ -8,6 +9,7 @@ export default async function WorkflowEditorPage({
 }: {
   params: Promise<{ appId: string; wfId: string }>;
 }) {
+  await featureGuard('app.workflows');
   const { appId, wfId } = await params;
 
   const [workflowRes, tablesRes, rolesRes] = await Promise.allSettled([

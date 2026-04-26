@@ -1,4 +1,5 @@
 import { gabNotificationRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Card, CardContent, MetricCard, PageHeader } from '@/components/ui/molecules';
 import { AlertCircle } from 'lucide-react';
 import { Text } from '@/components/ui/atoms';
@@ -12,6 +13,7 @@ export default async function NotificationLogsPage({
   params: Promise<{ appId: string }>;
   searchParams: Promise<{ status?: string; notificationId?: string; offset?: string; limit?: string }>;
 }) {
+  await featureGuard('app.notifications');
   const { appId } = await params;
   const sp = await searchParams;
 

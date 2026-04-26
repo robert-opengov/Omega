@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Alert } from '@/components/ui/molecules';
 import { gabWorkflowRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { TaskInboxPanel } from '../_components/TaskInboxPanel';
 
 export default async function WorkflowTasksPage({
@@ -9,6 +10,7 @@ export default async function WorkflowTasksPage({
 }: {
   params: Promise<{ appId: string }>;
 }) {
+  await featureGuard('app.workflows');
   const { appId } = await params;
 
   const [workflowsRes, tasksRes] = await Promise.allSettled([

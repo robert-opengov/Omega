@@ -1,4 +1,5 @@
 import { gabRelationshipRepo, gabTableRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Card, CardContent } from '@/components/ui/molecules';
 import { Text } from '@/components/ui/atoms';
 import { AlertCircle } from 'lucide-react';
@@ -9,6 +10,7 @@ export default async function RelationshipsPage({
 }: {
   params: Promise<{ appId: string }>;
 }) {
+  await featureGuard('app.relationships');
   const { appId } = await params;
 
   const [relationshipsResult, tablesResult] = await Promise.allSettled([

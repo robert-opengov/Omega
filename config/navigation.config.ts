@@ -7,9 +7,11 @@
  *   - Sidebar uses `children`, `badge`, `group`; ignores `navbarLabel`.
  *   - CommandPalette uses `flattenNavItems()` to get a searchable flat list.
  */
-import { LayoutDashboard, Settings, Blocks, Bot, UserCircle, LogOut, AppWindow, Package, Building2, Users } from 'lucide-react';
+import { LayoutDashboard, Settings, Blocks, Bot, UserCircle, LogOut, AppWindow, Package, Building2, Users, ToggleRight } from 'lucide-react';
 import type { ComponentType } from 'react';
 import type { AppFeatures } from '@/config/app.config';
+import { isModuleEnabled } from '@/lib/features';
+import { modulesConfig, type ModulePath, type ModulesConfig } from '@/config/modules.config';
 
 export type NavIcon = ComponentType<{ className?: string; size?: number }>;
 
@@ -24,8 +26,14 @@ export interface NavItem {
   divider?: boolean;
   /** Where this item appears: 'navbar', 'sidebar', or 'both' (default) */
   showIn?: 'navbar' | 'sidebar' | 'both';
-  /** Only show this item when the given feature flag is enabled */
-  featureFlag?: keyof AppFeatures;
+  /**
+   * Only show this item when the given feature flag is enabled.
+   * Accepts either:
+   *   - a key from `appConfig.features` (cosmetic UI flag), or
+   *   - a dotted-path module flag from `modulesConfig` (e.g. `platform.tenants`).
+   * The helper `isFeatureEnabled` resolves both forms transparently.
+   */
+  featureFlag?: keyof AppFeatures | ModulePath;
 
   /** Nested sub-navigation items (rendered by Sidebar only) */
   children?: NavItem[];
@@ -117,16 +125,19 @@ export const navigationItems: NavItem[] = [
     href: '/templates',
     label: 'Templates',
     icon: Package,
+    featureFlag: 'platform.templates',
   },
   {
     href: '/ui',
     label: 'UI Showcase',
     icon: Blocks,
+    featureFlag: 'platform.uiShowcase',
   },
   {
     href: '/ai-builder',
     label: 'AI Builder',
     icon: Bot,
+    featureFlag: 'platform.aiBuilder',
   },
   {
     href: '/companies',
@@ -135,6 +146,7 @@ export const navigationItems: NavItem[] = [
     group: 'Platform',
     divider: true,
     roles: ['admin', 'superadmin'],
+    featureFlag: 'platform.tenants',
   },
   {
     href: '/users',
@@ -142,6 +154,7 @@ export const navigationItems: NavItem[] = [
     icon: Users,
     group: 'Platform',
     roles: ['admin', 'superadmin'],
+    featureFlag: 'platform.users',
   },
   {
     href: '/settings',
@@ -149,6 +162,13 @@ export const navigationItems: NavItem[] = [
     icon: Settings,
     divider: true,
     roles: ['admin', 'superadmin'],
+  },
+  {
+    href: '/settings/modules',
+    label: 'Module Flags',
+    icon: ToggleRight,
+    roles: ['admin', 'superadmin'],
+    showIn: 'sidebar',
   },
 ];
 
@@ -173,10 +193,31 @@ export function isRouteActive(href: string, pathname: string): boolean {
 /**
  * Checks whether a nav item's feature flag (if any) is enabled.
  * Items without a `featureFlag` are always visible.
+ *
+ * Resolution order:
+ *   1. If the flag matches a key in `AppFeatures` (cosmetic UI toggles),
+ *      use that boolean.
+ *   2. Otherwise treat it as a dotted module path. When `modules` is
+ *      supplied (from `useModuleFlags()` — the effective tree with
+ *      cookie overrides applied), resolve against it. Otherwise fall
+ *      back to the static baseline so server-rendered code continues to
+ *      work without an explicit modules tree.
  */
-export function isFeatureEnabled(item: NavItem, features: AppFeatures): boolean {
+export function isFeatureEnabled(
+  item: NavItem,
+  features: AppFeatures,
+  modules?: ModulesConfig,
+): boolean {
   if (!item.featureFlag) return true;
-  return !!features[item.featureFlag];
+  if (item.featureFlag in features) {
+    return !!features[item.featureFlag as keyof AppFeatures];
+  }
+  if (modules) {
+    const [cat, leaf] = item.featureFlag.split('.') as [keyof ModulesConfig, string];
+    const group = modules[cat] as unknown as Record<string, boolean> | undefined;
+    return Boolean(group?.[leaf]);
+  }
+  return isModuleEnabled(item.featureFlag);
 }
 
 /**
@@ -188,13 +229,19 @@ export function flattenNavItems(
   items: NavItem[],
   features: AppFeatures,
   userRole?: string,
+  modules?: ModulesConfig,
 ): NavItem[] {
   return items.flatMap((item) => {
-    if (!isFeatureEnabled(item, features)) return [];
+    if (!isFeatureEnabled(item, features, modules)) return [];
     if (item.roles?.length && !item.roles.includes(userRole ?? '')) return [];
-    return [item, ...flattenNavItems(item.children ?? [], features, userRole)];
+    return [item, ...flattenNavItems(item.children ?? [], features, userRole, modules)];
   });
 }
+
+// `modulesConfig` is re-exported indirectly via `isFeatureEnabled` callers;
+// keep the import live so future refactors that drop the fallback don't
+// have to re-import.
+void modulesConfig;
 
 /**
  * Extracts all route prefixes from the nav tree that require authentication.

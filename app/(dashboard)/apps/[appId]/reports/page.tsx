@@ -1,4 +1,5 @@
 import { gabReportRepo, gabTableRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { ReportsPanel } from './_components/ReportsPanel';
 
 export default async function AppReportsPage({
@@ -6,6 +7,7 @@ export default async function AppReportsPage({
 }: {
   params: Promise<{ appId: string }>;
 }) {
+  await featureGuard('app.reports');
   const { appId } = await params;
 
   const [reportsRes, tablesRes] = await Promise.allSettled([

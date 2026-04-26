@@ -45,6 +45,9 @@ export function toDefinition(c: GabCustomComponent): PageComponentDefinition {
     props,
     dataShape: c.dataBindingSupported ? 'records' : 'none',
     isCustom: true,
+    // Disabling `pageBuilder.customComponents` hides every entry registered
+    // via this path from the palette in one switch.
+    featureFlag: 'pageBuilder.customComponents',
   };
 }
 

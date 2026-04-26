@@ -36,4 +36,21 @@ describe('pageComponentRegistry', () => {
     expect(pageComponentRegistry.has('not-a-real-type')).toBe(false);
     expect(pageComponentRegistry.resolveType('not-a-real-type')).toBe('not-a-real-type');
   });
+
+  it('annotates data widgets with the app.tables feature flag', () => {
+    // Disabling app.tables hides every record-bound widget from the palette
+    // without removing the registration (so existing pages still render).
+    for (const type of ['metric-card', 'data-table', 'detail-header', 'kanban-board', 'gantt-chart', 'timeline']) {
+      const def = pageComponentRegistry.getOrThrow(type);
+      expect(def.featureFlag).toBe('app.tables');
+    }
+  });
+
+  it('annotates the form-embed with app.forms', () => {
+    expect(pageComponentRegistry.getOrThrow('dynamic-form').featureFlag).toBe('app.forms');
+  });
+
+  it('annotates chart with app.reports', () => {
+    expect(pageComponentRegistry.getOrThrow('chart').featureFlag).toBe('app.reports');
+  });
 });

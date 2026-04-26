@@ -2,6 +2,7 @@ import { AlertCircle } from 'lucide-react';
 import { Text } from '@/components/ui/atoms';
 import { Card, CardContent } from '@/components/ui/molecules';
 import { gabAppRepo, gabSandboxRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { BackupsPanel } from './_components/BackupsPanel';
 
 export default async function AppSettingsBackupsPage({
@@ -9,6 +10,7 @@ export default async function AppSettingsBackupsPage({
 }: {
   params: Promise<{ appId: string }>;
 }) {
+  await featureGuard('app.settings');
   const { appId } = await params;
 
   const [appResult, backupsResult] = await Promise.allSettled([

@@ -16,7 +16,6 @@ import {
 
 let registered = false;
 
-/* eslint-disable max-lines-per-function */
 export function registerBuiltins(): void {
   if (registered) return;
   registered = true;
@@ -417,15 +416,19 @@ export function registerBuiltins(): void {
         },
       ],
       dataShape: 'none',
+      featureFlag: 'app.forms',
     },
 
     // ─── Data widgets ─────────────────────────────────────────────────
+    // Every widget here binds to records/scalar from a table and is hidden
+    // when the tables module is off. Charts further depend on `app.reports`.
     {
       type: 'metric-card',
       label: 'Metric card',
       category: 'data',
       icon: 'Activity',
       aliases: ['mol_metric_card'],
+      featureFlag: 'app.tables',
       defaultProps: { label: 'KPI', value: '0', aggregation: 'count' },
       props: [
         { key: 'label', label: 'Label', editor: 'string', defaultValue: 'KPI' },
@@ -465,6 +468,7 @@ export function registerBuiltins(): void {
       category: 'data',
       icon: 'Table',
       aliases: ['org_data_grid'],
+      featureFlag: 'app.tables',
       defaultProps: { title: 'Records', pageSize: 10 },
       props: [
         { key: 'title', label: 'Title', editor: 'string', defaultValue: 'Records' },
@@ -479,6 +483,7 @@ export function registerBuiltins(): void {
       category: 'data',
       icon: 'Filter',
       aliases: ['org_filter_builder'],
+      featureFlag: 'app.tables',
       defaultProps: {},
       props: [],
       dataShape: 'none',
@@ -489,6 +494,7 @@ export function registerBuiltins(): void {
       category: 'data',
       icon: 'PanelTop',
       aliases: ['org_detail_header'],
+      featureFlag: 'app.tables',
       defaultProps: { title: 'Record', titleField: 'name' },
       props: [
         { key: 'title', label: 'Title (when unbound)', editor: 'string', defaultValue: 'Record' },
@@ -510,6 +516,7 @@ export function registerBuiltins(): void {
       category: 'data',
       icon: 'Columns3',
       aliases: ['org_kanban'],
+      featureFlag: 'app.tables',
       defaultProps: { columnField: 'status', titleField: 'name' },
       props: [
         { key: 'columnField', label: 'Group by field', editor: 'string', defaultValue: 'status' },
@@ -524,6 +531,7 @@ export function registerBuiltins(): void {
       category: 'data',
       icon: 'BarChart2',
       aliases: ['org_gantt'],
+      featureFlag: 'app.tables',
       defaultProps: {},
       props: [],
       dataShape: 'records',
@@ -534,6 +542,7 @@ export function registerBuiltins(): void {
       category: 'data',
       icon: 'List',
       aliases: ['org_timeline'],
+      featureFlag: 'app.tables',
       defaultProps: { titleField: 'name', dateField: 'created_at' },
       props: [
         { key: 'titleField', label: 'Title field', editor: 'string', defaultValue: 'name' },
@@ -562,6 +571,7 @@ export function registerBuiltins(): void {
       category: 'charts',
       icon: 'BarChart3',
       aliases: ['org_chart_card'],
+      featureFlag: 'app.reports',
       defaultProps: { title: 'Chart', kind: 'bar', dataKey: 'value' },
       props: [
         { key: 'title', label: 'Title', editor: 'string', defaultValue: 'Chart' },

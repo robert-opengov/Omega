@@ -1,4 +1,5 @@
 import { gabJobRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, PageHeader } from '@/components/ui/molecules';
 import { AlertCircle } from 'lucide-react';
 import { Text } from '@/components/ui/atoms';
@@ -10,6 +11,7 @@ export default async function AppJobsPage({
 }: {
   params: Promise<{ appId: string }>;
 }) {
+  await featureGuard('app.jobs');
   const { appId } = await params;
 
   let failed: { items: FailedJob[]; total: number } = { items: [], total: 0 };

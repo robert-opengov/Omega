@@ -6,6 +6,7 @@ import { Providers } from '@/providers';
 import { appConfig } from '@/config/app.config';
 import { authConfig } from '@/config/auth.config';
 import { hexToHsl, DEFAULT_THEME } from '@/lib/utils';
+import { getEffectiveModules } from '@/lib/feature-overrides';
 
 const dmSans = DM_Sans({
   variable: '--font-dm-sans',
@@ -75,8 +76,9 @@ function buildThemeStyle(): Record<string, string> {
   return vars;
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const themeStyle = buildThemeStyle() as React.CSSProperties;
+  const modules = await getEffectiveModules();
 
   return (
     <html lang="en" suppressHydrationWarning style={themeStyle}>
@@ -93,6 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           loginMode={authConfig.loginMode}
           enableSilentLogin={authConfig.enableSilentLogin}
           enableSignup={appConfig.features.enableSignup}
+          modules={modules}
         >
           <NavigationProgress />
           {children}

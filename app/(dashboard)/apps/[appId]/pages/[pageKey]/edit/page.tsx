@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { gabPageRepo, gabCustomComponentRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { tryGetAppContext } from '@/lib/core/app-context';
 import { PageEditorClient } from '@/components/_custom/page-builder/PageEditorClient';
 
@@ -8,6 +9,7 @@ export default async function PageEditorPage({
 }: {
   params: Promise<{ appId: string; pageKey: string }>;
 }) {
+  await featureGuard('app.pages');
   const { appId, pageKey } = await params;
   const ctx = await tryGetAppContext(appId);
   if (!ctx) notFound();

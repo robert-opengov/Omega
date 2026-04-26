@@ -1,4 +1,5 @@
 import { gabFormRepo, gabTableRepo } from '@/lib/core';
+import { featureGuard } from '@/lib/feature-guards';
 import { FormsListPanel } from './_components/FormsListPanel';
 
 export default async function AppFormsPage({
@@ -6,6 +7,7 @@ export default async function AppFormsPage({
 }: {
   params: Promise<{ appId: string }>;
 }) {
+  await featureGuard('app.forms');
   const { appId } = await params;
 
   const [formsRes, tablesRes] = await Promise.allSettled([
